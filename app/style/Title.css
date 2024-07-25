@@ -1,0 +1,45 @@
+.containerTitle{
+  width: 100%;
+  padding: 0;
+}
+.title{
+    display: flex;
+    align-items: center;
+    padding: 100px 100px 0px 250px;
+    justify-content: center;
+    box-sizing: border-box;
+    text-align: center;
+   }
+   .title h3{
+    padding-top: 17px;
+   }
+   .titleBtn{
+    background-color: #00CC33;
+   }
+  .tableContainer{
+    padding: 90px 190px 20px 190px;
+    text-align: center;
+    align-items: center
+  }
+  .tableContainer h2 {
+    text-align: center;
+    padding-top: 50px;
+  }
+  .img-fluid{
+    border-radius: 15px;
+  }
+  .table h4{
+    font-size: 18px;
+  }
+  .slide{
+    padding-top: 80px;
+    background-color: #F7F8F9;
+    width: 100%;
+  }
+.slideTitle{
+  text-align: center;
+}
+
+  .slideImage{
+    padding: 50px 0px 40px 170px ;
+  }

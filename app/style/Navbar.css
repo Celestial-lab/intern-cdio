@@ -1,0 +1,44 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFAF0;
+    padding: 0 20px;
+  }
+  
+  .logo {
+    margin-bottom: 10px;
+    padding-left: 15px;
+    left: 20px;
+    font-size: 25px;
+    display: flex;
+    align-items: center;
+  }
+  .btn{
+    background-color: #00CC33;
+  }
+  .btn:hover{
+    background-color: #00CC33;
+  }
+  
+  .menu {
+    font-size: 17px;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+  }
+  .menu a {
+    text-decoration: none;
+  }
+  
+  .menu a:hover {
+    text-decoration: none;
+  }
+  
+  .menu a:focus {
+    text-decoration: none;
+  }
+  
+  .buttonContainer button {
+    margin: 0 37px;
+  }
