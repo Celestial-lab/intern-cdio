@@ -1,7 +1,9 @@
 'use client'
 
-export default function HomePage() {
+import HomePage from "@/views/screens/HomePage";
+
+export default function callHomePage() {
   return (
-    <></>
+    <HomePage />
   );
 }
