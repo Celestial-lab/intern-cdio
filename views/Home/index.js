@@ -1,7 +1,9 @@
+'use client'
+
 import React from "react";
-import Navbar from "@/app/page/Navbar";
-import Title from "@/app/page/Title";
-import FooterNavbar from "@/app/page/FooterNavbar";
+import Navbar from "@/views/Home/Navbar";
+import Title from "@/views/Home/Title";
+import FooterNavbar from "@/views/Home/FooterNavbar";
 
 const HomePage = () => {
 return(
