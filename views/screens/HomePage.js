@@ -1,14 +1,21 @@
+'use client'
+
 import React from "react";
-import { Image, Row, Col, Card, Button , Typography  } from "antd";
+import { Row, Col, Card, Button , Typography  } from "antd";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {InfoCircleOutlined} from '@ant-design/icons';
 import "@/views/style/Title.css";
+import Navbar from "../components/Navbar";
+import FooterNavbar from "../components/FooterNavbar";
 
 
 const { Text, Paragraph } = Typography;
 
-const Title = () => {
+const Home = () => {
        return(  
+        <>
+        <Navbar />
+
        <div className="containerTitle">
         <div className="title">
           <Row>
@@ -170,6 +177,8 @@ const Title = () => {
        <div>
        </div>
        </div>
+         <FooterNavbar />
+         </>
        )
 }
-export default Title;
+export default Home;

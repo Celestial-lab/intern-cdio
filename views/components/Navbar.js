@@ -17,7 +17,7 @@ const Navbar = () => {
       </div>
       <Menu mode="horizontal" className="menu">
         <Menu.Item key="home" icon={<HomeOutlined />}>
-          <Link href="/">Product</Link>
+          <Link href="/Product">Product</Link>
         </Menu.Item>
         <Menu.Item key="about" icon={<InfoCircleOutlined />}>
           <Link href="/about">Blogs</Link>
