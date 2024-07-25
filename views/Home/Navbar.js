@@ -3,7 +3,7 @@ import { Layout, Menu, Button, Image } from 'antd';
 import { HomeOutlined, InfoCircleOutlined, ContactsOutlined } from '@ant-design/icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Link from 'next/link';
-import "@/app/style/Navbar.css";
+import "@/views/style/Navbar.css";
 
 const { Header } = Layout;
 

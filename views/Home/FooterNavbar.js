@@ -1,5 +1,5 @@
 import React from "react";
-import "@/app/style/FooterNavbar.css";
+import "@/views/style/FooterNavbar.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const FooterNavbar = () => {

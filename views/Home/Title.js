@@ -2,7 +2,7 @@ import React from "react";
 import { Image, Row, Col, Card, Button , Typography  } from "antd";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {InfoCircleOutlined} from '@ant-design/icons';
-import "@/app/style/Title.css";
+import "@/views/style/Title.css";
 
 
 const { Text, Paragraph } = Typography;
