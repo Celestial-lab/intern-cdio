@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import { Layout, Menu, Button, Image } from 'antd';
 import { HomeOutlined, InfoCircleOutlined, ContactsOutlined } from '@ant-design/icons';
@@ -26,9 +27,26 @@ const Navbar = () => {
           <Link href="/contact">Auction results</Link>
         </Menu.Item>
       </Menu>
-      <div className="buttonContainer">
-      <button type="button" class="btn">Connect Wallet</button>
+      <div className="connectwallet">
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          window.location.href = '/page-url';
+        }}
+        style={{
+          backgroundColor: '#22C55E',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          height: '30px',
+          width : '130px'
+        }}
+      >
+        Connect Wallet
+      </button>
       </div>
+
     </Header>
   );
 }

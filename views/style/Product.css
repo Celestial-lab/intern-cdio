@@ -1,0 +1,55 @@
+.tableGif .ant-card {
+    text-align: center;
+  }
+  
+  .tableGif .ant-card-body {
+    padding: 16px;
+  }
+  
+  .tableGif .ant-typography {
+    margin-bottom: 8px;
+  }
+  
+  .tableGif p {
+    margin: 0;
+    color: #888;
+  }
+
+  .image-container {
+    position: relative;
+  }
+  
+  .card-image {
+    width: 100%;
+    height: auto;
+  }
+  
+  .hover-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .hover-card:hover .hover-button,
+  .hover-card:hover .card-image {
+    opacity: 0.45;
+  }
+  
+  .custom-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .image-container:hover .custom-button {
+    opacity: 1; 
+  }
+  
+  

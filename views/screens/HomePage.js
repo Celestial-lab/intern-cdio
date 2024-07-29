@@ -7,6 +7,7 @@ import {InfoCircleOutlined} from '@ant-design/icons';
 import "@/views/style/Title.css";
 import Navbar from "../components/Navbar";
 import FooterNavbar from "../components/FooterNavbar";
+import Link from "next/link";
 
 
 const { Text, Paragraph } = Typography;
@@ -27,7 +28,25 @@ const Home = () => {
                 making it easy to search. This is a competitive and vibrant trading environment, 
                 bringing many opportunities to both buyers and sellers.
               </p>
-              <button type="button" class="btn">Connect Wallet</button>
+              <Link href="/page-url" passHref>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          window.location.href = '/page-url';
+        }}
+        style={{
+          backgroundColor: '#22C55E',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          height : '38px',
+          width : '110px'
+        }}
+      >
+        Connect Wallet
+      </button>
+    </Link>
             </Col>
             <Col span={12}>
             <Card className="image">
