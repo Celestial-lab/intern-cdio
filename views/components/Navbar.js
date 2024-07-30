@@ -1,5 +1,4 @@
-
-
+'use client'
 import React from 'react';
 import { Layout, Menu, Button, Image } from 'antd';
 import { HomeOutlined, InfoCircleOutlined, ContactsOutlined } from '@ant-design/icons';
@@ -32,7 +31,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/connect-wallet';
+          window.location.href = '/page-url';
         }}
         style={{
           backgroundColor: '#22C55E',
@@ -47,6 +46,7 @@ const Navbar = () => {
         Connect Wallet
       </button>
       </div>
+
     </Header>
   );
 }
