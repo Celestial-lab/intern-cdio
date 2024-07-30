@@ -31,7 +31,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/page-url';
+          window.location.href = '/connect-wallet';
         }}
         style={{
           backgroundColor: '#22C55E',
