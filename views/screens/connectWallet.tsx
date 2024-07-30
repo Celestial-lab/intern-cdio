@@ -51,7 +51,9 @@ const ConnectWallet = () => {
                       <Form.Item name="address" label="Wallet address*">
                         <Input />
                       </Form.Item>
-                      <Button className='buttonConnect'> Connect Wallet</Button>
+                      <Button onClick={(e) => {e.preventDefault();
+                        window.location.href = '/settings/profile';
+                        }} className='buttonConnect'> Connect Wallet</Button>
                   </Form>
                   </div>
                 </Col>

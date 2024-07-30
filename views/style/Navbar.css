@@ -38,7 +38,16 @@
   .menu a:focus {
     text-decoration: none;
   }
-  
-  .buttonContainer button {
-    margin: 0 37px;
+
+  .connectwallet{
+    width: 150px; 
+    height: 100px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 7px;
+
+  }
+  .connectwallet button {
+    line-height: normal;
   }
