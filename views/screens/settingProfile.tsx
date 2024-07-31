@@ -10,7 +10,6 @@ import {
   FileOutlined,
   HistoryOutlined,
   MailFilled,
-  MailOutlined,
   ShoppingCartOutlined,
   UserOutlined,
   } from '@ant-design/icons';
@@ -24,24 +23,23 @@ const { Header, Content, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
 function getItem(
-    label: React.ReactNode,
-    key: React.Key,
-    icon?: React.ReactNode,
-    children?: MenuItem[],
-  ): MenuItem {
-    return {
-      key,
-      icon,
-      children,
-      label,
-    } as MenuItem;
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  href?: string,
+): MenuItem {
+  return {
+    key,
+    icon,
+    label: <a href={href}>{label}</a>,
+  } as MenuItem;
 }
 
 const items: MenuItem[] = [
-  getItem('Profile', 'profile', <AppstoreOutlined />),
-  getItem('Cart', 'cart', <ShoppingCartOutlined />),
-  getItem('Auction History', 'auctionHistory', <HistoryOutlined />),
-  getItem('My Document', 'myDocument', <FileOutlined />,)
+  getItem('Profile', 'profile', <AppstoreOutlined />, '/settings/profile'),
+  getItem('Cart', 'cart', <ShoppingCartOutlined />, '/settings/cart'),
+  getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/auction-history'),
+  getItem('My Document', 'myDocument', <FileOutlined />, '/my-document'),
 ];
 
 
