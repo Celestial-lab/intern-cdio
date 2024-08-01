@@ -21,7 +21,7 @@ const Navbar = () => {
           <Link href="/Product">Product</Link>
         </Menu.Item>
         <Menu.Item key="about" icon={<InfoCircleOutlined />}>
-          <Link href="/about">Blogs</Link>
+          <Link href="/Blogs/Technology">Blogs</Link>
         </Menu.Item>
         <Menu.Item key="contact" icon={<ContactsOutlined />}>
           <Link href="/contact">Auction results</Link>
