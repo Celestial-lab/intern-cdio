@@ -51,3 +51,6 @@
     line-height: normal;
     font-size: inherit;
   }
+  .menu .ant-menu-item::after{
+    display: none;
+  }
