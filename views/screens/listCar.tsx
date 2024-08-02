@@ -38,7 +38,7 @@ function getItem(
 const items: MenuItem[] = [
   getItem('Profile', 'profile', <AppstoreOutlined />, '/settings/profile'),
   getItem('Cart', 'cart', <ShoppingCartOutlined />, '/settings/cart'),
-  getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/auction-history'),
+  getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/settings/auctionHistory'),
   getItem('My Document', 'myDocument', <FileOutlined />, '/my-document'),
 ];
 
