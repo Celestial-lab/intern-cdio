@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Row, Col, Button, Form, Input, } from "antd";
-import "@/views/style/connectWallet.css";
+import "@/views/style/ConnectWallet.css";
 
 const ConnectWallet = () => {
 
@@ -17,18 +17,16 @@ const ConnectWallet = () => {
               <Row className='row1'>
                 <div className='divRow1'>
                   <Row className='row11'>
-                    <div className='divLogo'>
-                      <img className='imageLogo' src='./logo-ne.png'></img>
-                    </div>
+                      <img className='imageLogo' src='./Celestial-wbg.png'></img>
                   </Row>
                   <Row className='row12'>
                     <Col className='colne1' span={7}></Col>
 
                     <Col className='colSlogan' span={10}>
-                      <div className='divSlogan'>
-                      <p><h2 className="alfa">Join our community</h2>
-                      <h5>Start your journey with product</h5></p>
-                      </div>
+                        <div className='divSlogan'>
+                            <h2>Join our community</h2>
+                            <h5>Start your journey with product</h5>
+                        </div>
                     </Col>
 
                     <Col className='colne3' span={7}></Col>

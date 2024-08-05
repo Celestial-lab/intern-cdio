@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Avatar, Button, Card, Col, Flex, Form, Row, Switch, type MenuProps } from 'antd';
+import { Avatar, Button, Card, Col, Row,  type MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import {
   AppstoreOutlined,
@@ -12,7 +12,7 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
   } from '@ant-design/icons';
-import "@/views/style/listCart.css";
+import "@/views/style/ListCart.css";
 import { Footer } from 'antd/es/layout/layout';
 import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 
@@ -39,7 +39,7 @@ const items: MenuItem[] = [
   getItem('Profile', 'profile', <AppstoreOutlined />, '/settings/profile'),
   getItem('Cart', 'cart', <ShoppingCartOutlined />, '/settings/cart'),
   getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/settings/auctionHistory'),
-  getItem('My Document', 'myDocument', <FileOutlined />, '/my-document'),
+  getItem('My Document', 'myDocument', <FileOutlined />, '/settings/myDocument'),
 ];
 
 const actions: React.ReactNode[] = [
