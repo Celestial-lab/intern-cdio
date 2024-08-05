@@ -1,56 +1,74 @@
+/* Navbar.css */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #FFFAF0;
-    padding-left: 20px;
-  }
-  
-  .logo {
-    margin-bottom: 10px;
-    padding-left: 15px;
-    left: 20px;
-    font-size: 25px;
-    display: flex;
-    align-items: center;
-  }
-  .btn{
-    background-color: #00CC33;
-  }
-  .btn:hover{
-    background-color: #00CC33;
-  }
-  
-  .menu {
-    font-size: 17px;
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-  }
-  .menu a {
-    text-decoration: none;
-  }
-  
-  .menu a:hover {
-    text-decoration: none;
-  }
-  
-  .menu a:focus {
-    text-decoration: none;
-  }
-  .connectwallet{
-    width: 150px; 
-    height: 100px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 7px;
+  background-color: #ffffff; /* Set the background color for the header */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  }
-  .connectwallet button {
-    line-height: normal;
-    font-size: inherit;
-  }
-  .menu .ant-menu-item::after{
-    display: none;
-  }
+.logo {
+  margin-right: 20px; /* Space between logo and menu */
+}
+
+.logo img {
+  display: block;
+  width: 65px;
+  height: auto;
+}
+
+.menu {
+  flex: 1; /* Allow menu to take available space */
+  display: flex;
+  justify-content: center; /* Center menu items */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu .ant-menu-item {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.menu .ant-menu-item a {
+  color: #556987;
+  text-decoration: none; /* Remove underline */
+  padding: 10px; /* Add padding if needed for spacing */
+  border-bottom: none; /* Ensure no default underline */
+}
+
+.menu .ant-menu-item:hover a {
+  
+  border-bottom: none; /* Ensure no underline on hover */
+}
+
+.menu .ant-menu-item-selected a {
+  color: #22C55E; /* Set text color when selected */
+  border-bottom: none; /* Ensure no underline for selected item */
+}
+
+.connectwallet {
+  margin-left: 20px; /* Space between menu and connect wallet button */
+}
+
+.connectwallet button {
+  background-color: #22C55E; /* Matching color with highlight */
+  color: #fff; /* White text color */
+  border: none;
+  padding: 6px 12px; /* Smaller padding for reduced height */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; /* Adjusted font size */
+  cursor: pointer;
+  line-height: 1.5; /* Adjust line-height for vertical centering */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.connectwallet button:hover {
+  background-color: #1aab4d; /* Darker shade on hover */
+}
+
+.connectwallet button:focus {
+  outline: none; /* Remove default focus outline */
+}
