@@ -12,42 +12,31 @@ const Navbar = () => {
   return (
     <Header className="header">
       <div className="logo">
-         <img src="/Image1.png" 
-         class="img-fluid" 
-         width="150" height="100" /> 
+         <img src="/CeLestial-wbg.png" alt="Logo" className="img-fluid" width="150" height="100" /> 
       </div>
       <Menu mode="horizontal" className="menu">
-        <Menu.Item key="home" icon={<HomeOutlined />}>
+        <Menu.Item key="home">
           <Link href="/products">Product</Link>
         </Menu.Item>
-        <Menu.Item key="about" icon={<InfoCircleOutlined />}>
+        <Menu.Item key="about">
           <Link href="/Blogs/Technology">Blogs</Link>
         </Menu.Item>
-        <Menu.Item key="contact" icon={<ContactsOutlined />}>
+        <Menu.Item key="contact">
           <Link href="/contact">Auction results</Link>
         </Menu.Item>
       </Menu>
       <div className="connectwallet">
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          window.location.href = '/connect-wallet';
-        }}
-        style={{
-          backgroundColor: '#22C55E',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          height: '30px',
-          width : '130px'
-        }}
-      >
-        Connect Wallet
-      </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            window.location.href = '/connect-wallet';
+          }}
+        >
+          Connect Wallet
+        </button>
       </div>
-
     </Header>
   );
 }
+
 export default Navbar;

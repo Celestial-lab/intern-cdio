@@ -28,11 +28,11 @@ const Home = () => {
                 making it easy to search. This is a competitive and vibrant trading environment, 
                 bringing many opportunities to both buyers and sellers.
               </p>
-              <Link href="/page-url" passHref>
+              <Link href="/connect-wallet" passHref>
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/page-url';
+          window.location.href = '/connect-wallet';
         }}
         style={{
           backgroundColor: '#22C55E',
@@ -50,9 +50,9 @@ const Home = () => {
             </Col>
             <Col span={12}>
             <Card className="image">
-            <img src="/Image1.png" 
+            <img src="/CeLestial-wbg.png" 
          class="img-fluid" 
-           width="100%" height="100%" /> 
+           width="200px" height="auto" /> 
   
             </Card>
             </Col>

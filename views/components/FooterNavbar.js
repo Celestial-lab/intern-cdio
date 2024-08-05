@@ -24,7 +24,7 @@ const FooterNavbar = () => {
             <div className="input-group">
               <input className="form-control" type="search" placeholder="Search" aria-label="Search" />
               <div className="input-group-append">
-                <button className="btn" type="submit">Search</button>
+                <button className="btn-search" type="submit">Search</button>
               </div>
             </div>
           </form>
