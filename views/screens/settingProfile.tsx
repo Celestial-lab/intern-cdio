@@ -13,7 +13,7 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
   } from '@ant-design/icons';
-import "@/views/style/settingProfile.css";
+import "@/views/style/SettingProfile.css";
 import { Footer } from 'antd/es/layout/layout';
 
 
@@ -39,7 +39,7 @@ const items: MenuItem[] = [
   getItem('Profile', 'profile', <AppstoreOutlined />, '/settings/profile'),
   getItem('Cart', 'cart', <ShoppingCartOutlined />, '/settings/cart'),
   getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/settings/auctionHistory'),
-  getItem('My Document', 'myDocument', <FileOutlined />, '/my-document'),
+  getItem('My Document', 'myDocument', <FileOutlined />, '/settings/myDocument'),
 ];
 
 

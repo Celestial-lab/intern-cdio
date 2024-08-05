@@ -1,4 +1,4 @@
-import Cart from '@/views/screens/listCar'
+import Cart from '@/views/screens/ListCar'
 import React from 'react'
 
 export default function callCart() {
