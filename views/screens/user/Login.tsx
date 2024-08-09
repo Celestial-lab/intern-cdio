@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { Row, Col, Button, Form, Input, } from "antd";
-import "@/views/style/ConnectWallet.css";
+import "@/views/style/Login.css";
 
-const ConnectWallet = () => {
+const Login = () => {
 
   const [form] = Form.useForm();
 
@@ -17,7 +17,7 @@ const ConnectWallet = () => {
               <Row className='row1'>
                 <div className='divRow1'>
                   <Row className='row11'>
-                      <img className='imageLogo' src='./Celestial-wbg.png'></img>
+                      <img className='imageLogo' src='./CeLestial-wbg.png'></img>
                   </Row>
                   <Row className='row12'>
                     <Col className='colne1' span={7}></Col>
@@ -51,8 +51,8 @@ const ConnectWallet = () => {
                       </Form.Item>
                       <Button className='buttonConnect' onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/settings/profile';
-        }}> Connect Wallet</Button>
+          window.location.href = '/user/settings/Profile';
+        }}> Login</Button>
                   </Form>
                   </div>
                 </Col>
@@ -78,4 +78,4 @@ const ConnectWallet = () => {
   );
 };
 
-export default ConnectWallet;
+export default Login;

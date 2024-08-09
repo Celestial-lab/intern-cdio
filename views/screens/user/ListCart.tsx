@@ -36,11 +36,11 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem('Profile', 'profile', <AppstoreOutlined />, '/settings/profile'),
-  getItem('Cart', 'cart', <ShoppingCartOutlined />, '/settings/cart'),
-  getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/settings/auctionHistory'),
-  getItem('My Document', 'myDocument', <FileOutlined />, '/settings/myDocument'),
-];
+    getItem('Profile', 'profile', <AppstoreOutlined />, '/user/settings/Profile'),
+    getItem('Cart', 'cart', <ShoppingCartOutlined />, '/user/settings/Cart'),
+    getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/user/settings/AuctionHistory'),
+    getItem('My Document', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
+  ];
 
 const actions: React.ReactNode[] = [
     <EditOutlined key="edit" />,

@@ -49,11 +49,11 @@
   border-bottom: none; /* Ensure no underline for selected item */
 }
 
-.connectwallet {
+.login {
   margin-left: 20px; /* Space between menu and connect wallet button */
 }
 
-.connectwallet button {
+.login button {
   background-color: #22C55E; /* Matching color with highlight */
   color: #fff; /* White text color */
   border: none;
@@ -65,10 +65,105 @@
   transition: background-color 0.3s ease; /* Smooth transition for hover effect */
 }
 
-.connectwallet button:hover {
-  background-color: #1aab4d; /* Darker shade on hover */
+.login button:hover {
+  background-color: #1aab4d; 
 }
 
-.connectwallet button:focus {
+
+
+
+.login .ant-dropdown-menu {
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+
+
+.login .ant-dropdown-menu-item:hover a {
+  color: #22C55E;
+}
+
+/* Dropdown Menu Customization */
+.login-dropdown {
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-dropdown button {
+  background-color: transparent;
+  color: #556987;
+  border: none;
+  text-align: left;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.login-dropdown button:hover {
+  background-color: #22C55E;
+  color: #ffffff;
+}
+
+.login-dropdown button:focus {
   outline: none; /* Remove default focus outline */
+}
+
+.login {
+  margin-left: 20px;
+}
+
+.login button {
+  background-color: #22C55E;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1.5;
+  transition: background-color 0.3s ease;
+}
+
+.login button:hover {
+  background-color: #1aab4d;
+}
+
+.login button:focus {
+  outline: none;
+}
+
+.login {
+  margin-left: 20px;
+  display: flex;
+  gap: 10px; /* Tạo khoảng cách giữa các nút */
+}
+
+.login button {
+  background-color: #22C55E;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1.5;
+  transition: background-color 0.3s ease;
+  width: 100px;
+  text-align: center;
+}
+
+.login button:hover {
+  background-color: #1aab4d;
+}
+
+.login button:focus {
+  outline: none;
 }

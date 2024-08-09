@@ -28,23 +28,13 @@ const Home = () => {
                 making it easy to search. This is a competitive and vibrant trading environment, 
                 bringing many opportunities to both buyers and sellers.
               </p>
-              <Link href="/connect-wallet" passHref>
-      <button
+              <Link href="/user/login" passHref>
+      <button className="butLog"
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/connect-wallet';
-        }}
-        style={{
-          backgroundColor: '#22C55E',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          height : '38px',
-          width : '110px'
-        }}
-      >
-        Connect Wallet
+          window.location.href = '/user/login';
+        }}>
+        Let's Started
       </button>
     </Link>
             </Col>

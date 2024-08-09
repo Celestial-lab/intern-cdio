@@ -13,9 +13,21 @@
    .title h3{
     padding-top: 17px;
    }
-   .titleBtn{
-    background-color: #00CC33;
-   }
+   
+   .butLog {
+    background-color: #22C55E;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 38px;
+    width: 110px;
+    transition: background-color 0.3s ease; 
+  }
+  
+  .butLog:hover {
+    background-color: #1aab4d; 
+  }
   .tableContainer{
     padding: 90px 190px 20px 190px;
     text-align: center;
