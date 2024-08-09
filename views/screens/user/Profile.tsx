@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Avatar, Button, Col, Form, FormItemProps, Input, Row, type MenuProps } from 'antd';
+import { Avatar, Button, Col, Form,  Input, Row, type MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import {
   AppstoreOutlined,
@@ -13,7 +13,7 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
   } from '@ant-design/icons';
-import "@/views/style/SettingProfile.css";
+import "@/views/style/Profile.css";
 import { Footer } from 'antd/es/layout/layout';
 
 
@@ -36,15 +36,15 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem('Profile', 'profile', <AppstoreOutlined />, '/settings/profile'),
-  getItem('Cart', 'cart', <ShoppingCartOutlined />, '/settings/cart'),
-  getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/settings/auctionHistory'),
-  getItem('My Document', 'myDocument', <FileOutlined />, '/settings/myDocument'),
+  getItem('Profile', 'profile', <AppstoreOutlined />, '/user/settings/Profile'),
+  getItem('Cart', 'cart', <ShoppingCartOutlined />, '/user/settings/Cart'),
+  getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/user/settings/AuctionHistory'),
+  getItem('My Document', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
 ];
 
 
 
-export default function SettingProfile() {
+export default function Profile() {
   const [collapsed, setCollapsed] = useState(false);
   const {token: { colorBgContainer }} = theme.useToken();
   const [form] = Form.useForm();
