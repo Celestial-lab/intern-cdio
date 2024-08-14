@@ -53,7 +53,7 @@ const SignUp = () => {
                     </Form.Item>
                     <Button className='buttonConnect' onClick={handleSubmit}>Sign Up</Button>
                     <p style={{ marginTop: '20px' ,fontSize:'14px'}}>
-                    Already have an account? <a href="/user/login" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign In</a>
+                    Already have an account? <a href="/user/signin" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign In</a>
                     </p>
                 </Form>
             </div>
