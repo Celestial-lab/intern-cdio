@@ -1,6 +1,5 @@
-/* Navbar.css */
 .header {
-  background-color: #ffffff; /* Set the background color for the header */
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -9,7 +8,7 @@
 }
 
 .logo {
-  margin-right: 20px; /* Space between logo and menu */
+  margin-right: 20px;
 }
 
 .logo img {
@@ -19,9 +18,9 @@
 }
 
 .menu {
-  flex: 1; /* Allow menu to take available space */
+  flex: 1;
   display: flex;
-  justify-content: center; /* Center menu items */
+  justify-content: center;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -34,43 +33,39 @@
 
 .menu .ant-menu-item a {
   color: #556987;
-  text-decoration: none; /* Remove underline */
-  padding: 10px; /* Add padding if needed for spacing */
-  border-bottom: none; /* Ensure no default underline */
+  text-decoration: none;
+  padding: 10px;
+  border-bottom: none;
 }
 
 .menu .ant-menu-item:hover a {
-  
-  border-bottom: none; /* Ensure no underline on hover */
+  border-bottom: none;
 }
 
 .menu .ant-menu-item-selected a {
-  color: #22C55E; /* Set text color when selected */
-  border-bottom: none; /* Ensure no underline for selected item */
+  color: #22C55E;
+  border-bottom: none;
 }
 
 .login {
-  margin-left: 20px; /* Space between menu and connect wallet button */
+  margin-left: 20px;
 }
 
 .login button {
-  background-color: #22C55E; /* Matching color with highlight */
-  color: #fff; /* White text color */
+  background-color: #22C55E;
+  color: #fff;
   border: none;
-  padding: 6px 12px; /* Smaller padding for reduced height */
-  border-radius: 4px; /* Rounded corners */
-  font-size: 14px; /* Adjusted font size */
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
   cursor: pointer;
-  line-height: 1.5; /* Adjust line-height for vertical centering */
-  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+  line-height: 1.5;
+  transition: background-color 0.3s ease;
 }
 
 .login button:hover {
-  background-color: #1aab4d; 
+  background-color: #1aab4d;
 }
-
-
-
 
 .login .ant-dropdown-menu {
   background-color: #ffffff;
@@ -78,13 +73,10 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-
-
 .login .ant-dropdown-menu-item:hover a {
   color: #22C55E;
 }
 
-/* Dropdown Menu Customization */
 .login-dropdown {
   background-color: #ffffff;
   border-radius: 4px;
@@ -113,37 +105,13 @@
 }
 
 .login-dropdown button:focus {
-  outline: none; /* Remove default focus outline */
-}
-
-.login {
-  margin-left: 20px;
-}
-
-.login button {
-  background-color: #22C55E;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  line-height: 1.5;
-  transition: background-color 0.3s ease;
-}
-
-.login button:hover {
-  background-color: #1aab4d;
-}
-
-.login button:focus {
   outline: none;
 }
 
 .login {
   margin-left: 20px;
   display: flex;
-  gap: 10px; /* Tạo khoảng cách giữa các nút */
+  gap: 10px;
 }
 
 .login button {

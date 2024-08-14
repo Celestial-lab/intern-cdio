@@ -17,14 +17,14 @@ const Login = () => {
               <Row className='row1'>
                 <div className='divRow1'>
                   <Row className='row11'>
-                      <img className='imageLogo' src='./CeLestial-wbg.png'></img>
+                      <img className='imageLogo' src='/CeLestial-wbg.png'></img>
                   </Row>
                   <Row className='row12'>
                     <Col className='colne1' span={7}></Col>
 
                     <Col className='colSlogan' span={10}>
                         <div className='divSlogan'>
-                            <h2>Join our community</h2>
+                            <h2>Welcome Back User</h2>
                             <h5>Start your journey with product</h5>
                         </div>
                     </Col>
@@ -69,7 +69,7 @@ const Login = () => {
 
 
         <Col className='colImage' xs={8} lg={8} >
-          <img className='imageConnect' src='./connectWallet.jpg'></img> 
+          <img className='imageConnect' src='/ImagebackGround.jpg'></img> 
         </Col>
 
       </Row>

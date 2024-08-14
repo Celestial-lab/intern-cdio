@@ -42,6 +42,7 @@
     object-fit: cover;
     border-radius: 15px;
     margin-top: 40px;
+    margin-bottom: 20px;
 }
 
 .row12 {
@@ -59,11 +60,10 @@
     align-items: center;
     text-align: center; 
 }
+
 .divSlogan h5 {
     font-weight: 450;
-}
-.divSlogan h5 {
-    margin-bottom: 10px;
+   
 }
 
 .colSlogan {

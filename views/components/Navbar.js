@@ -1,7 +1,6 @@
 'use client'
 import React from 'react';
 import { Layout, Menu, Dropdown } from 'antd';
-import { HomeOutlined, InfoCircleOutlined, ContactsOutlined } from '@ant-design/icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Link from 'next/link';
 import "@/views/style/Navbar.css";
