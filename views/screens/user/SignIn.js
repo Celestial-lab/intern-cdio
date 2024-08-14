@@ -34,7 +34,7 @@ const SignUp = () => {
               <Col span={12} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                <img className='imageLogoCelectial' src='/CeLestial-wbg.png' alt='Logo'/>
                 <h2>Welcome Back User</h2>
-                <p>Start your journey with product</p>
+                <p>Start your journey with our product</p>
                 <div className='divInput'>
                 <Form form={form} layout="vertical">
                     <Form.Item 
@@ -61,7 +61,7 @@ const SignUp = () => {
                     </div>
                     <Button className='buttonConnect' onClick={handleSubmit}>Sign In</Button>
                     <p style={{ marginTop: '20px' ,fontSize:'14px'}}>
-                    Already have an account? <a href="/user/signup" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign Up</a>
+                    Don’t have an account? <a href="/user/signup" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign Up</a>
                     </p>
                 </Form>
             </div>

@@ -1,5 +1,5 @@
 .imageLogo {
-    margin-top: 60px; 
+    margin-top: 40px; 
     width: 120px;
     height: auto;
     object-fit: cover;
@@ -37,7 +37,19 @@ p {
     border: 1px solid #d9d9d9;
     margin-bottom: 15px; 
 }
-
+.options-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -25px; 
+    margin-bottom: 30px; 
+}
+.hidden-checkbox{
+    padding-right: 10px;
+}
+.formItem {
+    margin-top: -20px;
+}
 .buttonConnect {
     width: 100%;
     height: 35px;
@@ -53,9 +65,11 @@ p {
     background-color: #1aab4d !important;
     text-decoration: none;
 }
-.ant-form-item-explain-error {
-    margin-top: 0px; 
+.options-row .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #22C55E !important; 
+    border-color: #22C55E !important;      
 }
-.formItem{
-    margin-top: -18px;
+
+.options-row .ant-checkbox-checked::after {
+    border-color: #22C55E !important;     
 }

@@ -40,6 +40,7 @@ const SignUp = () => {
                     <Form.Item 
                         name="email" 
                         label="Email*" 
+                        className="formItem" 
                         rules={[{ required: true, message: 'Please input your email!' }]}
                     >
                         <Input className="inputtable"/>
@@ -47,6 +48,7 @@ const SignUp = () => {
                     <Form.Item 
                         name="address" 
                         label="Password*" 
+                        className="formItem" 
                         rules={[{ required: true, message: 'Please input your password!' }]}
                     >
                         <Input className="inputtable" type="password" />
