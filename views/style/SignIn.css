@@ -1,0 +1,101 @@
+.imageLogo {
+    height: 100% !important;
+    width: 100% !important;
+    border-radius: 10px;
+}
+
+.imageLogoCelectial {
+    margin-top: 70px; 
+    width: 120px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 10px; 
+    text-align: center;
+}
+
+h2 {
+    font-size: 24px;
+    text-align: center;
+    margin-top: 8px; 
+    margin-bottom: 10px; 
+}
+
+p {
+    color: #556987;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 0px; 
+    margin-bottom: 20px; 
+}
+
+.divInput {
+    margin-top: 10px; 
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.options-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -25px; 
+    margin-bottom: 30px; 
+}
+
+.forgot-link {
+    color: #22C55E;
+    text-decoration: none;
+    padding-left: 10px; 
+    margin-right: 10px; 
+}
+
+.inputtable {
+    width: 400px;
+    height: 35px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+    margin-bottom: 10px;
+}
+
+.buttonConnect {
+    width: 100%;
+    height: 35px;
+    background-color: #22C55E;
+    color: aliceblue;
+    border: none; 
+    border-radius: 4px; 
+    transition: background-color 0.3s ease; 
+}
+
+.buttonConnect:hover {
+    color: rgb(246, 246, 246) !important;
+    background-color: #1aab4d !important;
+    text-decoration: none;
+}
+
+a {
+    color: #22C55E;
+    text-decoration: none;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #1aab4d;
+}
+.hidden-checkbox{
+    padding-right: 10px;
+}
+
+.options-row .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #22C55E !important; 
+    border-color: #22C55E !important;      
+}
+
+.options-row .ant-checkbox-checked::after {
+    border-color: #22C55E !important;     
+}
