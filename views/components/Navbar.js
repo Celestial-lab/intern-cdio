@@ -14,7 +14,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/user/login';
+          window.location.href = '/user/signin';
         }}
       >
         Login for User
@@ -22,7 +22,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/author/login';
+          window.location.href = '/author/signin';
         }}
       >
         Login for Author
@@ -35,7 +35,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/user/login';
+          window.location.href = '/user/signup';
         }}
       >
         Sign Up for User
@@ -43,7 +43,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/author/login';
+          window.location.href = '/author/signup';
         }}
       >
         Sign Up for Author
