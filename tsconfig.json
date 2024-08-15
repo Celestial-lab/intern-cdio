@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/connect-wallet/page.js", "fonts/fonts.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/connect-wallet/page.js", "fonts/fonts.js", "app/user/signup/page.js", ".next/types/app/user/login/page.ts"],
   "exclude": ["node_modules"]
 }

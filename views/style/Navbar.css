@@ -39,7 +39,6 @@
 }
 
 .menu .ant-menu-item:hover a {
-  
   border-bottom: none;
 }
 
@@ -53,23 +52,20 @@
 }
 
 .login button {
-  background-color: #22C55E; /* Matching color with highlight */
-  color: #fff; /* White text color */
+  background-color: #22C55E;
+  color: #fff;
   border: none;
-  padding: 6px 12px; /* Smaller padding for reduced height */
-  border-radius: 4px; /* Rounded corners */
-  font-size: 14px; /* Adjusted font size */
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
   cursor: pointer;
-  line-height: 1.5; /* Adjust line-height for vertical centering */
-  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+  line-height: 1.5;
+  transition: background-color 0.3s ease;
 }
 
 .login button:hover {
-  background-color: #1aab4d; 
+  background-color: #1aab4d;
 }
-
-
-
 
 .login .ant-dropdown-menu {
   background-color: #ffffff;
@@ -77,13 +73,10 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-
-
 .login .ant-dropdown-menu-item:hover a {
   color: #22C55E;
 }
 
-/* Dropdown Menu Customization */
 .login-dropdown {
   background-color: #ffffff;
   border-radius: 4px;
@@ -112,37 +105,13 @@
 }
 
 .login-dropdown button:focus {
-  outline: none; /* Remove default focus outline */
-}
-
-.login {
-  margin-left: 20px;
-}
-
-.login button {
-  background-color: #22C55E;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  line-height: 1.5;
-  transition: background-color 0.3s ease;
-}
-
-.login button:hover {
-  background-color: #1aab4d;
-}
-
-.login button:focus {
   outline: none;
 }
 
 .login {
   margin-left: 20px;
   display: flex;
-  gap: 10px; /* Tạo khoảng cách giữa các nút */
+  gap: 10px;
 }
 
 .login button {

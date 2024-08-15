@@ -1,7 +1,6 @@
 'use client'
 import React from 'react';
 import { Layout, Menu, Dropdown } from 'antd';
-import { HomeOutlined, InfoCircleOutlined, ContactsOutlined } from '@ant-design/icons';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Link from 'next/link';
 import "@/views/style/Navbar.css";
@@ -15,7 +14,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/user/login';
+          window.location.href = '/user/signin';
         }}
       >
         Login for User
@@ -23,7 +22,7 @@ const Navbar = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/author/login';
+          window.location.href = '/author/signin';
         }}
       >
         Login for Author
