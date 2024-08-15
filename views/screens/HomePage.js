@@ -34,7 +34,7 @@ const Home = () => {
           e.preventDefault();
           window.location.href = '/user/login';
         }}>
-        Let's Started
+        Get Started
       </button>
     </Link>
             </Col>

@@ -18,9 +18,9 @@
 }
 
 .menu {
-  flex: 1;
+  flex: 1; 
   display: flex;
-  justify-content: center;
+  justify-content: center; 
   margin: 0;
   padding: 0;
   list-style: none;
@@ -33,9 +33,9 @@
 
 .menu .ant-menu-item a {
   color: #556987;
-  text-decoration: none;
+  text-decoration: none; 
   padding: 10px;
-  border-bottom: none;
+  border-bottom: none; 
 }
 
 .menu .ant-menu-item:hover a {
@@ -44,11 +44,11 @@
 
 .menu .ant-menu-item-selected a {
   color: #22C55E;
-  border-bottom: none;
+  border-bottom: none; 
 }
 
 .login {
-  margin-left: 20px;
+  margin-left: 20px; 
 }
 
 .login button {

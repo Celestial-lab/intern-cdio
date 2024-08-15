@@ -1,0 +1,164 @@
+.headerInfor {
+    background-color: rgb(245 245 245);
+}
+
+.divTitle {
+    background-color: rgb(116, 255, 186) !important;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    margin-top: 10px;
+    padding-left: 15px !important; 
+}
+
+.row {
+    height: 100%;
+}
+
+.col1 {
+    height: 100%;
+}
+
+.col2 {
+    height: 100%;
+}
+
+.divInfor {
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.name {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    align-items: center;
+    font-weight: 650;
+}
+
+.date {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    align-items: center;
+    font-weight: lighter;
+}
+
+
+.headerRight {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+.iconBell {
+    background-color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+}
+.iconDollar {
+    background-color: white;
+    width: 150px;
+    height: 40px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    border-radius: 5px;
+    padding-left: 10px;
+}
+.showTotalMoney {
+    margin-left: 3.5px;
+    margin-bottom: 2px;
+    font-weight: lighter;
+}
+
+
+.row1 {
+    height: fit-content;
+    display: flex;
+}
+.row2 {
+    flex-grow: 1;
+    display: flex;
+}
+.row3 {
+    flex-grow: 90;
+    display: flex;
+}
+.divName {
+    width: 150px;
+    align-items: center;
+    justify-content: left;
+    display: flex;
+}
+.colName {
+    align-self: center;
+}
+.rowName {
+    gap: 10px;
+}
+.textName {
+    font-weight: bold;
+  }
+.textEmail {
+    font-weight: lighter;
+}
+.colEdit {
+    display: flex;
+    justify-content: right;
+    padding-right: 20px;
+    align-items: center;
+    border-radius: 5px;
+    padding-left: 10px;
+}
+.buttonEdit {
+    background-color: #22C55E;
+    color: white;
+}
+
+.divInput1 {
+    height: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+    font-weight: 600;
+}
+.divInput2 {
+    height: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+    font-weight: 600;
+}
+
+
+.row31 {
+    height: 25px;
+    padding-left: 10px;
+}
+.row32 {
+    height: 55px;
+    padding-left: 10px;
+}
+.row33 {
+    height: 30px;
+    padding-left: 10px;
+}
+.textEmailAddress {
+    font-weight: 600;
+}
+.textMail {
+    font-weight: 600;
+}
+.textMonth {
+    font-weight: lighter;
+}
+.colEmail {
+    margin-left: 10px;
+}
