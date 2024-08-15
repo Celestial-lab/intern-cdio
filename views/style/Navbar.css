@@ -1,6 +1,5 @@
-/* Navbar.css */
 .header {
-  background-color: #ffffff; /* Set the background color for the header */
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -9,7 +8,7 @@
 }
 
 .logo {
-  margin-right: 20px; /* Space between logo and menu */
+  margin-right: 20px;
 }
 
 .logo img {
@@ -19,9 +18,9 @@
 }
 
 .menu {
-  flex: 1; /* Allow menu to take available space */
+  flex: 1; 
   display: flex;
-  justify-content: center; /* Center menu items */
+  justify-content: center; 
   margin: 0;
   padding: 0;
   list-style: none;
@@ -34,23 +33,23 @@
 
 .menu .ant-menu-item a {
   color: #556987;
-  text-decoration: none; /* Remove underline */
-  padding: 10px; /* Add padding if needed for spacing */
-  border-bottom: none; /* Ensure no default underline */
+  text-decoration: none; 
+  padding: 10px;
+  border-bottom: none; 
 }
 
 .menu .ant-menu-item:hover a {
   
-  border-bottom: none; /* Ensure no underline on hover */
+  border-bottom: none;
 }
 
 .menu .ant-menu-item-selected a {
-  color: #22C55E; /* Set text color when selected */
-  border-bottom: none; /* Ensure no underline for selected item */
+  color: #22C55E;
+  border-bottom: none; 
 }
 
 .login {
-  margin-left: 20px; /* Space between menu and connect wallet button */
+  margin-left: 20px; 
 }
 
 .login button {
