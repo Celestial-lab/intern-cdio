@@ -1,4 +1,4 @@
-import Product from '@/views/screens/author/Product'
+import Product from '@/views/screens/Author/Product'
 import React from 'react'
 import '@/views/style/ProductAuthor.css';
 
