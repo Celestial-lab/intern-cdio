@@ -64,7 +64,7 @@ const Navbar = () => {
           <Link href="/Blogs/Technology">Blogs</Link>
         </Menu.Item>
         <Menu.Item key="contact">
-          <Link href="/contact">Auction results</Link>
+          <Link href="/auctionresult">Auction results</Link>
         </Menu.Item>
       </Menu>
       <div className="login">
