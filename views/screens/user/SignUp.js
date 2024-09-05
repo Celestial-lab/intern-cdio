@@ -1,25 +1,29 @@
 'use client'
 
-import { Button, Col, Form, Input, Row } from "antd";
+import { Button, Col, Form, Input, Row, message  } from "antd";
 import React from "react";
 import "@/views/style/SignUp.css";
+import handleSignUpApi from '../../services/SignUpUserServices';
 
 const SignUp = () => {
     const [form] = Form.useForm();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        try {
+            const values = await form.validateFields();
+            const { nickname, email, password } = values;
+            const response = await handleSignUpApi(nickname, email, password);
+            console.log(response);
 
-        form.validateFields()
-            .then(values => {
-               
-                window.location.href = '/user/settings/Profile';
-            })
-            .catch(errorInfo => {
-        
-                message.error('Please fill in all required fields.');
-            });
+           
+            message.success('Sign up successful!');
+        } catch (error) {
+
+            console.error('Sign up failed:', error);
+            message.error('Sign up failed!');
+        }
     };
+    
     return(
         <div className="custom-row">
             <Row gutter={[0, 0]}>
@@ -29,9 +33,9 @@ const SignUp = () => {
                 <h2>Join our community</h2>
                 <p>Start your journey with product</p>
                 <div className='divInput'>
-                <Form form={form} layout="vertical">
+                <Form form={form} layout="vertical" method="POST">
                     <Form.Item 
-                        name="name" 
+                        name="nickname" 
                         label="Name*" 
                         rules={[{ required: true, message: 'Please input your name!' }]}
                     >
@@ -46,7 +50,7 @@ const SignUp = () => {
                         <Input className="inputtable"/>
                     </Form.Item>
                     <Form.Item 
-                        name="address" 
+                        name="password" 
                         label="Password*" 
                         className="formItem" 
                         rules={[{ required: true, message: 'Please input your password!' }]}
@@ -60,11 +64,10 @@ const SignUp = () => {
                 </Form>
             </div>
         </Col>
-
                 <Col span={7} />
             </Row>
         </div>
-
     )
 }
+
 export default SignUp;
