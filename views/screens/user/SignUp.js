@@ -17,6 +17,10 @@ const SignUp = () => {
 
            
             message.success('Sign up successful!');
+
+            setTimeout(() => {
+                window.location.href = '/user/signin';
+            }, 1500);
         } catch (error) {
 
             console.error('Sign up failed:', error);

@@ -17,10 +17,10 @@ const SignIn = () => {
             const response = await handleSignInApi(email, password);
             console.log(response);
 
-            
             if (response.errorCode === 0) {
+                // Lưu email vào localStorage
+                localStorage.setItem('userEmail', email);
                 message.success('Sign in successful!');
-                
                 setTimeout(() => {
                     window.location.href = '/user/settings/Profile';
                 }, 1500);
