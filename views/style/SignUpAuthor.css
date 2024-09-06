@@ -73,3 +73,13 @@ p {
 .options-row .ant-checkbox-checked::after {
     border-color: #22C55E !important;     
 }
+
+.custom-yes-button:hover {
+    background-color: #20934a !important; 
+    color: rgb(255, 255, 255) !important; 
+}
+
+.custom-no-button:hover {
+    background-color: hsl(145, 68%, 67%) !important; 
+    color: white !important;
+}
