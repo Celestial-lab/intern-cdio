@@ -3,34 +3,44 @@
 import { Button, Checkbox, Col, Form, Input, Row, Modal, message } from "antd";
 import React, { useState } from "react";
 import "@/views/style/SignUpAuthor.css";
+import handleSignUpAuthor from '../../services/SignUpAuthorServices';
 
 const SignUpAuthor = () => {
     const [form] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isChecked, setIsChecked] = useState(false); 
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        try {
+            const values = await form.validateFields();
+            const { nickname, email, password } = values;
 
-        form.validateFields()
-            .then(values => {
-                // Show confirmation modal
-                setIsModalVisible(true);
-            })
-            .catch(errorInfo => {
-                message.error('Please fill in all required fields.');
-            });
+            if (!isChecked) {
+                message.error('Please read and accept the terms before signing up.');
+                return;
+            }
+
+            const response = await handleSignUpAuthor(nickname, email, password);
+            console.log(response);
+            message.success('Sign up successful!');
+            setIsModalVisible(true); 
+
+        } catch (error) {
+            console.error('Sign up failed:', error);
+            message.error('Sign up failed!');
+        }
     };
 
     const handleOk = () => {
-        window.location.href = '/user/settings/Profile';
+        window.location.href = '/author/signin';
     };
 
     const handleCancel = () => {
         setIsModalVisible(false);
     };
 
-    const onChange = (e) => {
-        console.log(`checked = ${e.target.checked}`);
+    const onCheckboxChange = (e) => {
+        setIsChecked(e.target.checked); 
     };
 
     return (
@@ -44,8 +54,8 @@ const SignUpAuthor = () => {
                     <div className='divInput'>
                         <Form form={form} layout="vertical">
                             <Form.Item 
-                                name="name" 
-                                label="Name*" 
+                                name="nickname" 
+                                label="Nickname*" 
                                 rules={[{ required: true, message: 'Please input your name!' }]}
                             >
                                 <Input className="inputtable"/>
@@ -59,7 +69,7 @@ const SignUpAuthor = () => {
                                 <Input className="inputtable"/>
                             </Form.Item>
                             <Form.Item 
-                                name="address" 
+                                name="password" 
                                 label="Password*" 
                                 className="formItem" 
                                 rules={[{ required: true, message: 'Please input your password!' }]}
@@ -67,16 +77,15 @@ const SignUpAuthor = () => {
                                 <Input className="inputtable" type="password" />
                             </Form.Item>
                             <div className="options-row">
-                            <label className="custom-checkbox">
-                            <Checkbox onChange={onChange} className="hidden-checkbox"/> 
-                            <span className="checkmark"></span>
-                            I commit to take responsibility for customer information security policy, dispute resolution mechanism, and operating regulations on the Website
-                            </label>
-                    
+                                <label className="custom-checkbox">
+                                    <Checkbox onChange={onCheckboxChange} className="hidden-checkbox"/> 
+                                    <span className="checkmark"></span>
+                                    I commit to take responsibility for customer information security policy, dispute resolution mechanism, and operating regulations on the Website
+                                </label>
                             </div>
                             <Button className='buttonConnect' onClick={handleSubmit}>Sign Up</Button>
                             <p style={{ marginTop: '20px' ,fontSize:'14px'}}>
-                                Already have an account? <a href="/user/signin" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign In Author</a>
+                                Already have an account? <a href="/author/signin" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign In Author</a>
                             </p>
                         </Form>
                     </div>
@@ -86,11 +95,28 @@ const SignUpAuthor = () => {
 
             <Modal
                 title="Confirmation"
-                visible={isModalVisible}
+                open={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
                 okText="Yes"
                 cancelText="No"
+                okButtonProps={{
+                    style: {
+                        backgroundColor: '#22C55E',
+                        color: 'white',
+                        border: 'none',
+                        transition: 'background-color 0.3s ease',
+                    },
+                    className: 'custom-yes-button', 
+                }}
+                cancelButtonProps={{
+                    style: {
+                        backgroundColor: 'white',
+                        color: 'black',
+                        transition: 'background-color 0.3s ease',
+                    },
+                    className: 'custom-no-button', 
+                }}
             >
                 <p>Each product will cost 5-7%. So please read carefully and click Yes.</p>
             </Modal>
