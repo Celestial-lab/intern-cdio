@@ -68,7 +68,7 @@ export default function Profile() {
   const handleOk = async () => {
     try {
         const values = await form.validateFields(); 
-        console.log('value', values);
+        console.log('Value : ', values);
         const updatedProfile = {
             fullname: values.fullname || profile.fullname,
             gender: values.gender,
@@ -83,7 +83,7 @@ export default function Profile() {
 
         if (response) {
             setProfile({ ...profile, ...updatedProfile, gender: values.gender }); 
-            console.log('gender vua edit',values.gender);
+            console.log('gender just edited',values.gender);
             message.success('Profile updated successfully!');
         } else {
             message.error('Failed to update profile!');
@@ -113,7 +113,7 @@ export default function Profile() {
           const data = response.data;
   
           if (data) {
-            // Cập nhật state profile
+  
             setProfile({
               id: data.id,
               nickname: data.nickname,
@@ -127,7 +127,7 @@ export default function Profile() {
             });
   
             
-            console.log('Gender từ API:', data.gender ? 'Male' : 'Female');
+            console.log('Gender from API:', data.gender ? 'Male' : 'Female');
           } else {
             console.log('No profile data found for the given email');
           }

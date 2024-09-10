@@ -13,13 +13,13 @@ export const getProfileByEmail = async (email) => {
 
 export const editProfileById = async (id, data) => {
   try {
-    console.log('Dữ liệu gửi đi:', data); // Thêm dòng này để kiểm tra dữ liệu
+    console.log('Data sent:', data); 
     const response = await axios.put(`/api/profileuser/${id}`, data);
-    console.log('Dữ liệu trả về:', response.data);
+    console.log('Returned data:', response.data);
     return response.data;
   }
   catch (error) {
-    console.error('loi o edit profile roi dan oi', error);
+    console.error('Data error', error);
     return null;
   }
 }
