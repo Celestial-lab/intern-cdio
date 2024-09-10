@@ -118,6 +118,10 @@ const connectWallet = async () => {
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     const walletAddress = await (await signer).getAddress();
+    const balance = await provider.getBalance(walletAddress);
+    const balanceInEth = ethers.formatEther(balance);
+    const formattedBalance = parseFloat(balanceInEth).toFixed(3);
+
 
     form.setFieldsValue({
       walletaddress: walletAddress,
@@ -131,7 +135,13 @@ const connectWallet = async () => {
     const response = await editProfileById(profile.id, updatedProfile);
     if (response) {
       setProfile(updatedProfile); 
+
       message.success('Wallet connected and updated successfully!');
+
+      const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
+      if (showTotalMoneyDiv) {
+        showTotalMoneyDiv.textContent = `${formattedBalance} $`;
+      }
     } else {
       message.error('Failed to update wallet address!');
     }
@@ -174,6 +184,13 @@ const connectWallet = async () => {
     };
     fetchProfileData();
   }, []);
+
+  useEffect(() => {
+    const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
+    if (showTotalMoneyDiv) {
+      showTotalMoneyDiv.textContent = '0 $';
+    }
+  }, []);
   
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -192,7 +209,7 @@ const connectWallet = async () => {
               <Row className='headerRight'>
                 <div className='iconBell'><BellOutlined style={{color: 'grey'}}/></div>
                 <div className='iconDollar'><DollarOutlined style={{color: 'grey'}}/>
-                  <div className='showTotalMoney'>:</div>
+                  <div className='showTotalMoney'>0 $</div>
                 </div>
                 <div className='avt1'><Avatar shape="square" style={{color: 'grey', background: 'white'}} size={40} icon={<UserOutlined />} /></div>
               </Row>
