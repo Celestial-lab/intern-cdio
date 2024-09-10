@@ -2,7 +2,7 @@
 
 import axios from "../../axios";
 import React, { useEffect, useState } from 'react';
-import { Avatar, Button, Col, Form, Input, Row, type MenuProps } from 'antd';
+import { Avatar, Button, Col, DatePicker, Form, Input, message, Modal, Radio, Row, type MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import {
   AppstoreOutlined,
@@ -16,7 +16,9 @@ import {
 } from '@ant-design/icons';
 import "@/views/style/Profile.css";
 import { Footer } from 'antd/es/layout/layout';
-import getProfileByEmail from '../../services/user/ProfileServices';
+import {editProfileById, getProfileByEmail} from '../../services/user/ProfileServices.js';
+import moment from "moment";
+import { log } from "console";
 
 const { Header, Content, Sider } = Layout;
 
@@ -44,33 +46,88 @@ const items: MenuItem[] = [
 
 export default function Profile() {
   const [collapsed, setCollapsed] = useState(false);
-  
   const { token: { colorBgContainer } } = theme.useToken();
-
   const [form] = Form.useForm();
-  
   const [profile, setProfile] = useState({
+    id: '',
     nickname: '',
     email: '',
     createdAt: '',
+    fullname: '',
+    dateofbirth: '',
+    gender: '',
+    country: '',
+    walletaddress: '',
   });
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true)  
+  }
+  
+  const handleOk = async () => {
+    try {
+        const values = await form.validateFields(); 
+        console.log('value', values);
+        const updatedProfile = {
+            fullname: values.fullname || profile.fullname,
+            gender: values.gender,
+            walletaddress: values.walletaddress || profile.walletaddress,
+            dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
+            country: values.country || profile.country,
+        };
+
+        console.log('Gender value:', updatedProfile.gender);
+
+        const response = await editProfileById(profile.id, updatedProfile);
+
+        if (response) {
+            setProfile({ ...profile, ...updatedProfile, gender: values.gender }); 
+            console.log('gender vua edit',values.gender);
+            message.success('Profile updated successfully!');
+        } else {
+            message.error('Failed to update profile!');
+        }
+
+        setIsModalOpen(false);
+        
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        message.error('Failed to update profile!');
+    }
+}
+
+
+  const handleCancel = () => {
+    setIsModalOpen(false)
+  }
   
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfileData = async () => {
-      const email = localStorage.getItem('userEmail'); // Lấy email từ localStorage
+      const email = localStorage.getItem('userEmail'); 
       if (email) {
         try {
           const response = await getProfileByEmail(email);
           const data = response.data;
+  
           if (data) {
+            // Cập nhật state profile
             setProfile({
+              id: data.id,
               nickname: data.nickname,
               email: data.email,
               createdAt: data.createdAt || '1 month ago',
+              fullname: data.fullname,
+              dateofbirth: data.dateofbirth,
+              gender: data.gender ? 'Male' : 'Female', 
+              country: data.country,
+              walletaddress: data.walletaddress,
             });
+  
+            
+            console.log('Gender từ API:', data.gender ? 'Male' : 'Female');
           } else {
             console.log('No profile data found for the given email');
           }
@@ -78,10 +135,11 @@ export default function Profile() {
           setError('Failed to fetch profile data');
           console.error('Failed to fetch profile:', error);
         }
-
-      } 
+      } else {
+        console.log('No email found in localStorage');
+      }
     };
-
+  
     fetchProfileData();
   }, []);
   
@@ -127,7 +185,7 @@ export default function Profile() {
                   <Col className='colName' span={20.5}>
                     <div className='divName'>
                       <p>
-                        <span className='textName'>{profile.nickname}</span> <br />
+<span className='textName'>{profile.nickname}</span> <br />
                         <span className='textEmail'>{profile.email}</span>
                       </p>
                     </div>
@@ -136,7 +194,60 @@ export default function Profile() {
               </Col>
 
               <Col className='colEdit' span={12}>
-                <Button className='buttonEdit' type="text">Edit</Button>
+                <Button className='buttonEdit' type="text" onClick={showModal}>Edit</Button>
+
+                <Modal
+                  title="Edit Profile"
+                  open={isModalOpen}
+                  onOk={handleOk}
+                  onCancel={handleCancel}
+                >
+                  <Form form={form} layout="vertical">
+                    <Form.Item
+                      name="fullname"
+                      label="Full Name:"
+                      initialValue={profile.fullname}
+                    >
+                      <Input placeholder={profile.fullname} />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="gender"
+                      label="Gender"
+                      initialValue={profile.gender}
+                      rules={[{ required: true, message: 'Please select gender!' }]}
+                        >
+                     <Radio.Group>
+                       <Radio value="Male">Male</Radio>
+                       <Radio value="Female">Female</Radio>
+                     </Radio.Group>
+                   </Form.Item>
+
+                    <Form.Item
+                      name="walletaddress"
+                      label="Wallet Address:"
+                      initialValue={profile.walletaddress}
+                    >
+                      <Input placeholder={profile.walletaddress} />
+                    </Form.Item>
+                    <Form.Item
+                      name="dateofbirth"
+                      label="Date of Birth"
+                      initialValue={profile.dateofbirth ? moment(profile.dateofbirth) : null}
+                      rules={[{ required: true, message: 'Please select date of birth!' }]}
+                    >
+                      <DatePicker format="YYYY-MM-DD" />
+                    </Form.Item>
+                    <Form.Item
+                      name="country"
+                      label="Country:"
+                      initialValue={profile.country}
+                    >
+                      <Input placeholder={profile.country} />
+                    </Form.Item>
+                  </Form>
+                </Modal>
+
               </Col>
             </Row>
 
@@ -145,13 +256,13 @@ export default function Profile() {
                 <div className='divInput1'>
                   <Form form={form} layout="vertical">
                     <Form.Item name="full-name" label="Full Name:">
-                      <Input placeholder="Full Name" />
+                      <Input placeholder={profile.fullname} />
                     </Form.Item>
                     <Form.Item name="gender" label="Gender:">
-                      <Input placeholder="Gender" />
+                      <Input placeholder={profile.gender} />
                     </Form.Item>
                     <Form.Item name="wallet-address" label="Wallet Address:" >
-                      <Input placeholder="Wallet Address" />
+                      <Input placeholder={profile.walletaddress} />
                     </Form.Item>
                   </Form>
                 </div>
@@ -160,10 +271,10 @@ export default function Profile() {
                 <div className='divInput2'>
                   <Form form={form} layout="vertical">
                     <Form.Item name="date" label="Date of birth:">
-                      <Input placeholder="Date of birth" />
+                      <Input placeholder={profile.dateofbirth} />
                     </Form.Item>
                     <Form.Item name="country" label="Country:">
-                      <Input placeholder="Country" />
+                      <Input placeholder={profile.country} />
                     </Form.Item>
                   </Form>
                 </div>
