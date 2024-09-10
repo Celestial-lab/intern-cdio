@@ -18,7 +18,15 @@ import "@/views/style/Profile.css";
 import { Footer } from 'antd/es/layout/layout';
 import {editProfileById, getProfileByEmail} from '../../services/user/ProfileServices.js';
 import moment from "moment";
-import { log } from "console";
+import { ethers } from 'ethers';
+import { Provider } from "ethers";
+import { MetaMaskInpageProvider } from "@metamask/providers";
+
+declare global {
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
+}
 
 const { Header, Content, Sider } = Layout;
 
@@ -45,6 +53,7 @@ const items: MenuItem[] = [
 ];
 
 export default function Profile() {
+
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
   const [form] = Form.useForm();
@@ -65,55 +74,83 @@ export default function Profile() {
     setIsModalOpen(true)  
   }
   
-  const handleOk = async () => {
+  const handleOkButton = async () => {
     try {
-        const values = await form.validateFields(); 
-        console.log('value', values);
-        const updatedProfile = {
-            fullname: values.fullname || profile.fullname,
-            gender: values.gender,
-            walletaddress: values.walletaddress || profile.walletaddress,
-            dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
-            country: values.country || profile.country,
-        };
+      const values = await form.validateFields(); // Lấy dữ liệu từ form
+      const updatedProfile = {
+        fullname: values.fullname || profile.fullname,
+        gender: values.gender || profile.gender,
+        walletaddress: values.walletaddress || profile.walletaddress,
+        dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
+        country: values.country || profile.country,
+      };
+      console.log('gender status: ', updatedProfile.gender);
+      const response = await editProfileById(profile.id, updatedProfile);
+      if (response) {
+        setProfile({ ...profile, ...updatedProfile, gender: values.gender });
 
-        console.log('Gender value:', updatedProfile.gender);
+        console.log(updatedProfile.gender);
 
-        const response = await editProfileById(profile.id, updatedProfile);
-
-        if (response) {
-            setProfile({ ...profile, ...updatedProfile, gender: values.gender }); 
-            console.log('gender vua edit',values.gender);
-            message.success('Profile updated successfully!');
-        } else {
-            message.error('Failed to update profile!');
-        }
-
-        setIsModalOpen(false);
-        
-    } catch (error) {
-        console.error('Error updating profile:', error);
+        message.success('Profile updated successfully!');
+      } else {
         message.error('Failed to update profile!');
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      message.error('Failed to update profile!');
     }
-}
-
-
-  const handleCancel = () => {
+  }
+  const handleCancelButton = () => {
     setIsModalOpen(false)
   }
-  
   const [error, setError] = useState<string | null>(null);
+
+// Hàm kết nối ví MetaMask
+const connectWallet = async () => {
+  try {
+    if (!window.ethereum) {
+      message.error('MetaMask is not installed!');
+      return;
+    }
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const walletAddress = await (await signer).getAddress();
+
+    form.setFieldsValue({
+      walletaddress: walletAddress,
+    });
+
+    const updatedProfile = {
+      ...profile,
+      walletaddress: walletAddress,
+    };
+
+    const response = await editProfileById(profile.id, updatedProfile);
+    if (response) {
+      setProfile(updatedProfile); 
+      message.success('Wallet connected and updated successfully!');
+    } else {
+      message.error('Failed to update wallet address!');
+    }
+  } catch (error) {
+    console.error('Failed to connect wallet:', error);
+    message.error('Failed to connect wallet!');
+  }
+};
+
+
 
   useEffect(() => {
     const fetchProfileData = async () => {
-      const email = localStorage.getItem('userEmail'); 
+      const email = localStorage.getItem('userEmail');
       if (email) {
         try {
           const response = await getProfileByEmail(email);
           const data = response.data;
-  
           if (data) {
-            // Cập nhật state profile
             setProfile({
               id: data.id,
               nickname: data.nickname,
@@ -121,13 +158,10 @@ export default function Profile() {
               createdAt: data.createdAt || '1 month ago',
               fullname: data.fullname,
               dateofbirth: data.dateofbirth,
-              gender: data.gender ? 'Male' : 'Female', 
+              gender: data.gender === true ? 'Male' : 'Female',
               country: data.country,
               walletaddress: data.walletaddress,
             });
-  
-            
-            console.log('Gender từ API:', data.gender ? 'Male' : 'Female');
           } else {
             console.log('No profile data found for the given email');
           }
@@ -135,11 +169,9 @@ export default function Profile() {
           setError('Failed to fetch profile data');
           console.error('Failed to fetch profile:', error);
         }
-      } else {
-        console.log('No email found in localStorage');
-      }
+
+      } 
     };
-  
     fetchProfileData();
   }, []);
   
@@ -167,14 +199,12 @@ export default function Profile() {
             </Col>
           </Row>
         </Header>
-
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
               padding: 5,
               maxHeight: 60,
               background: colorBgContainer,
             }}><h3>Profile</h3></div>
-
           <div className='divInfor' style={{padding: 15, minHeight: 485, background: colorBgContainer}}>
             <Row className='row1'>
               <Col className='colAvt' span={12}>
@@ -185,22 +215,23 @@ export default function Profile() {
                   <Col className='colName' span={20.5}>
                     <div className='divName'>
                       <p>
-<span className='textName'>{profile.nickname}</span> <br />
+                        <span className='textName'>{profile.nickname}</span> <br />
                         <span className='textEmail'>{profile.email}</span>
                       </p>
                     </div>
                   </Col>
                 </Row>
               </Col>
-
               <Col className='colEdit' span={12}>
                 <Button className='buttonEdit' type="text" onClick={showModal}>Edit</Button>
 
                 <Modal
                   title="Edit Profile"
                   open={isModalOpen}
-                  onOk={handleOk}
-                  onCancel={handleCancel}
+                  onOk={handleOkButton}
+                  onCancel={handleCancelButton}
+                  okButtonProps={{ className: 'modal-ok-button', type:'text' }}
+                  cancelButtonProps={{type: 'text'}}
                 >
                   <Form form={form} layout="vertical">
                     <Form.Item
@@ -214,22 +245,32 @@ export default function Profile() {
                     <Form.Item
                       name="gender"
                       label="Gender"
-                      initialValue={profile.gender}
+                      initialValue={profile.gender === 'Male' ? true : false} 
                       rules={[{ required: true, message: 'Please select gender!' }]}
-                        >
-                     <Radio.Group>
-                       <Radio value="Male">Male</Radio>
-                       <Radio value="Female">Female</Radio>
-                     </Radio.Group>
-                   </Form.Item>
-
-                    <Form.Item
-                      name="walletaddress"
-                      label="Wallet Address:"
-                      initialValue={profile.walletaddress}
                     >
-                      <Input placeholder={profile.walletaddress} />
+                      <Radio.Group>
+                        <Radio value={true}>Male</Radio>
+                        <Radio value={false}>Female</Radio>
+                      </Radio.Group>
                     </Form.Item>
+
+                    <Row className="walletaddress" align="middle">
+                      <Col span={18}>
+                        <Form.Item
+                          name="walletaddress"
+                          label="Wallet Address:"
+                          initialValue={profile.walletaddress}
+                        >
+                          <Input placeholder={profile.walletaddress} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Button className='butConnectInModal' type="text" onClick={connectWallet}>
+                          Connect Wallet
+                        </Button>
+                      </Col>
+                    </Row>
+                    
                     <Form.Item
                       name="dateofbirth"
                       label="Date of Birth"
@@ -250,7 +291,6 @@ export default function Profile() {
 
               </Col>
             </Row>
-
             <Row className='row2'>
               <Col className='colInput1' span={12}>
                 <div className='divInput1'>
@@ -277,10 +317,10 @@ export default function Profile() {
                       <Input placeholder={profile.country} />
                     </Form.Item>
                   </Form>
+                  <Button className='connectWalletBut' type="text" onClick={connectWallet}>Connect Wallet</Button>
                 </div>
               </Col>
             </Row>
-
             <Row className='row3'>
               <Col className='col1' span={12}>
                 <Row className='row31'>
@@ -309,10 +349,8 @@ export default function Profile() {
             </Row>
           </div>
         </Content>
-
         <Footer>
         </Footer>
-
       </Layout>
     </Layout>
   );
