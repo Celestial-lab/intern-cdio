@@ -109,6 +109,20 @@
 .textEmail {
     font-weight: lighter;
 }
+.connectWalletBut{
+    background-color: #22C55E;
+    color: white;
+    margin-top: 30px;
+}
+
+
+.butConnectInModal{
+    background-color: #22C55E;
+    color: white;
+    margin-top: 6px;
+    margin-left: 7px;
+}
+
 .colEdit {
     display: flex;
     justify-content: right;
@@ -162,3 +176,9 @@
 .colEmail {
     margin-left: 10px;
 }
+.modal-ok-button {
+    background-color: #22C55E;
+    color: white;
+  }
+  
+  
