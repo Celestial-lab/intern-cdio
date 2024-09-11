@@ -7,31 +7,29 @@ import handleSignInAuthor from "@/views/services/SignInAuthorServices";
 
 const SignInAuthor = () => {
     const [form] = Form.useForm();
-    const [checked, setChecked] = useState(false); // Thêm state cho checkbox
+    const [checked, setChecked] = useState(false);
 
     const handleSubmit = async () => {
         try {
-            // Validate các trường input trước khi gửi request
             const values = await form.validateFields();
             const { email, password } = values;
-
-            
             const response = await handleSignInAuthor(email, password);
 
+            console.log('response neee', response);
+
             if (response && response.errorCode === 0) {
-                
+
+                localStorage.setItem('authorEmail', email);
+
                 message.success(response.message || 'Sign in successful!');
-                
-                
+
                 setTimeout(() => {
-                    window.location.href = '/author/settings/DashboardAuthor';
+                    window.location.href = '/author/settings/ProfileAuthor';
                 }, 1500);
             } else {
-                
                 message.error(response?.message || 'Invalid email or password!');
             }
         } catch (error) {
-            
             console.error('Sign in failed:', error);
             message.error('Sign in failed, please try again!');
         }
@@ -75,11 +73,11 @@ const SignInAuthor = () => {
                                             <span className="checkmark"></span>
                                             Remember me
                                         </label>
-                                        <a href="/user/signup" className="forgot-link">Forgot your password?</a>
+                                        <a href="/author/signup" className="forgot-link">Forgot your password?</a>
                                     </div>
                                     <Button className='buttonConnect' onClick={handleSubmit}>Sign In</Button>
                                     <p style={{ marginTop: '20px', fontSize: '14px' }}>
-                                        Don’t have an account? <a href="/user/signup" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign Up Author</a>
+                                        Don’t have an account? <a href="/author/signup" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign Up Author</a>
                                     </p>
                                 </Form>
                             </div>

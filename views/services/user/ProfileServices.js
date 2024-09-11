@@ -8,7 +8,7 @@ export const getProfileByEmail = async (email) => {
   } catch (error) {
     console.error('Failed to fetch profile data:', error);
     return null;
-  }
+  } 
 }
 
 export const editProfileById = async (id, data) => {
