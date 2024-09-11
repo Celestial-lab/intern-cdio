@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Avatar, Button, Col, Form, Input, Row, type MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import {
@@ -21,9 +21,12 @@ import {
   Title,
   Tooltip,
   Legend,
-  PointElement,  // Thêm PointElement
-  LineElement    // Thêm LineElement cho Line Chart
+  PointElement, 
+  LineElement   
 } from 'chart.js';
+import {getProfileByEmail} from '../../services/author/AuthorServices'
+
+
 
 ChartJS.register(
   CategoryScale,
@@ -32,8 +35,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  PointElement,  // Đăng ký PointElement
-  LineElement    // Đăng ký LineElement
+  PointElement,  
+  LineElement  
 );
 
 const { Header, Content, Sider } = Layout;
@@ -60,10 +63,40 @@ const items: MenuItem[] = [
 ];
 
 export default function Dashboard() {
-
+  const [error, setError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
-  const [form] = Form.useForm();
+  const [profile, setProfile] = useState({
+    nickname: '',
+    email: '',
+  })
+
+  useEffect(() => {
+    const fetchAuthorData = async () => {
+      const email = localStorage.getItem('authorEmail');
+      console.log('email trong local', email);
+      if (email) {
+        try {
+          const response = await getProfileByEmail(email);
+          const data = response.data;
+          if (data) {
+            setProfile({
+              nickname: data.nickname,
+              email: data.email,
+            });
+          } 
+          else {
+            console.log('No profile data found for the given email');
+          }
+        }
+        catch (error) {
+          setError('Failed to fetch profile data');
+          console.error('Failed to fetch profile ', error);
+        }
+      }
+    };
+    fetchAuthorData();
+  }, []);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -75,7 +108,7 @@ export default function Dashboard() {
         <Header className='headerInfor'>
           <Row className='row'>
             <Col className='col1' span={12}>
-              <div className='name'><p>Hello, DanLe</p></div>
+              <div className='name'><p>Hello, {profile.nickname}</p></div>
               <div className='date'><p>Tue, 29 July 2024</p></div>
             </Col>
             <Col className='col2' span={12}>

@@ -3,7 +3,7 @@
 import axios from "../../axios";
 import React, { useEffect, useState } from 'react';
 import { Avatar, Button, Col, DatePicker, Form, Input, message, Modal, Radio, Row, type MenuProps } from 'antd';
-import { Layout, Menu, theme } from 'antd';
+import { Layout, Menu, theme } from 'antd'; 
 import {
   AppstoreOutlined,
   BellOutlined,
@@ -19,7 +19,6 @@ import { Footer } from 'antd/es/layout/layout';
 import {editProfileById, getProfileByEmail} from '../../services/user/ProfileServices.js';
 import moment from "moment";
 import { ethers } from 'ethers';
-import { Provider } from "ethers";
 import { MetaMaskInpageProvider } from "@metamask/providers";
 
 declare global {
@@ -79,7 +78,7 @@ export default function Profile() {
       const values = await form.validateFields(); // Lấy dữ liệu từ form
       const updatedProfile = {
         fullname: values.fullname || profile.fullname,
-        gender: values.gender || profile.gender,
+        gender: values.gender,
         walletaddress: values.walletaddress || profile.walletaddress,
         dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
         country: values.country || profile.country,
@@ -121,7 +120,6 @@ const connectWallet = async () => {
     const balance = await provider.getBalance(walletAddress);
     const balanceInEth = ethers.formatEther(balance);
     const formattedBalance = parseFloat(balanceInEth).toFixed(3);
-
 
     form.setFieldsValue({
       walletaddress: walletAddress,
@@ -168,7 +166,7 @@ const connectWallet = async () => {
               createdAt: data.createdAt || '1 month ago',
               fullname: data.fullname,
               dateofbirth: data.dateofbirth,
-              gender: data.gender === true ? 'Male' : 'Female',
+              gender: data.gender,
               country: data.country,
               walletaddress: data.walletaddress,
             });
@@ -266,8 +264,8 @@ const connectWallet = async () => {
                       rules={[{ required: true, message: 'Please select gender!' }]}
                     >
                       <Radio.Group>
-                        <Radio value={true}>Male</Radio>
-                        <Radio value={false}>Female</Radio>
+                        <Radio value={'Male'}>Male</Radio>
+                        <Radio value={'Female'}>Female</Radio>
                       </Radio.Group>
                     </Form.Item>
 

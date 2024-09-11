@@ -13,10 +13,8 @@ const SignIn = () => {
         try {
             const values = await form.validateFields();
             const { email, password } = values;
-            
             const response = await handleSignInApi(email, password);
             console.log(response);
-
             if (response.errorCode === 0) {
                 // Lưu email vào localStorage
                 localStorage.setItem('userEmail', email);
