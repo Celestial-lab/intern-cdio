@@ -169,15 +169,18 @@ export default function Product() {
     if (email) {
       getProductByEmail(email).then((response) => {
         if (response && response.products && Array.isArray(response.products)) {
-          const mappedProducts = response.products.map((product, index) => ({
-            key: product.id,
-            name: product.productname,
-            image: product.image, // URL của ảnh từ phản hồi
-            description: product.description,
-            uploadDate: product.createdAt,
-            price: product.price,
-            status: product.status,
-          }));
+          const mappedProducts = response.products.map((product) => {
+            console.log("Product image URL:", product.image); // Kiểm tra URL hình ảnh
+            return {
+              key: product.id,
+              name: product.productname,
+              image: product.image, 
+              description: product.description,
+              uploadDate: product.createdAt,
+              price: product.price,
+              status: product.status,
+            };
+          });
           setProducts(mappedProducts);
         } else {
           console.error('Expected an array but got:', response);
@@ -187,6 +190,7 @@ export default function Product() {
       });
     }
   }, []);
+  
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>

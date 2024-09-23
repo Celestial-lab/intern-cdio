@@ -47,13 +47,3 @@ export const getProductByEmail = async (email) => {
     }
 };
 
-export const getImageByFile = async (filename) => {
-    try {
-        const response = await axios.get(`/api/images/${filename}`); 
-        console.log('data lấy dược', response.data)
-        return response.data;
-    } catch (error) {
-        console.error('Failed to fetch product data:', error);
-        return [];
-    }
-}
