@@ -1,6 +1,6 @@
-import axios from '../../axios';
+import axios, {instanceFormData} from '../../axios'; 
 
-export const getProfileByEmail = async (email) => {
+export const getProfileByEmail = async (email) => { 
     try{
         const response = await axios.get(`/api/profileauthor/${email}`);
         return response.data;
@@ -23,4 +23,37 @@ export const editProfileById = async (id, data) => {
       console.error('loi o edit profile author roi dan oi', error);
       return null;
     }
-  }
+}
+
+export const handleAddProduct = async (formData) => {
+    try {
+      const response = await instanceFormData.post('/api/products', formData);
+      console.log('data lấy được của hàm handleAddProduct:', response.data);
+      return response;
+    } catch (error) {
+      console.error('lỗi bên author services nè:', error.response);
+      return null;
+    }
+  };
+  
+export const getProductByEmail = async (email) => {
+    try {
+        const response = await axios.get(`/api/products/${email}`); 
+        console.log('data lấy dược hàm getProductByEmail', response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch product data:', error);
+        return [];
+    }
+};
+
+export const getImageByFile = async (filename) => {
+    try {
+        const response = await axios.get(`/api/images/${filename}`); 
+        console.log('data lấy dược', response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch product data:', error);
+        return [];
+    }
+}
