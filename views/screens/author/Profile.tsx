@@ -81,18 +81,9 @@ export default function Profile() {
             dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
             country: values.country || profile.country,
         };
-
         const response = await editProfileById(profile.id, updatedProfile);
-
-
         if (response) {
-
-            console.log('response bên profile.tsx nè', response);
-
             setProfile({ ...profile, ...updatedProfile, gender: values.gender });
-
-            console.log('profile sau setprofile', profile);
-
             message.success('Profile updated successfully!');
         } else {
             message.error('Failed to update profile!');
