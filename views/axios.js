@@ -1,13 +1,22 @@
 import axios from 'axios';
 
-const BaseUrl = 'https://2a61-116-110-54-110.ngrok-free.app'
+const BaseUrl = 'https://0c42-116-105-31-43.ngrok-free.app'
 const instance = axios.create({
     baseURL: BaseUrl,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': 'https://2a61-116-110-54-110.ngrok-free.app',
+      'Access-Control-Allow-Origin': 'https://0c42-116-105-31-43.ngrok-free.app',
       'ngrok-skip-browser-warning': 'true',
     },
+});
+
+export const instanceFormData = axios.create({
+  baseURL: BaseUrl,
+  headers: {
+    // 'Content-Type': 'multipart/form-data',
+    'Access-Control-Allow-Origin': 'https://0c42-116-105-31-43.ngrok-free.app',
+    'ngrok-skip-browser-warning': 'true',
+  },
 });
 
 export default instance;
