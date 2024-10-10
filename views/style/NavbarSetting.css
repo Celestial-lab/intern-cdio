@@ -1,0 +1,50 @@
+.col1 {
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+    height: auto;
+    display: inline-block;
+}
+
+.col2 {
+    height: 100%;
+}
+
+.headerRight {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+.iconBell {
+    background-color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+}
+.iconDollar {
+    background-color: white;
+    width: 150px;
+    height: 40px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    border-radius: 5px;
+    padding-left: 10px;
+}
+.showTotalMoney {
+    width: 120px;
+    height: 40px;
+    line-height: 40px; 
+    text-align: center;
+    border-radius: 5px; 
+    border: 1px solid #f0f0f0;
+    color: #22C55E; 
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 10px;
+  }
