@@ -25,6 +25,7 @@ import {
   LineElement   
 } from 'chart.js';
 import {getProfileByEmail} from '../../services/author/AuthorServices'
+import NavbarSetting from '@/views/components/NavbarSetting';
 
 
 
@@ -106,21 +107,7 @@ export default function Dashboard() {
       </Sider>
       <Layout>
         <Header className='headerInfor'>
-          <Row className='row'>
-            <Col className='col1' span={12}>
-              <div className='name'><p>Hello, {profile.nickname}</p></div>
-              <div className='date'><p>Tue, 29 July 2024</p></div>
-            </Col>
-            <Col className='col2' span={12}>
-              <Row className='headerRight'>
-                <div className='iconBell'><BellOutlined style={{ color: 'grey' }} /></div>
-                <div className='iconDollar'><DollarOutlined style={{ color: 'grey' }} />
-                  <div className='showTotalMoney'>:</div>
-                </div>
-                <div className='avt1'><Avatar shape="square" style={{ color: 'grey', background: 'white' }} size={40} icon={<UserOutlined />} /></div>
-              </Row>
-            </Col>
-          </Row>
+          <NavbarSetting />
         </Header>
 
         <Content className='contInfor' style={{ margin: '0 16px' }}>

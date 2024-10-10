@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Avatar, Button, Col, DatePicker, Form,  Input, message, Modal, Radio, Row, type MenuProps } from 'antd';
+import { Avatar, Button, Col, DatePicker, Form, Input, message, Modal, Radio, Row, type MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import {
   BarChartOutlined,
@@ -10,13 +10,14 @@ import {
   MailFilled,
   ProductOutlined,
   UserOutlined,
-  } from '@ant-design/icons';
+} from '@ant-design/icons';
 import "@/views/style/ProfileAuthor.css";
 import { Footer } from 'antd/es/layout/layout';
-import {editProfileById, getProfileByEmail} from '../../services/author/AuthorServices';
+import { editProfileById, getProfileByEmail } from '../../services/author/AuthorServices';
 import moment from "moment";
 import { ethers } from 'ethers';
 import { MetaMaskInpageProvider } from "@metamask/providers";
+import NavbarSetting from '@/views/components/NavbarSetting';
 
 
 const { Header, Content, Sider } = Layout;
@@ -51,7 +52,7 @@ const items: MenuItem[] = [
 
 export default function Profile() {
   const [collapsed, setCollapsed] = useState(false);
-  const {token: { colorBgContainer }} = theme.useToken();
+  const { token: { colorBgContainer } } = theme.useToken();
   const [form] = Form.useForm();
 
   const [profile, setProfile] = useState({
@@ -68,32 +69,32 @@ export default function Profile() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
-    setIsModalOpen(true)  
+    setIsModalOpen(true)
   }
-   
+
   const handleOkButton = async () => {
     try {
-        const values = await form.validateFields(); 
-        const updatedProfile = {
-            fullname: values.fullname || profile.fullname,
-            gender: values.gender,
-            walletaddress: values.walletaddress || profile.walletaddress,
-            dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
-            country: values.country || profile.country,
-        };
-        const response = await editProfileById(profile.id, updatedProfile);
-        if (response) {
-            setProfile({ ...profile, ...updatedProfile, gender: values.gender });
-            message.success('Profile updated successfully!');
-        } else {
-            message.error('Failed to update profile!');
-        }
-
-        setIsModalOpen(false);
-        
-    } catch (error) {
-        console.error('Error updating profile:', error);
+      const values = await form.validateFields();
+      const updatedProfile = {
+        fullname: values.fullname || profile.fullname,
+        gender: values.gender,
+        walletaddress: values.walletaddress || profile.walletaddress,
+        dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
+        country: values.country || profile.country,
+      };
+      const response = await editProfileById(profile.id, updatedProfile);
+      if (response) {
+        setProfile({ ...profile, ...updatedProfile, gender: values.gender });
+        message.success('Profile updated successfully!');
+      } else {
         message.error('Failed to update profile!');
+      }
+
+      setIsModalOpen(false);
+
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      message.error('Failed to update profile!');
     }
   }
   const handleCancelButton = () => {
@@ -108,7 +109,6 @@ export default function Profile() {
         message.error('MetaMask is not installed!');
         return;
       }
-  
       const provider = new ethers.BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
@@ -116,25 +116,20 @@ export default function Profile() {
       const balance = await provider.getBalance(walletAddress);
       const balanceInEth = ethers.formatEther(balance);
       const formattedBalance = parseFloat(balanceInEth).toFixed(3);
-  
-      form.setFieldsValue({
-        walletaddress: walletAddress,
-      });
-  
-      const updatedProfile = {
-        ...profile,
-        walletaddress: walletAddress,
-      };
-  
+
+      form.setFieldsValue({ walletaddress: walletAddress });
+      const updatedProfile = { ...profile, walletaddress: walletAddress };
+
       const response = await editProfileById(profile.id, updatedProfile);
       if (response) {
-        setProfile(updatedProfile); 
-  
+        setProfile(updatedProfile);
         message.success('Wallet connected and updated successfully!');
-  
+
+        localStorage.setItem('walletBalance', formattedBalance);
+
         const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
         if (showTotalMoneyDiv) {
-          showTotalMoneyDiv.textContent = `${formattedBalance} $`;
+          showTotalMoneyDiv.textContent = `${formattedBalance} CELE`;
         }
       } else {
         message.error('Failed to update wallet address!');
@@ -151,7 +146,7 @@ export default function Profile() {
       const email = localStorage.getItem('authorEmail');
       if (email) {
         try {
-          const response = await getProfileByEmail(email); 
+          const response = await getProfileByEmail(email);
           const data = response.data;
 
           if (data) {
@@ -174,7 +169,7 @@ export default function Profile() {
           console.error('Failed to fetch profile:', error);
         }
 
-      } 
+      }
     };
     fetchProfileData();
   }, []);
@@ -182,12 +177,12 @@ export default function Profile() {
   useEffect(() => {
     const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
     if (showTotalMoneyDiv) {
-      showTotalMoneyDiv.textContent = '0 $';
+      showTotalMoneyDiv.textContent = '0 CELE';
     }
   }, []);
 
 
-  
+
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -197,38 +192,21 @@ export default function Profile() {
       </Sider>
       <Layout>
         <Header className='headerInfor'>
-            <Row className='row'>
-
-            <Col className='col1' span={12}>
-              <div className='name'><p>Hello, {profile.nickname}</p></div>
-              <div className='date'><p>Tue, 29 July 2024</p></div>
-            </Col>
-
-            <Col className='col2' span={12}>
-              <Row className='headerRight'>
-                <div className='iconBell'><BellOutlined style={{color: 'grey'}}/></div>
-                <div className='iconDollar'><DollarOutlined style={{color: 'grey'}}/>
-                  <div className='showTotalMoney'>:</div>
-                </div>
-                <div className='avt1'><Avatar shape="square" style={{color: 'grey', background: 'white'}} size={40} icon={<UserOutlined />} /></div>
-              </Row>
-            </Col>
-
-            </Row>
+          <NavbarSetting />
         </Header>
 
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
-              padding: 5,
-              maxHeight: 60,
-              background: colorBgContainer,
-            }}><h3>Profile</h3></div>
-          <div className='divInfor' style={{padding: 15, minHeight: 485, background: colorBgContainer}}>
+            padding: 5,
+            maxHeight: 60,
+            background: colorBgContainer,
+          }}><h3>Profile</h3></div>
+          <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row className='row1'>
               <Col className='colAvt' span={12}>
                 <Row className='rowName'>
                   <Col span={3.5}>
-                    <Avatar shape="circle" style={{color: 'grey', background: '#e7e7e7'}} size={75} icon={<UserOutlined />} />
+                    <Avatar shape="circle" style={{ color: 'grey', background: '#e7e7e7' }} size={75} icon={<UserOutlined />} />
                   </Col>
                   <Col className='colName' span={20.5}>
                     <div className='divName'>
@@ -248,12 +226,12 @@ export default function Profile() {
                   open={isModalOpen}
                   onOk={handleOkButton}
                   onCancel={handleCancelButton}
-                  okButtonProps={{ className: 'modal-ok-button', type:'text' }}
-                  cancelButtonProps={{type: 'text'}}
+                  okButtonProps={{ className: 'modal-ok-button', type: 'text' }}
+                  cancelButtonProps={{ type: 'text' }}
                 >
                   <Form form={form} layout="vertical">
                     <Form.Item
-                      name="fullname" 
+                      name="fullname"
                       label="Full Name:"
                       initialValue={profile.fullname}
                     >
@@ -263,7 +241,7 @@ export default function Profile() {
                     <Form.Item
                       name="gender"
                       label="Gender"
-                      initialValue={profile.gender === 'Male' ? true : false} 
+                      initialValue={profile.gender === 'Male' ? true : false}
                       rules={[{ required: true, message: 'Please select gender!' }]}
                     >
                       <Radio.Group>
@@ -288,7 +266,7 @@ export default function Profile() {
                         </Button>
                       </Col>
                     </Row>
-                    
+
                     <Form.Item
                       name="dateofbirth"
                       label="Date of Birth"
@@ -313,14 +291,14 @@ export default function Profile() {
               <Col className='colInput1' span={12}>
                 <div className='divInput1'>
                   <Form form={form} layout="vertical">
-                    <Form.Item name="full-name" label="Full Name:">
-                      <Input placeholder={profile.fullname} />
+                    <Form.Item label="Full Name:">
+                      <Input placeholder={profile.fullname} readOnly bordered={true} />
                     </Form.Item>
                     <Form.Item name="gender" label="Gender:">
-                      <Input placeholder={profile.gender} />
+                      <Input placeholder={profile.gender} readOnly bordered={true}/>
                     </Form.Item>
                     <Form.Item name="wallet-address" label="Wallet Address:" >
-                      <Input placeholder={profile.walletaddress} />
+                      <Input placeholder={profile.walletaddress} readOnly bordered={true}/>
                     </Form.Item>
                   </Form>
                 </div>
@@ -329,10 +307,10 @@ export default function Profile() {
                 <div className='divInput2'>
                   <Form form={form} layout="vertical">
                     <Form.Item name="date" label="Date of birth:">
-                      <Input placeholder={profile.dateofbirth} />
+                      <Input placeholder={profile.dateofbirth} readOnly bordered={true}/>
                     </Form.Item>
                     <Form.Item name="country" label="Country:">
-                      <Input placeholder={profile.country} />
+                      <Input placeholder={profile.country} readOnly bordered={true}/>
                     </Form.Item>
                   </Form>
                   <Button className='connectWalletBut' type="text" onClick={connectWallet}>Connect Wallet</Button>
@@ -348,11 +326,11 @@ export default function Profile() {
                 </Row>
                 <Row className='row32'>
                   <Col className='colIconEmail' span={3.5}>
-                    <Avatar shape='circle' style={{color: '#22C55E', background: '#e7e7e7'}} size={35} icon={<MailFilled />}></Avatar>
+                    <Avatar shape='circle' style={{ color: '#22C55E', background: '#e7e7e7' }} size={35} icon={<MailFilled />}></Avatar>
                   </Col>
                   <Col className='colEmail' span={20.5}>
                     <span className='textMail'>{profile.email}</span> <br />
-                    <span className='textMonth'>{profile.createdAt}</span>
+                    <span className='textMonth'>{moment(profile.createdAt).format('ddd, DD MMMM YYYY')}</span>
                   </Col>
                 </Row>
                 <Row className='row33'>

@@ -25,13 +25,16 @@ export const editProfileById = async (id, data) => {
     }
   }
 
-export const handleAddProduct = async (formData) => {
+  export const handleAddProduct = async (formData) => {
     try {
-      const response = await instanceFormData.post('/api/products', formData);
-      console.log('data lấy được của hàm handleAddProduct:', response.data);
-      return response;
+      const response = await axios.post('/api/products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
     } catch (error) {
-      console.error('lỗi bên author services nè:', error.response);
+      console.error('Lỗi khi thêm sản phẩm:', error);
       return null;
     }
   };

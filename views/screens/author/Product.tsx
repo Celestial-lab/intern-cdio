@@ -6,6 +6,7 @@ import { BarChartOutlined, BellOutlined, DollarOutlined, ProductOutlined, UserOu
 import { deleteProductById, getProductByEmail, handleAddProduct } from '../../services/author/AuthorServices';
 import { title } from 'process';
 import axios from '../../axios';
+import NavbarSetting from '@/views/components/NavbarSetting';
 
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -51,7 +52,6 @@ export default function Product() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-
 
   const handleEdit = (record: Product) => {
     setEditingProduct(record);
@@ -108,11 +108,14 @@ export default function Product() {
           console.error('Cập nhật sản phẩm thất bại:', response);
         }
       } else {
-        const response = await axios.post('/api/products', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+
+        console.log('log formData nè: ',formData);
+
+        const response = await handleAddProduct(formData);
+        // const data = response?.data;
+
+        console.log('log response product.tsx nè: ', response);
+
         if (response && response.data) {
           const newProduct = {
             key: response.data.product.id,
@@ -133,6 +136,8 @@ export default function Product() {
       console.error('Lỗi khi thêm/cập nhật sản phẩm:', error);
     }
   };
+
+
 
   const handleDelete = async (record: Product) => {
     setDeletingProduct(record);
@@ -219,6 +224,7 @@ export default function Product() {
 
   useEffect(() => {
     const email = localStorage.getItem('authorEmail');
+    // console.log('author email: ',email);
     if (email) {
       getProductByEmail(email).then((response) => {
         if (response && response.products && Array.isArray(response.products)) {
@@ -248,21 +254,7 @@ export default function Product() {
       </Sider>
       <Layout>
         <Header className='headerInfor'>
-          <Row className='row'>
-            <Col className='col1' span={12}>
-              <div className='name'><p>Hello, DanLe</p></div>
-              <div className='date'><p>Tue, 29 July 2024</p></div>
-            </Col>
-            <Col className='col2' span={12}>
-              <Row className='headerRight'>
-                <div className='iconBell'><BellOutlined style={{ color: 'grey' }} /></div>
-                <div className='iconDollar'><DollarOutlined style={{ color: 'grey' }} />
-                  <div className='showTotalMoney'>:</div>
-                </div>
-                <div className='avt1'><Avatar shape="square" style={{ color: 'grey', background: 'white' }} size={40} icon={<UserOutlined />} /></div>
-              </Row>
-            </Col>
-          </Row>
+          <NavbarSetting />
         </Header>
 
         <Content style={{ margin: '16px' }}>
@@ -350,7 +342,7 @@ export default function Product() {
 
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Design ©2024 Created by DanLe</Footer>
+        <Footer style={{ textAlign: 'center' }}>DanLe</Footer>
       </Layout>
     </Layout>
   );
