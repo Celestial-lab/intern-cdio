@@ -8,8 +8,8 @@ import { Button, Col, Row } from 'antd';
 import "@/views/style/ProductDetail.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { HeartOutlined } from '@ant-design/icons';
+import FooterAll from '@/views/components/Footer';
 
-// Hàm chọn ngẫu nhiên một số phần tử từ một mảng
 const getRandomItems = (arr, num) => {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, num);
@@ -29,7 +29,7 @@ const ProductDetail = () => {
 
     if (product) {
       const otherProducts = products.filter(p => p.id !== product.id);
-      setSuggestedProducts(getRandomItems(otherProducts, 4));
+      setSuggestedProducts(getRandomItems(otherProducts, 5));
     }
   }, [productId]);
 
@@ -44,59 +44,68 @@ const ProductDetail = () => {
   return (
     <>
       <Navbar />
-      <div className='product-detail-container'>
-        <Row gutter={[16, 16]}>
-          <Col span={6} className='suggestions-column'>
-            <div><h5 className='suggest-title'>Suggest Product</h5></div>
-            {suggestedProducts.map((suggestedProduct, index) => (
-              <div key={index} className='product-item'>
-                <Col span={10} className='image-container'>
-                  <img src={suggestedProduct.imageUrl} alt={suggestedProduct.productName} />
-                </Col>
-                <Col span={14} className='title-container'>
-                  <div className='title-content'>
-                    <h6>{suggestedProduct.productName}</h6>
-                    <p>{suggestedProduct.price}</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="read-more-btn"
-                    onClick={() => handleReadMore(suggestedProduct.id)}
-                  >
-                    Read More
-                  </button>
-                </Col>
-              </div>
-            ))}
-          </Col>
 
-          <Col span={18} className='details-column'>
-            <Row gutter={[16, 16]}>
-              <Col span={12} className='image-container'>
-                <img src={currentProduct.imageUrl} alt={currentProduct.productName} />
-              </Col>
-              <Col span={12} className='details-container'>
-                <h1 className='product-name' style={{paddingBottom : '15px'}}>{currentProduct.productName}</h1>
-                <p className='product-description'>The writer's</p>
-                <p className='product-price'>{currentProduct.price}</p>
-                <h6 className='auction-time'>Auction time: </h6>
-                <h6 className='price-step'>Price step:</h6>
-                <h6 className='product-description-title'>Product description: </h6>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={24}>
-              <div className='button-container'>
-                  <button type="button" className="btn">Register for auction</button>
-                  <button type="button" className="btn">
-                  <HeartOutlined /> Wishlist 
-                  </button>
+      <section class="sec-detail py-4">
+        <div class="div-details container">
+          <div class="row">
+            <div class="col-md-4 col-suggest">
+              <div>
+                <h5 className='suggest-title'>Suggest Product</h5>
               </div>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </div>
+              {suggestedProducts.map((suggestedProduct, index) => (
+                <div key={index} className='product-item d-flex mb-3'>
+                  <div className="col-md-4 image-container">
+                    <img class="img-suggest" src={suggestedProduct.imageUrl} alt={suggestedProduct.productName} />
+                  </div>
+                  <div className="col-md-8 title-container">
+                    <div className='title-content'>
+                      <h6 class="name-suggest">{suggestedProduct.productName}</h6>
+                      <p class="price-suggest">{suggestedProduct.price}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-success read-more-btn"
+                      onClick={() => handleReadMore(suggestedProduct.id)}
+                    >
+                      Read More
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div class="col-md-8 col-details">
+              <div className="details-column">
+                <div className="row mb-5">
+                  <div className="col-md-7 image-container">
+                    <img class="img-product" src={currentProduct.imageUrl} alt={currentProduct.productName}/>
+                  </div>
+                  <div className="col-md-5 details-container">
+                    <h1 className='product-name mb-3'>{currentProduct.productName}</h1>
+                    <p className='product-price'> {currentProduct.price}</p>
+                    <p className='product-author'>The writer{`'`}s:</p>
+                    <p className='auction-time'>Auction time: </p>
+                    <p className='price-step'>Price step:</p>
+                    <p className='product-description-title'>Product description: </p>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12">
+                    <div className='button-container d-flex flex-column align-items-center'>
+                      <button class="btn-regis mb-2">Register for auction</button>
+                      <button class="btn-wish">
+                        <i className="fa fa-heart" /> Wishlist
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <FooterAll />
     </>
   );
 };
