@@ -1,31 +1,65 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, Col, Row, Typography, Pagination, Button, Menu, Dropdown, Select } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Typography, Pagination, Button, Menu, Dropdown, Select } from 'antd';
 import Navbar from "@/views/components/Navbar";
+import NavbarAfter from "@/views/components/NavbarAfter";
 import { DownOutlined } from '@ant-design/icons';
-import FooterNavbar from "@/views/components/FooterNavbar";
 import "@/views/style/Product.css";
-import { useRouter } from 'next/navigation';
-import { products } from "@/views/screens/Product/Data";
 import FooterAll from '@/views/components/Footer.js';
+import { getAuction } from '@/views/services/AuctionServices';
 
 const { Title } = Typography;
 const { Option } = Select;
 
-const Product = () => {
+const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(16);
-  const [sortedProducts, setSortedProducts] = useState(products);
-  const router = useRouter();
+  const [sortedProducts, setSortedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = sortedProducts.slice(startIndex, endIndex);
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setIsLoggedIn(false);
+      const userConfirmed = window.confirm("Bạn chưa đăng nhập, hãy đăng nhập!");
+      if (userConfirmed) {
+        window.location.href = '/user/signin';
+      }
+    } else {
+      setIsLoggedIn(true); 
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      try {
+        const auctionData = await getAuction();
+        console.log('Dữ liệu trả về từ API:', auctionData);
+        if (auctionData && Array.isArray(auctionData) && auctionData.length > 0) {
+          setSortedProducts(auctionData);
+        } else {
+          console.error("API không trả về dữ liệu hợp lệ.");
+        }
+      } catch (error) {
+        console.error('Lỗi khi gọi API:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAuctions();
+  }, []);
+
+  
+
   const handleMenuClick = (e) => {
     const key = e.key;
-    const sorted = [...products].sort((a, b) => {
+    const sorted = [...sortedProducts].sort((a, b) => {
       if (key === 'asc') {
         return a.productName.localeCompare(b.productName);
       } else if (key === 'desc') {
@@ -49,32 +83,41 @@ const Product = () => {
     </Menu>
   );
 
-  const handleRegisterClick = (productId) => {
-    router.push(`/products/${productId}`);
+
+  const handleRegisterClick = (auctionId) => {
+    console.log('Thông tin sản phẩm:', auctionId);
+
+    localStorage.setItem('auctionId', auctionId);
+
+    window.location.href = `/products/${auctionId}`;
   };
+
+  if (loading) {
+    return <p>Đang tải dữ liệu đấu giá...</p>;
+  }
 
   return (
     <>
-      <Navbar />
+      {isLoggedIn ? <NavbarAfter /> : <Navbar />}
 
-      <section class="product">
-
+      <section className="product">
         <div className="show-product">
           <div className="tableGif">
-
-            <div class="title-table">
-              <p class="showing">
-                Showing {startIndex + 1} - {Math.min(endIndex, products.length)} of {products.length} items
+            <div className="title-table">
+              <p className="showing">
+                Showing {startIndex + 1} - {Math.min(endIndex, sortedProducts.length)} of {sortedProducts.length} items
               </p>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Dropdown overlay={menu}>
-                  <Button style={{
-                    background: 'white',
-                    color: 'black',
-                    borderRadius: '4px',
-                    marginRight: '15px',
-                    fontFamily: 'var(--space-grotesk-fonts)'
-                  }}>
+                  <Button
+                    style={{
+                      background: 'white',
+                      color: 'black',
+                      borderRadius: '4px',
+                      marginRight: '15px',
+                      fontFamily: 'var(--space-grotesk-fonts)',
+                    }}
+                  >
                     Sort by <DownOutlined />
                   </Button>
                 </Dropdown>
@@ -85,7 +128,7 @@ const Product = () => {
                     borderRadius: '4px',
                     borderColor: '#22C55E',
                     marginRight: '15px',
-                    fontFamily: 'var(--space-grotesk-fonts)'
+                    fontFamily: 'var(--space-grotesk-fonts)',
                   }}
                   onChange={handleItemsPerPageChange}
                 >
@@ -100,25 +143,16 @@ const Product = () => {
             <div className="row" style={{ maxWidth: '93%', margin: '0 auto' }}>
               {currentItems.map((item) => (
                 <div className="col-3" key={item.id} style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                <div className="card" style={{ width: '18rem', position: 'relative' }}>
-                  <img alt="example" src={item.imageUrl} className="card-img-top" />
-                  {item.isNew && (
-                    <div class="status-new">
-                      New
+                  <div className="card" style={{ width: '18rem', position: 'relative' }}>
+                    <img alt={item.productName} src={item.imageUrl} className="card-img-top" />
+                    <div className="card-body">
+                      <h5 className="card-title">{item.productName}</h5>
+                      <p className="card-text">{item.description}</p>
+                      <p className="card-text">Price: {item.startingPrice}</p>
+                      <button className="btn btn-success" onClick={() => handleRegisterClick(item.id)}>Register</button>
                     </div>
-                  )}
-                  <div className="card-body">
-                    <h5 className="card-title">{item.productName}</h5>
-                    <p className="card-text">{item.price}</p>
-                    <button
-                      className="btn btn-success"
-                      onClick={() => handleRegisterClick(item.id)}
-                    >
-                      Register
-                    </button>
                   </div>
                 </div>
-              </div>
               ))}
             </div>
 
@@ -137,6 +171,6 @@ const Product = () => {
       <FooterAll />
     </>
   );
-}
+};
 
-export default Product;
+export default ProductPage;

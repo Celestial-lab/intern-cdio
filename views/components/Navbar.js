@@ -3,7 +3,6 @@
 import React from 'react';
 import { Layout, Menu, Dropdown } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Link from 'next/link';
 import "@/views/style/Navbar.css";
 
 const { Header } = Layout;

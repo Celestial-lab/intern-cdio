@@ -1,37 +1,74 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { products } from "@/views/screens/Product/Data";
+import { useRouter } from 'next/navigation';
 import Navbar from '@/views/components/Navbar';
-import { Button, Col, Row } from 'antd';
 import "@/views/style/ProductDetail.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { HeartOutlined } from '@ant-design/icons';
 import FooterAll from '@/views/components/Footer';
-
-const getRandomItems = (arr, num) => {
-  const shuffled = [...arr].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, num);
-};
+import { getAuction, getAuctionById } from '@/views/services/AuctionServices';
 
 const ProductDetail = () => {
-  const params = useParams();
-  const { productId } = params;
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [suggestedProducts, setSuggestedProducts] = useState([]); // Thêm state cho suggestedProducts
+  const [remainingTime, setRemainingTime] = useState('');
   const router = useRouter();
 
-  const [currentProduct, setCurrentProduct] = useState(null);
-  const [suggestedProducts, setSuggestedProducts] = useState([]);
-
   useEffect(() => {
-    const product = products.find((product) => product.id === parseInt(productId, 10));
-    setCurrentProduct(product);
+    const auctionId = localStorage.getItem('auctionId');
 
-    if (product) {
-      const otherProducts = products.filter(p => p.id !== product.id);
-      setSuggestedProducts(getRandomItems(otherProducts, 5));
+    if (auctionId) {
+      const fetchProduct = async () => {
+        const productData = await getAuctionById(auctionId);
+        console.log('data của sản phẩm: ', productData.productName);
+        if (productData) {
+          setCurrentProduct(productData);
+        } else {
+          console.error('Không tìm thấy sản phẩm!');
+        }
+      };
+      fetchProduct();
+    } else {
+      console.error('Không có auctionId trong localStorage!');
     }
-  }, [productId]);
+
+  }, []);
+
+  // Tạo useEffect để lấy suggestedProducts
+  useEffect(() => {
+    const fetchSuggestedProducts = async () => {
+      try {
+        const allAuctions = await getAuction();
+        console.log('Dữ liệu các sản phẩm gợi ý:', allAuctions);
+        setSuggestedProducts(allAuctions); // Giả sử allAuctions chứa danh sách sản phẩm
+      } catch (error) {
+        console.error('Lỗi khi lấy sản phẩm gợi ý:', error);
+      }
+    };
+    fetchSuggestedProducts();
+  }, []);
+
+  // Tính toán thời gian còn lại
+  useEffect(() => {
+    if (currentProduct) {
+      const endTimeInMilliseconds = currentProduct.endTime * 1000; // Chuyển epoch seconds sang milliseconds
+      const intervalId = setInterval(() => {
+        const now = Date.now();
+        const timeLeft = endTimeInMilliseconds - now;
+
+        if (timeLeft < 0) {
+          clearInterval(intervalId);
+          setRemainingTime('Đã kết thúc');
+        } else {
+          const minutes = Math.floor((timeLeft / 1000) / 60);
+          const seconds = Math.floor((timeLeft / 1000) % 60);
+          setRemainingTime(`${minutes} phút ${seconds} giây`);
+        }
+      }, 1000);
+
+      return () => clearInterval(intervalId); // Dọn dẹp interval khi component unmount
+    }
+  }, [currentProduct]);
 
   if (!currentProduct) {
     return <div>Product not found</div>;
@@ -39,6 +76,11 @@ const ProductDetail = () => {
 
   const handleReadMore = (id) => {
     router.push(`/products/${id}`);
+  };
+
+  const handleRegisterClick = () => {
+    console.log('Đăng ký cho sản phẩm:', currentProduct);
+    alert(`Bạn đã đăng ký thành công cho sản phẩm: ${currentProduct.productName}`);
   };
 
   return (
@@ -60,7 +102,7 @@ const ProductDetail = () => {
                   <div className="col-md-8 title-container">
                     <div className='title-content'>
                       <h6 class="name-suggest">{suggestedProduct.productName}</h6>
-                      <p class="price-suggest">{suggestedProduct.price}</p>
+                      <p class="price-suggest">{suggestedProduct.startingPrice}</p>
                     </div>
                     <button
                       type="button"
@@ -82,11 +124,10 @@ const ProductDetail = () => {
                   </div>
                   <div className="col-md-5 details-container">
                     <h1 className='product-name mb-3'>{currentProduct.productName}</h1>
-                    <p className='product-price'> {currentProduct.price}</p>
+                    <p className='product-price'>{currentProduct.startingPrice}</p>
                     <p className='product-author'>The writer{`'`}s:</p>
-                    <p className='auction-time'>Auction time: </p>
-                    <p className='price-step'>Price step:</p>
-                    <p className='product-description-title'>Product description: </p>
+                    <p className='auction-time'>Auction time: {remainingTime}</p>
+                    <p className='product-description-title'>Product description: {currentProduct.description}</p>
                   </div>
                 </div>
                 <div className="row">

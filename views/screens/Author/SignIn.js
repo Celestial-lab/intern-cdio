@@ -1,11 +1,12 @@
 'use client'
 
-import { Button, Checkbox, Col, Form, Input, Row, message } from "antd"; // Thêm message để hiển thị thông báo
+import { Button, Checkbox, Col, Form, Input, Row, message } from "antd";
 import React, { useState } from "react";
 import "@/views/style/SignIn.css";
 import handleSignInAuthor from "@/views/services/SignInAuthorServices";
 
 const SignInAuthor = () => {
+
     const [form] = Form.useForm();
     const [checked, setChecked] = useState(false);
 
@@ -14,15 +15,18 @@ const SignInAuthor = () => {
             const values = await form.validateFields();
             const { email, password } = values;
             const response = await handleSignInAuthor(email, password);
+            console.log('data trả về của api login: ', response);
 
-            console.log('response neee', response);
 
-            if (response && response.errorCode === 0) {
-
-                localStorage.setItem('authorEmail', email);
-
+            if (response.errorCode === 0) {
+                const authorId = response.author.id;
+                const authorEmail = response.author.email;
+                localStorage.setItem('authorId', authorId);
+                localStorage.setItem('authorEmail', authorEmail);
+                localStorage.setItem('accessToken', response.token);
+                const datatoken = localStorage.getItem('accessToken');
+                console.log('token của jwt nè: ', datatoken);
                 message.success(response.message || 'Sign in successful!');
-
                 setTimeout(() => {
                     window.location.href = '/author/settings/ProfileAuthor';
                 }, 1500);

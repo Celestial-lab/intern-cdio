@@ -1,0 +1,170 @@
+:root {
+    --space-grotesk-fonts: 'Space Grotesk';
+  }
+  
+  .collapse {
+    padding-bottom: 0 !important;
+  }
+  
+  .navbar {
+    background-color: #080D20;
+  }
+  
+  .navbar-nav {
+    gap: 30px;
+  }
+  
+  .nav-link {
+    font-family: var(--space-grotesk-fonts);
+    font-size: 20px !important;
+    color: #989898 !important;
+  }
+  
+  .nav-link:hover {
+    transition: 300ms !important;
+    color: #22C55E !important;
+  }
+  
+  .logo img {
+    display: block;
+    width: clamp(35px, 20vw, 65px);
+    height: auto;
+  }
+  
+  .button {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: var(--space-grotesk-fonts);
+    font-size: 17px !important;
+    color: #989898 !important;
+  }
+  
+  .login {
+    text-decoration: none;
+    color: #989898;
+  }
+  
+  .signup {
+    border: none;
+    width: 100px;
+    height: 40px;
+    border-radius: 30px;
+    background-color: #22C55E;
+  }
+  
+  .login-dropdown {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .login-dropdown button {
+    font-family: var(--space-grotesk-fonts);
+    background-color: transparent;
+    color: #556987;
+    border: none;
+    text-align: left;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  .login-dropdown button:hover {
+    background-color: #22C55E;
+    color: #ffffff;
+  }
+
+  .infor-user {
+    width: fit-content;
+  }
+
+  .row-infor {
+    gap: 20px;
+    justify-content: flex-end;
+  }
+  .cart {
+    width: 40px;
+    height: 40px;
+    background-color: #a9a9a9;
+    padding: 0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .money {
+    width: fit-content;
+    height: 40px;
+    background-color: #a9a9a9;
+    padding: 0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+  }
+  .show-total {
+    width: fit-content;
+  }
+  .total {
+    font-family: var(--space-grotesk-fonts);
+    font-weight: 500;
+    font-size: 21px;
+    color: #00d74f;
+    margin: 0;
+    padding-right: 7px;
+  }
+  .icon-money {
+    height: 40px;
+    width: 30px;
+    padding: 0px 5px;
+    display: flex;
+    align-items: center;
+  }
+  .user {
+    width: 40px;
+    height: 40px;
+    background-color: #a9a9a9;
+    padding: 0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  
+.login-dropdown {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .login-dropdown button {
+    font-family: var(--space-grotesk-fonts);
+    background-color: transparent;
+    color: #556987;
+    border: none;
+    text-align: left;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  .login-dropdown button:hover {
+    background-color: #22C55E;
+    color: #ffffff;
+  }
+

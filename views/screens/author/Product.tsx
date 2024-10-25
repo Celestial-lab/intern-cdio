@@ -1,14 +1,34 @@
-'use client'
+'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Avatar, Button, Form, Input, Modal, Row, Col, Table, Layout, Menu, theme, Upload, MenuProps } from 'antd';
-import { BarChartOutlined, BellOutlined, DollarOutlined, ProductOutlined, UserOutlined, EditOutlined, DeleteOutlined, UploadOutlined, SearchOutlined } from '@ant-design/icons';
-import { deleteProductById, getProductByEmail, handleAddProduct } from '../../services/author/AuthorServices';
-import { title } from 'process';
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Table,
+  Layout,
+  Menu,
+  Upload,
+  theme,
+  MenuProps,
+  message,
+} from 'antd';
+import {
+  BarChartOutlined,
+  ProductOutlined,
+  UserOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
+import { deleteProductById, editProductById, editProfileById, getAuctionStatus, getProductById, handleAddProduct } from '../../services/author/AuthorServices';
 import axios from '../../axios';
 import NavbarSetting from '@/views/components/NavbarSetting';
 
-const { Header, Content, Sider, Footer } = Layout;
+const { Header, Content, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -21,7 +41,7 @@ function getItem(
   return {
     key,
     icon,
-    label: <a href={href}>{label}</a>
+    label: <a href={href}>{label}</a>,
   } as MenuItem;
 }
 
@@ -32,20 +52,20 @@ const items: MenuItem[] = [
 ];
 
 interface Product {
-  key: string;
+  endTime: number;
+  id: any;
   name: string;
   image: string;
   description: string;
-  uploadDate: string;
   price: string;
-  status: 'Đã được đấu giá' | 'Chưa được đấu giá';
+  auctionTime: any;
+  status: 'Chưa được đấu giá';
 }
 
 export default function Product() {
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
   const [form] = Form.useForm();
-
   const [openModal, setOpenModal] = useState(false);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -53,107 +73,144 @@ export default function Product() {
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
 
-  const handleEdit = (record: Product) => {
-    setEditingProduct(record);
-    setOpenModal(true);
-    form.setFieldValue({
-      name: record.name,
-      description: record.description,
-      price: record.price,
-      status: record.status,
-    })
-  };
 
-  const handleSubmit = async (values) => {
+  // Hàm thêm sản phẩm mới
+  const handleAddNewProduct = async (values: any) => {
     try {
       const email = localStorage.getItem('authorEmail');
-      if (!email) {
-        console.error('Không tìm thấy email tác giả.');
+      const authorId = localStorage.getItem('authorId');
+  
+      if (!email || !authorId) {
+        console.error('Không tìm thấy email hoặc ID tác giả.');
         return;
       }
-
+  
       const formData = new FormData();
       formData.append('email', email);
+      formData.append('authorId', authorId);
       formData.append('productname', values.name);
       formData.append('description', values.description);
-      formData.append('price', values.price);
-      formData.append('status', values.status);
-      if (values.image && values.image.file) {
-        formData.append('image', values.image.file);
+      formData.append('startingPrice', values.price);
+      formData.append('durationInMinutes', values.auctionTime);
+  
+      if (values.image && values.image[0]) {
+        formData.append('image', values.image[0].originFileObj);
       }
 
-      if (editingProduct) {
-        const response = await axios.put(`/api/products/${editingProduct.key}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        if (response && response.data) {
-          const updatedProduct = {
-            ...editingProduct,
-            name: values.name,
-            description: values.description,
-            price: values.price,
-            status: values.status,
-            image: response.data.product.image || editingProduct.image,
-          };
-          setProducts((prevProducts) =>
-            prevProducts.map((product) =>
-              product.key === updatedProduct.key ? updatedProduct : product
-            )
-          );
-          setEditingProduct(null);
-          handleCancel();
-        } else {
-          console.error('Cập nhật sản phẩm thất bại:', response);
-        }
+      const newProductData = await handleAddProduct(formData);
+
+      console.log('newProductData nè: ', newProductData);
+  
+      if (newProductData) {
+        const newProduct = {
+          key: newProductData.product.id,
+          name: newProductData.product.productname,
+          image: newProductData.product.image,
+          description: newProductData.product.description,
+          price: newProductData.product.price,
+          status: newProductData.product.status,
+        };
+  
+        setProducts((prevProducts) => [...prevProducts, newProduct]);
+        message.success('Upload thành công');
+        handleCancel();
       } else {
-
-        console.log('log formData nè: ',formData);
-
-        const response = await handleAddProduct(formData);
-        // const data = response?.data;
-
-        console.log('log response product.tsx nè: ', response);
-
-        if (response && response.data) {
-          const newProduct = {
-            key: response.data.product.id,
-            name: response.data.product.productname,
-            image: response.data.product.image,
-            description: response.data.product.description,
-            uploadDate: response.data.product.createdAt,
-            price: response.data.product.price,
-            status: response.data.product.status,
-          };
-          setProducts((prevProducts) => [...prevProducts, newProduct]);
-          handleCancel();
-        } else {
-          console.error('Thêm sản phẩm thất bại:', response);
-        }
+        console.error('Thêm sản phẩm thất bại');
       }
     } catch (error) {
       console.error('Lỗi khi thêm/cập nhật sản phẩm:', error);
     }
   };
+  // Mở modal cho việc chỉnh sửa sản phẩm
+  const openEditProductModal = (record: Product) => {
+    setEditingProduct(record);
+    form.setFieldsValue({
+      name: record.name,
+      description: record.description,
+      price: record.price,
+      auctionTime: record.auctionTime,
+      status: record.status,
+    });
+    setOpenModal(true);
+  };
 
+  // Hàm chỉnh sửa sản phẩm
+  const handleEditProduct = async (values: any) => {
+    const email = localStorage.getItem('authorEmail');
+    const authorId = localStorage.getItem('authorId');
 
+    if (!email || !authorId || !editingProduct) {
+      message.error('Không tìm thấy email, ID tác giả hoặc sản phẩm để chỉnh sửa.');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('authorId', authorId);
+    formData.append('productname', values.name);
+    formData.append('description', values.description);
+    formData.append('startingPrice', values.price);
+    formData.append('durationInMinutes', values.auctionTime);
+    if (values.image && values.image.file) {
+      formData.append('image', values.image.file);
+    }
+    try {
+      const response = await editProductById(editingProduct.id, values);
 
-  const handleDelete = async (record: Product) => {
+      console.log('api trả response về: ',response);
+
+      console.log('code: ', response.errorCode);
+
+      if (response && response.status === 200 && response.data) {
+        const updatedProduct = {
+          ...editingProduct,
+          name: values.name,
+          description: values.description,
+          price: values.price,
+          auctionTime: values.auctionTime,
+          image: response.data.product.image || editingProduct.image,
+        };
+        setProducts((prevProducts) =>
+          prevProducts.map((product) =>
+            product.id === updatedProduct.id ? updatedProduct : product
+          )
+        );
+        message.success('Cập nhật sản phẩm thành công');
+        handleCancel();
+
+      } else {
+        message.error('Cập nhật sản phẩm thất bại');
+      }
+    } catch (error) {
+      message.error('Lỗi khi cập nhật sản phẩm');
+    }
+  };
+
+  const handleSubmit = (values: any) => {
+    if (editingProduct) {
+      handleEditProduct(values);
+    } else {
+      handleAddNewProduct(values);
+    }
+  };
+
+  const handleDelete = (record: Product) => {
     setDeletingProduct(record);
+    setConfirmDeleteVisible(true);
   };
 
   const confirmDeleteProduct = async () => {
+    console.log('deleteProduct id: ', deletingProduct?.id);
     if (deletingProduct) {
       try {
-        await deleteProductById(deletingProduct.key);
+        await deleteProductById(deletingProduct.id);
         setProducts((prevProducts) =>
-          prevProducts.filter((product) => product.key !== deletingProduct.key)
+          prevProducts.filter((product) => product.id !== deletingProduct.id)
         );
-        setDeletingProduct(null);
+        message.success('Xóa sản phẩm thành công');
       } catch (error) {
-        console.error('Lỗi khi xóa sản phẩm:', error);
+        message.error('Lỗi khi xóa sản phẩm');
       }
+      setConfirmDeleteVisible(false);
     }
   };
 
@@ -163,89 +220,124 @@ export default function Product() {
     setEditingProduct(null);
   };
 
-  const cancelDelete = () => {
-    setDeletingProduct(null);
-  };
+  useEffect(() => {
+    const authorId = localStorage.getItem('authorId');
+    if (authorId) {
+      getProductById(authorId)
+        .then(async (response) => {
+          if (response && response.products) {
+            const fetchedProducts = response.products.map((product: any) => {
+              const endTimeInSeconds = product.endTime; // endTime trả về từ API theo giây
+              const endTime = endTimeInSeconds * 1000; // Chuyển đổi sang milliseconds
+  
+              return {
+                id: product.id,
+                name: product.productName,
+                image: product.imageUrl,
+                description: product.description,
+                price: product.startingPrice,
+                endTime, // Lưu trữ endTime để sử dụng cho đếm ngược
+              };
+            });
+  
+            const auctionStatusData = await getAuctionStatus();
+  
+            // Cập nhật trạng thái của từng sản phẩm dựa trên dữ liệu trả về từ API
+            const updatedProducts = fetchedProducts.map((product: any) => {
+              const productStatus = auctionStatusData.find(
+                (statusItem: any) => statusItem.productId === product.id || statusItem.id === product.id
+              );
+              let status = 'Chưa có thông tin';
+  
+              if (productStatus) {
+                status = productStatus.active ? 'Cuộc đấu giá đang diễn ra' : 'Cuộc đấu giá đã kết thúc';
+              }
+  
+              return {
+                ...product,
+                status, // Gán trạng thái đã được cập nhật
+              };
+            });
+  
+            setProducts(updatedProducts);
+  
+            // Hàm cập nhật thời gian còn lại
+            const interval = setInterval(() => {
+              setProducts((prevProducts) => {
+                return prevProducts.map((product) => {
+                  const currentTime = Date.now();
+                  const timeRemaining = product.endTime - currentTime; // Tính thời gian còn lại
+  
+                  // Tính phút và giây
+                  const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                  const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+  
+                  if (timeRemaining > 0) {
+                    return {
+                      ...product,
+                      auctionTime: `${minutes} : ${seconds}s`,
+                    };
+                  } else {
+                    return {
+                      ...product,
+                      auctionTime: 'Cuộc đấu giá đã kết thúc',
+                    };
+                  }
+                });
+              });
+            }, 1000);
+  
+            // Dọn dẹp interval khi component unmount
+            return () => clearInterval(interval);
+          } else {
+            message.error('Không tìm thấy sản phẩm trong phản hồi');
+          }
+        })
+        .catch((error) => {
+          console.error('Lỗi khi lấy sản phẩm:', error);
+          message.error('Lỗi khi lấy sản phẩm');
+        });
+    }
+  }, []);
+  
 
   const columns = [
-    { title: 'Product Name', dataIndex: 'name', key: 'name' },
+    { title: 'Tên sản phẩm', dataIndex: 'name', key: 'name' },
     {
-      title: 'Product Image',
+      title: 'Hình ảnh sản phẩm',
       dataIndex: 'image',
       key: 'image',
-      render: (url) => (
-        <img
-          src={url}
-          alt="product"
-          style={{
-            width: '80px',
-            height: '80px',
-            objectFit: 'cover',
-            display: 'block',
-            margin: '0 auto',
-          }}
-        />
-      ),
+      render: (image: string) => <img src={image} alt="product" style={{ width: 100 }} />,
     },
-    { title: 'Description', dataIndex: 'description', key: 'description' },
-    { title: 'Created At', dataIndex: 'uploadDate', key: 'uploadDate' },
-    { title: 'Price', dataIndex: 'price', key: 'price' },
-    { title: 'Status', dataIndex: 'status', key: 'status' },
+    { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+    { title: 'Giá khởi điểm', dataIndex: 'price', key: 'price' },
     {
-      title: 'Actions',
-      key: 'actions',
-      render: (record) => (
-        <div>
-          <Button
-            icon={<EditOutlined />}
-            style={{
-              marginRight: '8px',
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-            onClick={() => handleEdit(record)}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#22C55E'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          />
-          <Button
-            icon={<DeleteOutlined />}
-            style={{
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-            onClick={() => handleDelete(record)}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#22C55E'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          />
-        </div>
+      title: 'Thời gian đấu giá còn lại',
+      dataIndex: 'auctionTime',
+      key: 'auctionTime',
+    },
+    { title: 'Trạng thái', dataIndex: 'status', key: 'status' },
+    {
+      title: 'Hành động',
+      key: 'action',
+      render: (_: any, record: Product) => (
+        <span>
+          <Button icon={<EditOutlined />} onClick={() => openEditProductModal(record)}>
+            Sửa
+          </Button>
+          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record)}>
+            Xóa
+          </Button>
+        </span>
       ),
     },
   ];
 
-  useEffect(() => {
-    const email = localStorage.getItem('authorEmail');
-    // console.log('author email: ',email);
-    if (email) {
-      getProductByEmail(email).then((response) => {
-        if (response && response.products && Array.isArray(response.products)) {
-          const mappedProducts = response.products.map((product, index) => ({
-            key: product.id,
-            name: product.productname,
-            image: product.image,
-            description: product.description,
-            uploadDate: product.createdAt,
-            price: product.price,
-            status: product.status,
-          }));
-          setProducts(mappedProducts);
-        } else {
-          console.error('Expected an array but got:', response);
-        }
-      }).catch((error) => {
-        console.error('Failed to fetch products by email:', error);
-      });
-    }
-  }, []);
+  const filteredProducts = products.filter((product) =>
+    product.name ? product.name.toLowerCase().includes(searchTerm.toLowerCase()) : false
+  );
+
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
@@ -256,13 +348,13 @@ export default function Product() {
         <Header className='headerInfor'>
           <NavbarSetting />
         </Header>
-
         <Content style={{ margin: '16px' }}>
           <div className='divTitle' style={{
             padding: 5,
             maxHeight: 60,
             background: colorBgContainer,
-          }}><h3>Product</h3>
+          }}>
+            <h3>Product</h3>
           </div>
           <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row justify="space-between">
@@ -273,77 +365,79 @@ export default function Product() {
               <div className='search' style={{ marginBottom: '16px', display: 'flex', justifyContent: 'right' }}>
                 <Input
                   prefix={<SearchOutlined />}
-                  placeholder="Searching..."
-                  value={searchTerm}
+                  placeholder="Tìm kiếm sản phẩm..."
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ width: 200 }}
-                  onFocus={(e) => e.currentTarget.style.borderColor = '#22C55E'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = '#d9d9d9'}
                 />
               </div>
             </Row>
 
             <Table
+              dataSource={products.filter(product =>
+                product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
+              )}
               columns={columns}
-              dataSource={products}
-              pagination={{ pageSize: 5 }}
+              pagination={{ pageSize: 4 }}
             />
 
             <Modal
-              title={editingProduct ? "Edit Product" : "Upload Product"}
+              title="Thêm sản phẩm"
               open={openModal}
               onCancel={handleCancel}
               footer={null}
             >
               <Form form={form} onFinish={handleSubmit}>
-                <Form.Item name="name" label="Tên sản phẩm" rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}>
-                  <Input />
+                <Form.Item name="name" label="Tên sản phẩm" rules={[{ required: true }]}>
+                  <Input placeholder="Nhập tên sản phẩm" />
                 </Form.Item>
-                <Form.Item label="Hình ảnh sản phẩm" name="image" valuePropName="file">
+                <Form.Item name="description" label="Mô tả" rules={[{ required: true }]}>
+                  <Input.TextArea placeholder="Nhập mô tả sản phẩm" />
+                </Form.Item>
+                <Form.Item name="price" label="Giá khởi điểm" rules={[{ required: true }]}>
+                  <Input placeholder="Nhập giá khởi điểm" />
+                </Form.Item>
+                <Form.Item name="auctionTime" label="Thời gian đấu giá" rules={[{ required: true }]}>
+                  <Input placeholder="Nhập thời gian đấu giá (phút)" />
+                </Form.Item>
+                <Form.Item
+                  label="Hình ảnh sản phẩm"
+                  name="image"
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
+                >
                   <Upload
-                    showUploadList={false}
+                    listType="picture"
                     beforeUpload={() => false}
-                    accept="image/*"
+                    maxCount={1}
                   >
-                    <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                    <Button icon={<UploadOutlined />}>Upload</Button>
                   </Upload>
-                </Form.Item>
-
-                <Form.Item name="description" label="Mô tả" rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}>
-                  <Input.TextArea />
-                </Form.Item>
-
-                <Form.Item name="price" label="Giá" rules={[{ required: true, message: 'Vui lòng nhập giá!' }]}>
-                  <Input type="number" />
-                </Form.Item>
-
-                <Form.Item name="status" label="Trạng thái" rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}>
-                  <Input />
                 </Form.Item>
 
                 <Form.Item>
                   <Button type="primary" htmlType="submit">
-                    {editingProduct ? "Cập nhật" : "Tải lên"}
+                    Lưu
+                  </Button>
+                  <Button style={{ marginLeft: '8px' }} onClick={handleCancel}>
+                    Hủy
                   </Button>
                 </Form.Item>
               </Form>
             </Modal>
 
+            {/* Modal xác nhận xóa sản phẩm */}
             <Modal
-              title="Xác nhận xóa sản phẩm"
-              open={!!deletingProduct}
+              title="Xác nhận xóa"
+              open={confirmDeleteVisible}
               onOk={confirmDeleteProduct}
-              onCancel={cancelDelete}
-              okText="Xóa"
-              cancelText="Hủy"
+              onCancel={handleCancel}
             >
-              <p>Bạn có chắc chắn muốn xóa sản phẩm {deletingProduct?.name} không?</p>
+              <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
             </Modal>
-
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>DanLe</Footer>
       </Layout>
     </Layout>
   );
-};
+}
+
+
