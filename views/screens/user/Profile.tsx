@@ -75,7 +75,7 @@ export default function Profile() {
 
   const handleOkButton = async () => {
     try {
-      const values = await form.validateFields(); // Lấy dữ liệu từ form
+      const values = await form.validateFields(); 
       const updatedProfile = {
         fullname: values.fullname || profile.fullname,
         gender: values.gender,
@@ -87,9 +87,7 @@ export default function Profile() {
       const response = await editProfileById(profile.id, updatedProfile);
       if (response) {
         setProfile({ ...profile, ...updatedProfile, gender: values.gender });
-
         console.log(updatedProfile.gender);
-
         message.success('Profile updated successfully!');
       } else {
         message.error('Failed to update profile!');
@@ -108,6 +106,16 @@ export default function Profile() {
   // Hàm kết nối ví MetaMask
   const connectWallet = async () => {
     try {
+
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        message.error("Vui lòng đăng nhập lại");
+        setTimeout(() => {
+          window.location.href = '/user/signin';
+        }, 1500);
+        return;
+      }
+
       if (!window.ethereum) {
         message.error('MetaMask is not installed!');
         return;
@@ -119,6 +127,12 @@ export default function Profile() {
       const balance = await provider.getBalance(walletAddress);
       const balanceInEth = ethers.formatEther(balance);
       const formattedBalance = parseFloat(balanceInEth).toFixed(3);
+
+      // Lưu số dư vào localStorage
+      localStorage.setItem('userBalance', formattedBalance);
+      localStorage.setItem('userAddress', walletAddress);
+      console.log('địa chỉ: ', localStorage.getItem('userAddress'));
+  
       form.setFieldsValue({
         walletaddress: walletAddress,
       });
@@ -129,9 +143,7 @@ export default function Profile() {
       const response = await editProfileById(profile.id, updatedProfile);
       if (response) {
         setProfile(updatedProfile);
-
         message.success('Wallet connected and updated successfully!');
-
         const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
         if (showTotalMoneyDiv) {
           showTotalMoneyDiv.textContent = `${formattedBalance} $`;
@@ -189,13 +201,6 @@ export default function Profile() {
     };
     checkAuth();
     fetchProfileData();
-  }, []);
-
-  useEffect(() => {
-    const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
-    if (showTotalMoneyDiv) {
-      showTotalMoneyDiv.textContent = '0 $';
-    }
   }, []);
 
   // đếm ngược thời gian k tương tác với trang web để đăng nhập lại

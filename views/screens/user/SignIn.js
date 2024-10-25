@@ -18,9 +18,12 @@ const SignIn = () => {
             const response = await handleSignInApi(email, password);
             console.log('data trả về của api login: ', response);
 
+            console.log('giá trị id của user: ', response.user.id);
+
             if (response.errorCode === 0) {
                 localStorage.setItem('userEmail', email);
                 localStorage.setItem('accessToken', response.token);
+                localStorage.setItem('userId', response.user.id);
 
                 const datatoken = localStorage.getItem('accessToken');
 
