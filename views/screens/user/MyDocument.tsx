@@ -1,99 +1,168 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Avatar, Button, Col, DatePicker, Form, Input, Row, Table, type MenuProps } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Button, Col, DatePicker, Input, Row, Table, Image } from 'antd';
 import { Layout, Menu, theme } from 'antd';
-import {
-  AppstoreOutlined,
-  BellOutlined,
-  DollarOutlined,
-  FileOutlined,
-  HistoryOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
-  } from '@ant-design/icons';
-import "@/views/style/MyDocument.css";
+import { AppstoreOutlined, BellOutlined, DollarOutlined, FileOutlined, HistoryOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
+import "@/views/style/MyDocument.css"; 
 import { Footer } from 'antd/es/layout/layout';
-import type { DatePickerProps } from 'antd';
-import type { Dayjs } from 'dayjs';
+import { Approve, getRegisterAuction } from '@/views/services/user/ProfileServices';
+import NavbarSI from '@/views/components/NavbarSI';
+import NavbarSetting from '@/views/components/NavbarSetting';
+import { ethers } from 'ethers';
 
 const { Header, Content, Sider } = Layout;
 
-type MenuItem = Required<MenuProps>['items'][number];
 
-function getItem(
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  href?: string,
-): MenuItem {
+function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, href?: string) {
   return {
     key,
     icon,
     label: <a href={href}>{label}</a>,
-  } as MenuItem;
+  };
 }
 
-const items: MenuItem[] = [
-    getItem('Profile', 'profile', <AppstoreOutlined />, '/user/settings/Profile'),
-    getItem('Cart', 'cart', <ShoppingCartOutlined />, '/user/settings/Cart'),
-    getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/user/settings/AuctionHistory'),
-    getItem('My Document', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
-  ];
-  
-
+const items = [
+  getItem('Profile', 'profile', <AppstoreOutlined />, '/user/settings/Profile'),
+  getItem('Cart', 'cart', <ShoppingCartOutlined />, '/user/settings/Cart'),
+  getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/user/settings/AuctionHistory'),
+  getItem('My Document', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
+];
 
 const MyDocument = () => {
-    const [collapsed, setCollapsed] = useState(false);
-    const {token: { colorBgContainer }} = theme.useToken();
-    const onChange: DatePickerProps<Dayjs[]>['onChange'] = (date, dateString) => {
-      console.log(date, dateString);
-    };
-    const columns = [
-      {
-        title: 'Product Name',
-        dataIndex: 'name',
-        key: 'name',
-      },
-      {
-        title: 'Auction day',
-        dataIndex: 'auctionDay',
-        key: 'auctionDay',
-      },
-      {
-        title: 'Auction minutes',
-        dataIndex: 'auctionMinutes',
-        key: 'auctionMinutes',
-      },
-    ];
-    
+  const [collapsed, setCollapsed] = useState(false);
+  const { token: { colorBgContainer } } = theme.useToken(); 
+  const [registeredAuctions, setRegisteredAuctions] = useState([]);
 
-    return (
-        <Layout style={{ minHeight: '100vh' }}>
+ 
+  useEffect(() => {
+    const fetchRegisteredAuctions = async () => {
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        const auctions = await getRegisterAuction(userId);
+        console.log('auction nè: ', auctions);
+        if (auctions) {
+          setRegisteredAuctions(auctions.map((auction: { id: any; productName: any; createdAt: string | number | Date; endTime: number; startingPrice: any; imageUrl: any; }) => ({
+            key: auction.id,
+            name: auction.productName,
+            auctionDay: new Date(auction.createdAt).toLocaleDateString(),
+            auctionMinutes: Math.floor((auction.endTime - Date.now() / 1000) / 60), 
+            startingPrice: auction.startingPrice,
+            imageUrl: auction.imageUrl,
+          })));
+        } else {
+          console.error('Không tìm thấy cuộc đấu giá nào.');
+        }
+      } else {
+        console.error('Không tìm thấy userId trong localStorage.'); 
+      }
+    };
+    fetchRegisteredAuctions();
+  }, []);
+
+  const columns = [
+    {
+      title: 'Product Image',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
+      render: (imageUrl: string | undefined) => <Image width={100} src={imageUrl} alt="Product" />,
+    },
+    {
+      title: 'Product Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Auction day',
+      dataIndex: 'auctionDay',
+      key: 'auctionDay',
+    },
+    {
+      title: 'Auction minutes',
+      dataIndex: 'auctionMinutes',
+      key: 'auctionMinutes',
+    },
+    {
+      title: 'Starting Price',
+      dataIndex: 'startingPrice',
+      key: 'startingPrice',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_: any, record: { key: any; }) => (
+        <Button type="primary" onClick={() => handleJoinAuction(record.key)}>Tham gia đấu giá</Button>
+      ),
+    },
+    {
+      title: 'Approve',
+      key: 'action',
+      render: (_: any, record: { key: any; }) => (
+        <Button type="primary" onClick={() => handleApprove(record.key)}>Approve</Button>
+      ),
+    },
+  ];
+
+  const handleJoinAuction = (auctionId: any) => {
+    console.log(`Tham gia đấu giá cho cuộc đấu giá ID: ${auctionId}`);
+
+    // window.location.href = '/user/approve';
+  };
+
+  const handleApprove = async (key: any) => {
+    try {
+        const userAddress = localStorage.getItem('userAddress');
+        if (!userAddress) {
+            alert("Không tìm thấy địa chỉ ví của người dùng trong localStorage.");
+            return;
+        }
+        if (!window.ethereum) {
+            alert("Vui lòng cài đặt MetaMask!");
+            return;
+        }
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const tokenAddress = "0x463267b530182e5C3Aed5441cC22e76A77d4B51C";
+        const spenderAddress = "0xD33aF4BEb2C050b36d146D84DDA6A9a0221e254c"; 
+        const approveAmount = ethers.parseUnits("1000", 18);
+
+        const tokenABI = [
+            "function approve(address spender, uint256 amount) public returns (bool)"
+        ];
+        const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
+        console.log("Hợp đồng token đã được tạo:", tokenContract); 
+
+        // Gửi giao dịch approve
+        const transaction = await tokenContract.approve(spenderAddress, approveAmount);
+        console.log("Đang thực hiện approve, đợi xác nhận giao dịch...");
+        await transaction.wait();
+        console.log("Giao dịch approve hoàn tất:", transaction);
+
+
+        
+
+        alert("Approve thành công!");
+        
+        // window.location.href = '/user/LiveAuction';
+
+    } catch (error) {
+        console.error("Lỗi khi thực hiện approve:", error);
+        alert("Đã xảy ra lỗi khi thực hiện approve: " + (error));
+    }
+};
+
+  
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <div className="demo-logo-vertical"  />
+        <div className="demo-logo-vertical" />
         <Menu theme="dark" defaultSelectedKeys={['myDocument']} mode="inline" items={items} />
       </Sider>
       <Layout>
-        <Header className='headerInfor'>
-            <Row className='row'>
-                <Col className='col1' span={12}>
-                    <div className='name'><p>Hello, DanLe</p></div>
-                    <div className='date'><p>Tue, 29 July 2024</p></div>
-                </Col>
-                <Col className='col2' span={12}>
-                    <Row className='headerRight'>
-                        <div className='iconBell'><BellOutlined style={{color: 'grey'}}/></div>
-                        <div className='iconDollar'><DollarOutlined style={{color: 'grey'}}/>
-                            <div className='showTotalMoney'>:</div>
-                        </div>
-                        <div className='avt1'><Avatar shape="square" style={{color: 'grey', background: 'white'}} size={40} icon={<UserOutlined />} /></div>
-                  </Row>
-                </Col>
-            </Row>
-        </Header>
+        <NavbarSetting />
 
-        <Content className='contInfor' style={{ margin: '0 16px'}}>
+        <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
             maxHeight: 60,
@@ -102,14 +171,14 @@ const MyDocument = () => {
             <h3>My Document</h3>
           </div>
 
-          <div className='dibInfor' style={{padding: 15, minHeight: 485, background: colorBgContainer}}>
+          <div className='dibInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row className='row1'>
               <div className='divSearch'>
                 <div className='divFrom'>
-                  <DatePicker onChange={onChange} placeholder='From'></DatePicker>
+                  <DatePicker placeholder='From' />
                 </div>
                 <div className='divTo'>
-                  <DatePicker onChange={onChange} placeholder='To'></DatePicker>
+                  <DatePicker placeholder='To' />
                 </div>
                 <div className='productName'>
                   <Input placeholder="Product Name" />
@@ -123,7 +192,7 @@ const MyDocument = () => {
                 <Row className='rowProduct'>
                   <div className='divTable'>
                     <Col className='colTable'>
-                      <Table columns={columns}></Table>
+                      <Table columns={columns} dataSource={registeredAuctions} rowKey="key" /> {/* Cập nhật dataSource */}
                     </Col>
                   </div>
                 </Row>
@@ -136,7 +205,7 @@ const MyDocument = () => {
         </Footer>
       </Layout>
     </Layout>
-    )
+  )
 }
 
 export default MyDocument;

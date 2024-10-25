@@ -21,3 +21,36 @@ export const editProfileById = async (id, data) => {
     return null;
   }
 }
+
+export const addRegisterAuction = async (userId, auctionId) => {
+  try {
+    const response = await axios.post(`/api/register/`, {userId, auctionId})
+    return response.data;
+  }
+  catch (error) {
+    console.error('lỗi ở hàm thêm sản phẩm đăng kí đấu giá', error);
+    return null;
+  }
+}
+
+export const getRegisterAuction = async (userId) => {
+  try {
+    const response = await axios.get(`/api/${userId}/auctions`);
+    return response.data;
+  }
+  catch (error) {
+    console.error('lỗi ở hàm get register rồi đan le ơi: ', error);
+    return null;
+  }
+}
+
+export const Approve = async (spender, amount) => {
+  try {
+    const response = await axios.post(`/api/approve`, {spender, amount});
+    return response.data;
+  }
+  catch (error) {
+    console.error('lỗi ở hàm Approve rồi đan le ơi: ', error);
+    return null;
+  }
+}

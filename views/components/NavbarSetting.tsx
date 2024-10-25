@@ -13,12 +13,12 @@ export default function NavbarSetting() {
   const [profile, setProfile] = useState({
     nickname: '',
   });
-  const [walletBalance, setWalletBalance] = useState('0');
+  const [walletBalance, setWalletBalance] = useState('');
 
   useEffect(() => {
-    const storedBalance = localStorage.getItem('walletBalance');
-    if (storedBalance) {
-      setWalletBalance(storedBalance);
+    const userBalance = localStorage.getItem('userBalance');
+    if (userBalance) {
+      setWalletBalance(userBalance);
     }
   }, []);
 
@@ -59,7 +59,7 @@ export default function NavbarSetting() {
             </div>
             <div className='iconDollar'>
               <DollarOutlined style={{ color: 'grey' }} />
-              <div className='showTotalMoney'>{walletBalance} CELE</div>
+              <div className='showTotalMoney'>{localStorage.getItem('userBalance')} CELE</div>
             </div>
             <div className='avt1'>
               <Avatar
