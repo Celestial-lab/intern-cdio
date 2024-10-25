@@ -3,7 +3,7 @@
 import axios from "../../axios";
 import React, { useEffect, useState } from 'react';
 import { Avatar, Button, Col, DatePicker, Form, Input, message, Modal, Radio, Row, type MenuProps } from 'antd';
-import { Layout, Menu, theme } from 'antd'; 
+import { Layout, Menu, theme } from 'antd';
 import {
   AppstoreOutlined,
   BellOutlined,
@@ -16,7 +16,7 @@ import {
 } from '@ant-design/icons';
 import "@/views/style/Profile.css";
 import { Footer } from 'antd/es/layout/layout';
-import {editProfileById, getProfileByEmail} from '../../services/user/ProfileServices.js';
+import { editProfileById, getProfileByEmail } from '../../services/user/ProfileServices.js';
 import moment from "moment";
 import { ethers } from 'ethers';
 import { MetaMaskInpageProvider } from "@metamask/providers";
@@ -70,9 +70,9 @@ export default function Profile() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
-    setIsModalOpen(true)  
+    setIsModalOpen(true)
   }
-  
+
   const handleOkButton = async () => {
     try {
       const values = await form.validateFields(); // Lấy dữ liệu từ form
@@ -105,51 +105,58 @@ export default function Profile() {
   }
   const [error, setError] = useState<string | null>(null);
 
-// Hàm kết nối ví MetaMask
-const connectWallet = async () => {
-  try {
-    if (!window.ethereum) {
-      message.error('MetaMask is not installed!');
-      return;
-    }
-
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const walletAddress = await (await signer).getAddress();
-    const balance = await provider.getBalance(walletAddress);
-    const balanceInEth = ethers.formatEther(balance);
-    const formattedBalance = parseFloat(balanceInEth).toFixed(3);
-
-    form.setFieldsValue({
-      walletaddress: walletAddress,
-    });
-
-    const updatedProfile = {
-      ...profile,
-      walletaddress: walletAddress,
-    };
-
-    const response = await editProfileById(profile.id, updatedProfile);
-    if (response) {
-      setProfile(updatedProfile); 
-
-      message.success('Wallet connected and updated successfully!');
-
-      const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
-      if (showTotalMoneyDiv) {
-        showTotalMoneyDiv.textContent = `${formattedBalance} $`;
+  // Hàm kết nối ví MetaMask
+  const connectWallet = async () => {
+    try {
+      if (!window.ethereum) {
+        message.error('MetaMask is not installed!');
+        return;
       }
-    } else {
-      message.error('Failed to update wallet address!');
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const walletAddress = await (await signer).getAddress();
+      const balance = await provider.getBalance(walletAddress);
+      const balanceInEth = ethers.formatEther(balance);
+      const formattedBalance = parseFloat(balanceInEth).toFixed(3);
+      form.setFieldsValue({
+        walletaddress: walletAddress,
+      });
+      const updatedProfile = {
+        ...profile,
+        walletaddress: walletAddress,
+      };
+      const response = await editProfileById(profile.id, updatedProfile);
+      if (response) {
+        setProfile(updatedProfile);
+
+        message.success('Wallet connected and updated successfully!');
+
+        const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
+        if (showTotalMoneyDiv) {
+          showTotalMoneyDiv.textContent = `${formattedBalance} $`;
+        }
+      } else {
+        message.error('Failed to update wallet address!');
+      }
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+      message.error('Failed to connect wallet!');
     }
-  } catch (error) {
-    console.error('Failed to connect wallet:', error);
-    message.error('Failed to connect wallet!');
-  }
-};
+  };
 
-
+  //check token để giữ người dùng đăng nhập
+  const checkAuth = () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      message.error("Vui lòng đăng nhập lại");
+      setTimeout(() => {
+        window.location.href = '/user/signin';
+      }, 1500);
+    } else {
+      console.log("Token hợp lệ, tiếp tục truy cập trang");
+    }
+  };
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -178,8 +185,9 @@ const connectWallet = async () => {
           console.error('Failed to fetch profile:', error);
         }
 
-      } 
+      }
     };
+    checkAuth();
     fetchProfileData();
   }, []);
 
@@ -189,7 +197,53 @@ const connectWallet = async () => {
       showTotalMoneyDiv.textContent = '0 $';
     }
   }, []);
-  
+
+  // đếm ngược thời gian k tương tác với trang web để đăng nhập lại
+  const [isActive, setIsActive] = useState(true);
+  const [timer, setTimer] = useState(600);
+  useEffect(() => {
+    let countdown: string | number | NodeJS.Timeout | undefined;
+    if (isActive) {
+      countdown = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdown);
+            Modal.info({
+              title: 'Bạn đã bị đăng xuất',
+              content: (
+                <p>Bạn đã không hoạt động trong 2 phút. Vui lòng đăng nhập lại</p>
+              ),
+              okText: 'Ok',
+              onOk: () => {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('userEmail');
+                window.location.href = '/user/signin';
+              },
+              closable: false,
+            });
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      clearInterval(countdown);
+    };
+  }, [isActive]);
+  const handleUserActivity = () => {
+    setTimer(600);
+    setIsActive(true);
+  };
+  useEffect(() => {
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('keydown', handleUserActivity);
+    return () => {
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+    };
+  }, []);
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
@@ -205,27 +259,27 @@ const connectWallet = async () => {
             </Col>
             <Col className='col2' span={12}>
               <Row className='headerRight'>
-                <div className='iconBell'><BellOutlined style={{color: 'grey'}}/></div>
-                <div className='iconDollar'><DollarOutlined style={{color: 'grey'}}/>
+                <div className='iconBell'><BellOutlined style={{ color: 'grey' }} /></div>
+                <div className='iconDollar'><DollarOutlined style={{ color: 'grey' }} />
                   <div className='showTotalMoney'>0 $</div>
                 </div>
-                <div className='avt1'><Avatar shape="square" style={{color: 'grey', background: 'white'}} size={40} icon={<UserOutlined />} /></div>
+                <div className='avt1'><Avatar shape="square" style={{ color: 'grey', background: 'white' }} size={40} icon={<UserOutlined />} /></div>
               </Row>
             </Col>
           </Row>
         </Header>
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
-              padding: 5,
-              maxHeight: 60,
-              background: colorBgContainer,
-            }}><h3>Profile</h3></div>
-          <div className='divInfor' style={{padding: 15, minHeight: 485, background: colorBgContainer}}>
+            padding: 5,
+            maxHeight: 60,
+            background: colorBgContainer,
+          }}><h3>Profile</h3></div>
+          <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row className='row1'>
               <Col className='colAvt' span={12}>
                 <Row className='rowName'>
                   <Col span={3.5}>
-                    <Avatar shape="circle" style={{color: 'grey', background: '#e7e7e7'}} size={75} icon={<UserOutlined />} />
+                    <Avatar shape="circle" style={{ color: 'grey', background: '#e7e7e7' }} size={75} icon={<UserOutlined />} />
                   </Col>
                   <Col className='colName' span={20.5}>
                     <div className='divName'>
@@ -245,8 +299,8 @@ const connectWallet = async () => {
                   open={isModalOpen}
                   onOk={handleOkButton}
                   onCancel={handleCancelButton}
-                  okButtonProps={{ className: 'modal-ok-button', type:'text' }}
-                  cancelButtonProps={{type: 'text'}}
+                  okButtonProps={{ className: 'modal-ok-button', type: 'text' }}
+                  cancelButtonProps={{ type: 'text' }}
                 >
                   <Form form={form} layout="vertical">
                     <Form.Item
@@ -260,7 +314,7 @@ const connectWallet = async () => {
                     <Form.Item
                       name="gender"
                       label="Gender"
-                      initialValue={profile.gender === 'Male' ? true : false} 
+                      initialValue={profile.gender === 'Male' ? true : false}
                       rules={[{ required: true, message: 'Please select gender!' }]}
                     >
                       <Radio.Group>
@@ -285,7 +339,7 @@ const connectWallet = async () => {
                         </Button>
                       </Col>
                     </Row>
-                    
+
                     <Form.Item
                       name="dateofbirth"
                       label="Date of Birth"
@@ -345,7 +399,7 @@ const connectWallet = async () => {
                 </Row>
                 <Row className='row32'>
                   <Col className='colIconEmail' span={3.5}>
-                    <Avatar shape='circle' style={{color: '#22C55E', background: '#e7e7e7'}} size={35} icon={<MailFilled />}></Avatar>
+                    <Avatar shape='circle' style={{ color: '#22C55E', background: '#e7e7e7' }} size={35} icon={<MailFilled />}></Avatar>
                   </Col>
                   <Col className='colEmail' span={20.5}>
                     <span className='textMail'>{profile.email}</span> <br />

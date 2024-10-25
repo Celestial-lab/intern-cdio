@@ -140,7 +140,6 @@ export default function Profile() {
     }
   };
 
-
   useEffect(() => {
     const fetchProfileData = async () => {
       const email = localStorage.getItem('authorEmail');
@@ -148,7 +147,6 @@ export default function Profile() {
         try {
           const response = await getProfileByEmail(email);
           const data = response.data;
-
           if (data) {
             setProfile({
               id: data.id,
@@ -180,9 +178,6 @@ export default function Profile() {
       showTotalMoneyDiv.textContent = '0 CELE';
     }
   }, []);
-
-
-
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

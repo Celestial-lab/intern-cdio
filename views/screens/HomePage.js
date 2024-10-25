@@ -1,22 +1,34 @@
 'use client'
 
 import React from "react";
-import { Row, Col, Card, Button, Typography } from "antd";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import "@/views/style/Title.css";
 import Navbar from "../components/Navbar";
-import FooterNavbar from "../components/FooterNavbar";
-import Link from "next/link";
+import NavbarAfter from "../components/NavbarAfter";
 import FooterAll from '../components/Footer.js';
+import { useEffect, useState } from "react";
 
 
-const { Text, Paragraph } = Typography;
 
 const Home = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setIsLoggedIn(false);
+      const userConfirmed = window.confirm("Bạn chưa đăng nhập, hãy đăng nhập!");
+      if (userConfirmed) {
+        window.location.href = '/user/signin';
+      }
+    } else {
+      setIsLoggedIn(true); 
+    }
+  }, []);
+
   return (
     <>
-      <Navbar />
+      {isLoggedIn ? <NavbarAfter /> : <Navbar />}
     {/*================================================*/}
       <section class="sec-title py-5">
         <div class="title container py-5">
