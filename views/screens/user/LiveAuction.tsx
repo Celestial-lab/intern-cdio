@@ -7,6 +7,8 @@ import { Col, Row, Card, Avatar, Button, Switch } from 'antd';
 import { DollarOutlined, EditOutlined, EllipsisOutlined, LineChartOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
 import classNames from 'classnames';
+import Navbar from '@/views/components/Navbar';
+import NavbarAfter from '@/views/components/NavbarAfter';
 
 export default function LiveAuction() {
   const [multiplier, setMultiplier] = useState(1);
@@ -51,12 +53,151 @@ export default function LiveAuction() {
   const handleIncrease = useCallback(() => setMultiplier(prev => prev + 1), []);
   const handleDecrease = useCallback(() => setMultiplier(prev => (prev > 1 ? prev - 1 : 1)), []);
 
-  const [loading, setLoading] = useState<boolean>(true);
+
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      setIsLoggedIn(false);
+      const userConfirmed = window.confirm("Bạn chưa đăng nhập, hãy đăng nhập!");
+      if (userConfirmed) {
+        window.location.href = '/user/signin';
+      }
+    } else {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   return (
-    <div>
-      <NavbarSI />
-      <div className='liveAuction'>
+    <>
+      {isLoggedIn ? <NavbarAfter /> : <Navbar />}
+
+      <section className='sec-liveAuction'>
+        <div className='div-live container py-2'>
+          <div className='row'>
+
+            <div className='col-7'>
+              <div className='row row-count'>
+                <h2 className='timeLess'>Time Remaining:</h2>
+                <h3 className='timeCount'>{`${minutes} : ${seconds < 10 ? '0' : ''}${seconds}`}</h3>
+              </div>
+
+              <div className='row row-product'>
+                <div className='div-pro'>
+                  <img className='image-product' src='/gif-12-CartoonHangover.gif' />
+                </div>
+              </div>
+
+              <div className='row row-extend'>
+                <div className='div-extend'>
+                  <h2 className='title-extend'>Renewal times: 1</h2>
+                </div>
+              </div>
+
+              <div className='row row-infor1'>
+                <div className='col-6 leftInfor'>
+                  <h3 className='product-name'>Product name</h3>
+                </div>
+                <div className='col-6 rightInfor'>
+                  <h3 className='author-name'>Author name</h3>
+                </div>
+              </div>
+
+              <div className='row suggest py-3'>
+
+                <div className="card" style={{ width: '200px' }}>
+                  <img src="/gif-ne-2.gif" className="card-img-top" alt="..." />
+                  <div className="card-body">
+                    <h5 className="card-title">Card title</h5>
+                    <p className="card-text">Some </p>
+                  </div>
+                </div>
+
+                <div className="card" style={{ width: '200px' }}>
+                  <img src="/gif-ne-2.gif" className="card-img-top" alt="..." />
+                  <div className="card-body">
+                    <h5 className="card-title">Card title</h5>
+                    <p className="card-text">Some </p>
+                  </div>
+                </div>
+
+                <div className="card" style={{ width: '200px' }}>
+                  <img src="/gif-ne-2.gif" className="card-img-top" alt="..." />
+                  <div className="card-body">
+                    <h5 className="card-title">Card title</h5>
+                    <p className="card-text">Some </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div className='col-5'>
+              <div className='redBox'>
+                <div className='liveMoney-title'>
+                  <LineChartOutlined className='iconChart' />
+                  <h2 className='title'>Auction Progress</h2>
+                </div>
+                <div className='content'>
+                  {cards.slice(0, 6).map(card => (
+                    <Card className={classNames('auctionCard', { topCard: card.topCard })} key={card.id}>
+                      <Row className='rowCard'>
+                        <Col className='colMoney' span={8}>
+                          <div className='moneyAtime'>
+                            <p className={classNames('price', { highlightPrice: card.topCard })}>{card.price}$</p>
+                            <p>{card.time}</p>
+                          </div>
+                        </Col>
+                        <Col className='colRound' span={8}>
+                          <div className='round'>
+                            Vòng đấu {card.round}
+                          </div>
+                        </Col>
+                        <Col className='colUser' span={8}>
+                          <div className='user'>
+                            <Avatar icon={<UserOutlined />} className="navbar-iconStyle" />
+                            <span className={classNames('userName', { highlightUserName: card.topCard })}>{card.user}</span>
+                          </div>
+                        </Col>
+                      </Row>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              <div className='greenBox'>
+                <div className='currentMoney-title'>
+                  <DollarOutlined className='iconChart' />
+                  <h2 className='title'>Current Price</h2>
+                  <div className='currentPrice'>{currentPrice}$</div>
+                </div>
+                <hr className='divider' />
+                <div className='inforPrice'>
+                  <Row className='price'>
+                    <div className='priceField'>{price}$</div>
+                    <div className="multiplySymbol">X</div>
+                    <div className='multiplierField'>
+                      <button onClick={handleDecrease} className='decreaseButton'>-</button>
+                      {multiplier}
+                      <button onClick={handleIncrease} className='increaseButton'>+</button>
+                    </div>
+                    <div className="equalSymbol">=</div>
+                    <div className='totalField'>{price * multiplier}$</div>
+                  </Row>
+                  <div className='buttonPrice'>
+                    <Button className='butPrice' type='primary'>Send {price * multiplier}$</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/*==========================================*/}
+      {/* <div className='liveAuction'>
         <Row>
           <Col className='time' span={12}>
             <div className='countDown'>
@@ -183,7 +324,9 @@ export default function LiveAuction() {
 
           </Col>
         </Row>
-      </div>
-    </div>
+      </div> */}
+    </>
+
+
   );
 }

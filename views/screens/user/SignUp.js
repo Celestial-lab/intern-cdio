@@ -13,6 +13,7 @@ const SignUp = () => {
             const values = await form.validateFields();
             const { nickname, email, password } = values;
             const response = await handleSignUpApi(nickname, email, password);
+
             console.log(response);
 
            
