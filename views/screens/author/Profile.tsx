@@ -5,8 +5,6 @@ import { Avatar, Button, Col, DatePicker, Form, Input, message, Modal, Radio, Ro
 import { Layout, Menu, theme } from 'antd';
 import {
   BarChartOutlined,
-  BellOutlined,
-  DollarOutlined,
   MailFilled,
   ProductOutlined,
   UserOutlined,
@@ -117,6 +115,9 @@ export default function Profile() {
       const balanceInEth = ethers.formatEther(balance);
       const formattedBalance = parseFloat(balanceInEth).toFixed(3);
 
+      localStorage.setItem('authorBalance', formattedBalance);
+      localStorage.setItem('authorAddress', walletAddress);
+
       form.setFieldsValue({ walletaddress: walletAddress });
       const updatedProfile = { ...profile, walletaddress: walletAddress };
 
@@ -127,10 +128,12 @@ export default function Profile() {
 
         localStorage.setItem('walletBalance', formattedBalance);
 
-        const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
-        if (showTotalMoneyDiv) {
-          showTotalMoneyDiv.textContent = `${formattedBalance} CELE`;
-        }
+        console.log('balance: ', localStorage.getItem('walletBalance'));
+
+        // const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
+        // if (showTotalMoneyDiv) {
+        //   showTotalMoneyDiv.textContent = `${formattedBalance} CELE`;
+        // }
       } else {
         message.error('Failed to update wallet address!');
       }
@@ -172,12 +175,12 @@ export default function Profile() {
     fetchProfileData();
   }, []);
 
-  useEffect(() => {
-    const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
-    if (showTotalMoneyDiv) {
-      showTotalMoneyDiv.textContent = '0 CELE';
-    }
-  }, []);
+  // useEffect(() => {
+  //   const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
+  //   if (showTotalMoneyDiv) {
+  //     showTotalMoneyDiv.textContent = '0 CELE';
+  //   }
+  // }, []);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -287,10 +290,10 @@ export default function Profile() {
                 <div className='divInput1'>
                   <Form form={form} layout="vertical">
                     <Form.Item label="Full Name:">
-                      <Input placeholder={profile.fullname} readOnly bordered={true} />
+                      <Input placeholder={profile.fullname} readOnly variant='default' />
                     </Form.Item>
                     <Form.Item name="gender" label="Gender:">
-                      <Input placeholder={profile.gender} readOnly bordered={true}/>
+                    <Input placeholder={profile.gender} readOnly variant="default" />
                     </Form.Item>
                     <Form.Item name="wallet-address" label="Wallet Address:" >
                       <Input placeholder={profile.walletaddress} readOnly bordered={true}/>

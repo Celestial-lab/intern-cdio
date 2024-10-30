@@ -14,6 +14,7 @@ import {
   theme,
   MenuProps,
   message,
+  DatePicker,
 } from 'antd';
 import {
   BarChartOutlined,
@@ -24,9 +25,9 @@ import {
   UploadOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { deleteProductById, editProductById, editProfileById, getAuctionStatus, getProductById, handleAddProduct } from '../../services/author/AuthorServices';
-import axios from '../../axios';
+import { deleteProductById, editProductById, getAuctionStatus, getProductById, handleAddProduct } from '../../services/author/AuthorServices';
 import NavbarSetting from '@/views/components/NavbarSetting';
+import moment from 'moment';
 
 const { Header, Content, Sider } = Layout;
 
@@ -52,6 +53,7 @@ const items: MenuItem[] = [
 ];
 
 interface Product {
+  startTime: number;
   endTime: number;
   id: any;
   name: string;
@@ -73,18 +75,15 @@ export default function Product() {
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
 
-
-  // Hàm thêm sản phẩm mới
+  // Thêm sản phẩm mới
   const handleAddNewProduct = async (values: any) => {
     try {
       const email = localStorage.getItem('authorEmail');
       const authorId = localStorage.getItem('authorId');
-  
       if (!email || !authorId) {
         console.error('Không tìm thấy email hoặc ID tác giả.');
         return;
       }
-  
       const formData = new FormData();
       formData.append('email', email);
       formData.append('authorId', authorId);
@@ -92,26 +91,29 @@ export default function Product() {
       formData.append('description', values.description);
       formData.append('startingPrice', values.price);
       formData.append('durationInMinutes', values.auctionTime);
-  
-      if (values.image && values.image[0]) {
+      formData.append('startTime', values.startTime.toISOString());
+      if (values.image && values.image[0] && values.image[0].originFileObj) {
         formData.append('image', values.image[0].originFileObj);
-      }
-
+    } else {
+        console.error('Ảnh không tồn tại hoặc không hợp lệ');
+    }
+      console.log('values trong form: ', values);
       const newProductData = await handleAddProduct(formData);
-
-      console.log('newProductData nè: ', newProductData);
-  
+      console.log('newProductData trước if: ', newProductData);
       if (newProductData) {
         const newProduct = {
           key: newProductData.product.id,
-          name: newProductData.product.productname,
-          image: newProductData.product.image,
+          name: newProductData.product.productName,
+          image: newProductData.product.image || newProductData.product.imageUrl,
           description: newProductData.product.description,
-          price: newProductData.product.price,
-          status: newProductData.product.status,
+          price: newProductData.product.startingPrice,
+          status: newProductData.product.active,
+          auctionTime: newProductData.product.endTime,
+          startTime: newProductData.product.startTime,
         };
-  
+        console.log('newProduct trước set: ', newProduct);
         setProducts((prevProducts) => [...prevProducts, newProduct]);
+        console.log('newProduct sau set: ', newProduct);
         message.success('Upload thành công');
         handleCancel();
       } else {
@@ -121,26 +123,19 @@ export default function Product() {
       console.error('Lỗi khi thêm/cập nhật sản phẩm:', error);
     }
   };
-  // Mở modal cho việc chỉnh sửa sản phẩm
-  const openEditProductModal = (record: Product) => {
-    setEditingProduct(record);
-    form.setFieldsValue({
-      name: record.name,
-      description: record.description,
-      price: record.price,
-      auctionTime: record.auctionTime,
-      status: record.status,
-    });
-    setOpenModal(true);
-  };
 
-  // Hàm chỉnh sửa sản phẩm
+  // Chỉnh sửa sản phẩm
   const handleEditProduct = async (values: any) => {
     const email = localStorage.getItem('authorEmail');
     const authorId = localStorage.getItem('authorId');
 
-    if (!email || !authorId || !editingProduct) {
-      message.error('Không tìm thấy email, ID tác giả hoặc sản phẩm để chỉnh sửa.');
+    if (!editingProduct || editingProduct.status === 'Cuộc đấu giá đã kết thúc' || editingProduct.status === 'Cuộc đấu giá đang diễn ra') {
+      message.error('Sản phẩm không thể chỉnh sửa vì trạng thái không cho phép.');
+      return;
+    }
+
+    if (!email || !authorId) {
+      message.error('Không tìm thấy email hoặc ID tác giả.');
       return;
     }
     const formData = new FormData();
@@ -150,39 +145,62 @@ export default function Product() {
     formData.append('description', values.description);
     formData.append('startingPrice', values.price);
     formData.append('durationInMinutes', values.auctionTime);
-    if (values.image && values.image.file) {
-      formData.append('image', values.image.file);
+    formData.append('startTime', values.startTime.toISOString());
+    if (values.image && values.image[0]) {
+      formData.append('image', values.image[0].originFileObj);
     }
+
+    // console.log('values từ formData: ', values);
+
     try {
-      const response = await editProductById(editingProduct.id, values);
+      const response = await editProductById(editingProduct.id, formData);
 
-      console.log('api trả response về: ',response);
+      // console.log('response api trả về: ', response);
 
-      console.log('code: ', response.errorCode);
-
-      if (response && response.status === 200 && response.data) {
+      if (response && response.product) {
         const updatedProduct = {
           ...editingProduct,
           name: values.name,
           description: values.description,
           price: values.price,
           auctionTime: values.auctionTime,
-          image: response.data.product.image || editingProduct.image,
+          startTime: values.startTime.unix(),
+          image: response.product.image || editingProduct.image,
         };
+
+        // console.log('updatedProduct trước set: ', updatedProduct);
+
         setProducts((prevProducts) =>
           prevProducts.map((product) =>
             product.id === updatedProduct.id ? updatedProduct : product
           )
         );
+
+        // console.log('updatedProduct sau set: ', updatedProduct);
+
         message.success('Cập nhật sản phẩm thành công');
         handleCancel();
-
       } else {
         message.error('Cập nhật sản phẩm thất bại');
       }
     } catch (error) {
       message.error('Lỗi khi cập nhật sản phẩm');
     }
+  };
+
+  const openEditProductModal = (record: Product) => {
+    const auctionTimeMinutes = Math.round((record.endTime - record.startTime) / 60000);
+    setEditingProduct(record);
+    form.setFieldsValue({
+      name: record.name,
+      description: record.description,
+      price: record.price,
+      auctionTime: auctionTimeMinutes,
+      startTime: moment(record.startTime),
+      status: record.status,
+      image: [{ url: record.image, name: 'Current Image' }],
+    });
+    setOpenModal(true);
   };
 
   const handleSubmit = (values: any) => {
@@ -199,7 +217,6 @@ export default function Product() {
   };
 
   const confirmDeleteProduct = async () => {
-    console.log('deleteProduct id: ', deletingProduct?.id);
     if (deletingProduct) {
       try {
         await deleteProductById(deletingProduct.id);
@@ -223,119 +240,150 @@ export default function Product() {
   useEffect(() => {
     const authorId = localStorage.getItem('authorId');
     if (authorId) {
-      getProductById(authorId)
-        .then(async (response) => {
+      getProductById(authorId).then(async (response) => {
           if (response && response.products) {
             const fetchedProducts = response.products.map((product: any) => {
-              const endTimeInSeconds = product.endTime; // endTime trả về từ API theo giây
-              const endTime = endTimeInSeconds * 1000; // Chuyển đổi sang milliseconds
-  
+              const endTimeInSeconds = product.endTime;
+              const startTimeInMs = new Date(product.startTime).getTime();
+              const endTime = endTimeInSeconds * 1000;
               return {
                 id: product.id,
                 name: product.productName,
                 image: product.imageUrl,
                 description: product.description,
                 price: product.startingPrice,
-                endTime, // Lưu trữ endTime để sử dụng cho đếm ngược
+                startTime: startTimeInMs,
+                endTime,
               };
             });
-  
+
             const auctionStatusData = await getAuctionStatus();
-  
-            // Cập nhật trạng thái của từng sản phẩm dựa trên dữ liệu trả về từ API
+
             const updatedProducts = fetchedProducts.map((product: any) => {
               const productStatus = auctionStatusData.find(
                 (statusItem: any) => statusItem.productId === product.id || statusItem.id === product.id
               );
-              let status = 'Chưa có thông tin';
-  
-              if (productStatus) {
-                status = productStatus.active ? 'Cuộc đấu giá đang diễn ra' : 'Cuộc đấu giá đã kết thúc';
+              const currentTime = Date.now();
+              let status = '';
+
+              // Điều kiện cho trạng thái dựa trên startTime và thời gian hiện tại
+              if (currentTime < product.startTime) {
+                status = 'Cuộc đấu giá chưa diễn ra';
+              } else if (currentTime >= product.startTime && currentTime < product.endTime) {
+                status = 'Cuộc đấu giá đang diễn ra';
+              } else {
+                status = 'Cuộc đấu giá đã kết thúc';
               }
-  
+
               return {
                 ...product,
-                status, // Gán trạng thái đã được cập nhật
+                status,
               };
             });
-  
+
             setProducts(updatedProducts);
-  
-            // Hàm cập nhật thời gian còn lại
+
             const interval = setInterval(() => {
               setProducts((prevProducts) => {
                 return prevProducts.map((product) => {
                   const currentTime = Date.now();
-                  const timeRemaining = product.endTime - currentTime; // Tính thời gian còn lại
-  
-                  // Tính phút và giây
-                  const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-                  const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-  
-                  if (timeRemaining > 0) {
+                  if (currentTime < product.startTime) {
                     return {
                       ...product,
-                      auctionTime: `${minutes} : ${seconds}s`,
+                      auctionTime: 'Chưa bắt đầu',
+                      status: 'Cuộc đấu giá chưa diễn ra'
+                    };
+                  } else if (currentTime >= product.startTime && currentTime < product.endTime) {
+                    const remainingTime = Math.max(0, product.endTime - currentTime);
+                    return {
+                      ...product,
+                      auctionTime: `${Math.floor((remainingTime % 3600000) / 60000)} : ${Math.floor((remainingTime % 60000) / 1000)}`,
+                      status: 'Cuộc đấu giá đang diễn ra',
                     };
                   } else {
                     return {
                       ...product,
-                      auctionTime: 'Cuộc đấu giá đã kết thúc',
+                      auctionTime: 'Hết thời gian',
+                      status: 'Cuộc đấu giá đã kết thúc'
                     };
                   }
                 });
               });
             }, 1000);
-  
-            // Dọn dẹp interval khi component unmount
+
             return () => clearInterval(interval);
-          } else {
-            message.error('Không tìm thấy sản phẩm trong phản hồi');
           }
         })
         .catch((error) => {
-          console.error('Lỗi khi lấy sản phẩm:', error);
-          message.error('Lỗi khi lấy sản phẩm');
+          console.error('Lỗi khi tải sản phẩm:', error);
         });
     }
   }, []);
-  
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
 
   const columns = [
-    { title: 'Tên sản phẩm', dataIndex: 'name', key: 'name' },
     {
-      title: 'Hình ảnh sản phẩm',
+      title: 'Tên sản phẩm',
+      dataIndex: 'name',
+      key: 'name',
+      filteredValue: [searchTerm],
+      onFilter: (value: any, record: Product) =>
+        record.name.toLowerCase().includes(value.toLowerCase()),
+    },
+    {
+      title: 'Hình ảnh',
       dataIndex: 'image',
       key: 'image',
-      render: (image: string) => <img src={image} alt="product" style={{ width: 100 }} />,
+      render: (text: string) => (
+        <img src={text} alt="Product" style={{ width: '50px', height: '50px' }} />
+      ),
     },
-    { title: 'Mô tả', dataIndex: 'description', key: 'description' },
-    { title: 'Giá khởi điểm', dataIndex: 'price', key: 'price' },
     {
-      title: 'Thời gian đấu giá còn lại',
+      title: 'Giá khởi điểm',
+      dataIndex: 'price',
+      key: 'price',
+    },
+    {
+      title: 'Thời gian đấu giá',
       dataIndex: 'auctionTime',
       key: 'auctionTime',
     },
-    { title: 'Trạng thái', dataIndex: 'status', key: 'status' },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: 'Thời gian bắt đầu',
+      dataIndex: 'startTime',
+      key: 'startTime',
+      render: (startTime: number) => (
+        startTime ? moment(startTime).format('YYYY-MM-DD HH:mm:ss') : 'Không có dữ liệu'
+      ),
+    },
     {
       title: 'Hành động',
-      key: 'action',
-      render: (_: any, record: Product) => (
-        <span>
+      key: 'actions',
+      render: (text: string, record: Product) => (
+        <div>
           <Button icon={<EditOutlined />} onClick={() => openEditProductModal(record)}>
-            Sửa
+            Chỉnh sửa
           </Button>
-          <Button icon={<DeleteOutlined />} danger onClick={() => handleDelete(record)}>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record)}
+            style={{ marginLeft: '8px' }}
+          >
             Xóa
           </Button>
-        </span>
+        </div>
       ),
     },
   ];
-
-  const filteredProducts = products.filter((product) =>
-    product.name ? product.name.toLowerCase().includes(searchTerm.toLowerCase()) : false
-  );
 
 
   return (
@@ -379,50 +427,59 @@ export default function Product() {
               pagination={{ pageSize: 4 }}
             />
 
+
+
+
             <Modal
-              title="Thêm sản phẩm"
+              title={editingProduct ? 'Edit Product' : 'Add Product'}
               open={openModal}
               onCancel={handleCancel}
-              footer={null}
-            >
-              <Form form={form} onFinish={handleSubmit}>
-                <Form.Item name="name" label="Tên sản phẩm" rules={[{ required: true }]}>
-                  <Input placeholder="Nhập tên sản phẩm" />
-                </Form.Item>
-                <Form.Item name="description" label="Mô tả" rules={[{ required: true }]}>
-                  <Input.TextArea placeholder="Nhập mô tả sản phẩm" />
-                </Form.Item>
-                <Form.Item name="price" label="Giá khởi điểm" rules={[{ required: true }]}>
-                  <Input placeholder="Nhập giá khởi điểm" />
-                </Form.Item>
-                <Form.Item name="auctionTime" label="Thời gian đấu giá" rules={[{ required: true }]}>
-                  <Input placeholder="Nhập thời gian đấu giá (phút)" />
-                </Form.Item>
-                <Form.Item
-                  label="Hình ảnh sản phẩm"
-                  name="image"
-                  valuePropName="fileList"
-                  getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
+              footer={[
+                <Button key="back" onClick={handleCancel}>
+                  Cancel
+                </Button>,
+                <Button
+                  form="product-form"
+                  key="submit"
+                  type="primary"
+                  htmlType="submit"
                 >
-                  <Upload
-                    listType="picture"
-                    beforeUpload={() => false}
-                    maxCount={1}
-                  >
+                  Submit
+                </Button>,
+              ]}
+            >
+              <Form form={form} id="product-form" layout="vertical" onFinish={handleSubmit}>
+                <Form.Item name="name" label="Product Name" rules={[{ required: true, message: 'Please input product name!' }]}>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="description" label="Description" rules={[{ required: true, message: 'Please input description!' }]}>
+                  <Input.TextArea />
+                </Form.Item>
+                <Form.Item name="price" label="Price" rules={[{ required: true, message: 'Please input price!' }]}>
+                  <Input />
+                </Form.Item>
+                <Form.Item label="Hình ảnh sản phẩm" name="image" valuePropName="fileList" getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}>
+                  <Upload listType="picture" beforeUpload={() => false} maxCount={1}>
                     <Button icon={<UploadOutlined />}>Upload</Button>
                   </Upload>
                 </Form.Item>
-
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">
-                    Lưu
-                  </Button>
-                  <Button style={{ marginLeft: '8px' }} onClick={handleCancel}>
-                    Hủy
-                  </Button>
+                <Form.Item
+            name="auctionTime"
+            label="Thời gian đấu giá (phút)"
+            rules={[{ required: true, message: 'Thời gian đấu giá không được để trống' }]}
+          >
+            <Input />
+          </Form.Item>
+                <Form.Item name="startTime" label="Start Time" rules={[{ required: true, message: 'Please select start time!' }]}>
+                  <DatePicker showTime />
                 </Form.Item>
               </Form>
             </Modal>
+
+
+
+
+
 
             {/* Modal xác nhận xóa sản phẩm */}
             <Modal

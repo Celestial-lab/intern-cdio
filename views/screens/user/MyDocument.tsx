@@ -140,8 +140,6 @@ const MyDocument = () => {
         console.log("Giao dịch approve hoàn tất:", transaction);
 
 
-        
-
         alert("Approve thành công!");
         
         // window.location.href = '/user/LiveAuction';

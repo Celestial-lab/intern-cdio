@@ -24,6 +24,8 @@ export const editProfileById = async (id, data) => {
   }
 }
 
+//======================================//
+
 export const handleAddProduct = async (formData) => {
   try {
     const response = await axios.post('/api/create', formData, {
@@ -31,10 +33,13 @@ export const handleAddProduct = async (formData) => {
         'Content-Type': 'multipart/form-data',
       },
     });
-    // console.log('response data bên api nè: ', response.data);
     return response.data;
   } catch (error) {
-    console.error('Lỗi khi thêm sản phẩm và tạo cuộc đấu giá:', error);
+    if (error.response) {
+      console.error('Lỗi khi thêm sản phẩm và tạo cuộc đấu giá:', error.response.data);
+    } else {
+      console.error('Lỗi:', error.message);
+    }
     return null;
   }
 };
@@ -62,13 +67,14 @@ export const editProductById = async (id, formData) => {
 export const deleteProductById = async (id) => {
   try {
     const response = await axios.delete(`/api/delete/${id}`);
-    // console.log('loi o ham delete ne dan oi, in response ra ri ne: ', response.data);
     return response.data;
   } catch (error) {
     console.error('hết cứu, k xoá được ní ơi, hàm lỗi', error);
     return null;
   }
 }
+
+//========================================//
 
 export const getAuctionStatus = async () => {
   try {
