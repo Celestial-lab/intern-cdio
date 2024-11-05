@@ -64,84 +64,11 @@ export default function Profile() {
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const handleOkButton = async () => {
-    try {
-      const values = await form.validateFields();
-      const updatedProfile = {
-        fullname: values.fullname || profile.fullname,
-        gender: values.gender,
-        walletaddress: values.walletaddress,
-        dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
-        country: values.country || profile.country,
-      };
-      const response = await editProfileById(profile.id, updatedProfile);
-      if (response) {
-        setProfile({ ...profile, ...updatedProfile, gender: values.gender });
-        message.success('Profile updated successfully!');
-      } else {
-        message.error('Failed to update profile!');
-      }
-
-      setIsModalOpen(false);
-
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      message.error('Failed to update profile!');
-    }
-  }
   const handleCancelButton = () => {
     setIsModalOpen(false)
   }
 
   const [error, setError] = useState<string | null>(null);
-
-
-  const connectWallet1 = async () => {
-    try {
-      if (!window.ethereum) {
-        message.error('MetaMask is not installed!');
-        return;
-      }
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const walletAddress = await (await signer).getAddress();
-      const balance = await provider.getBalance(walletAddress);
-      const balanceInEth = ethers.formatEther(balance);
-      const formattedBalance = parseFloat(balanceInEth).toFixed(3);
-
-      localStorage.setItem('authorBalance', formattedBalance);
-      localStorage.setItem('authorAddress', walletAddress);
-
-      form.setFieldsValue({ walletaddress: walletAddress });
-      const updatedProfile = { ...profile, walletaddress: walletAddress };
-
-      const response = await editProfileById(profile.id, updatedProfile);
-      if (response) {
-        setProfile(updatedProfile);
-        message.success('Wallet connected and updated successfully!');
-
-        localStorage.setItem('walletBalance', formattedBalance);
-
-        console.log('balance: ', localStorage.getItem('walletBalance'));
-
-        // const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
-        // if (showTotalMoneyDiv) {
-        //   showTotalMoneyDiv.textContent = `${formattedBalance} CELE`;
-        // }
-      } else {
-        message.error('Failed to update wallet address!');
-      }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
-      message.error('Failed to connect wallet!');
-    }
-  };
-
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
 
   const showAddModal = () => {
@@ -161,10 +88,6 @@ export default function Profile() {
       await handleEditInfor(); // Gọi hàm khi nhấn "Edit"
     }
   };
-
-
-
-
 
   useEffect(() => {
     const fetchProfileData = async () => {
