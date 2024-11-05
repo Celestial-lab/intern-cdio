@@ -42,10 +42,12 @@ const SignIn = () => {
             };
 
             if (response.user.role === 'author') {
+
                 localStorage.setItem('authorId', response.user.id);
                 localStorage.setItem('accessToken', response.token);
 
                 console.log('id author: ', localStorage.getItem('authorId'));
+
                 if (response.errorCode === 0 && response.user.role === 'author') {
                     message.success('Welcome Author!');
                     setTimeout(() => {

@@ -27,7 +27,9 @@ export const editProfileById = async (id, data) => {
 //======================================//
 
 export const handleAddProduct = async (formData) => {
+  console.log('formdata: ', formData);
   try {
+
     const response = await axios.post('/api/create', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -36,7 +38,7 @@ export const handleAddProduct = async (formData) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      console.error('Lỗi khi thêm sản phẩm và tạo cuộc đấu giá:', error.response.data);
+      console.error('Lỗi khi tạo cuộc đấu giá:', error.response.data);
     } else {
       console.error('Lỗi:', error.message);
     }

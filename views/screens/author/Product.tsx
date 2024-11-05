@@ -28,6 +28,7 @@ import {
 import { deleteProductById, editProductById, getAuctionStatus, getProductById, handleAddProduct } from '../../services/author/AuthorServices';
 import NavbarSetting from '@/views/components/NavbarSetting';
 import moment from 'moment';
+import axios, { instanceFormData } from '../../axios';
 
 const { Header, Content, Sider } = Layout;
 
@@ -56,11 +57,11 @@ interface Product {
   startTime: number;
   endTime: number;
   id: any;
-  name: string;
+  productname: string;
   image: string;
   description: string;
   price: string;
-  auctionTime: any;
+  durationInMinutes: any;
   status: 'Chưa được đấu giá';
 }
 
@@ -77,33 +78,41 @@ export default function Product() {
 
   // Thêm sản phẩm mới
   const handleAddNewProduct = async (values: any) => {
-    const email = localStorage.getItem('authorEmail');
+
     const authorId = localStorage.getItem('authorId');
 
-    if (!email || !authorId) {
-      console.error('Không tìm thấy email hoặc ID tác giả.');
+    if (!authorId) {
+      console.error('Không tìm thấy ID tác giả.');
       return;
     }
-    
+
     try {
-      
-      
       const formData = new FormData();
-      formData.append('email', email);
-      formData.append('authorId', authorId);
-      formData.append('productname', values.name);
+      // formData.append('email', email);
+      formData.append('loginId', authorId);
+      formData.append('productname', values.productname);
       formData.append('description', values.description);
       formData.append('startingPrice', values.price);
-      formData.append('durationInMinutes', values.auctionTime);
+      formData.append('durationInMinutes', values.durationInMinutes);
       formData.append('startTime', values.startTime.toISOString());
+
       if (values.image && values.image[0] && values.image[0].originFileObj) {
         formData.append('image', values.image[0].originFileObj);
-    } else {
+      } else {
         console.error('Ảnh không tồn tại hoặc không hợp lệ');
-    }
-      console.log('values trong form: ', values);
+      }
+
+      //log form ra
+      for (const [key, value] of formData.entries()) {
+        console.log(`== ${key}: ${value}`);
+      };
+
+      console.log(values)
+
       const newProductData = await handleAddProduct(formData);
-      console.log('newProductData trước if: ', newProductData);
+
+      console.log('newProductData trước if (và sau khi thực hiện thêm): ', newProductData);
+      
       if (newProductData) {
         const newProduct = {
           key: newProductData.product.id,
@@ -128,9 +137,11 @@ export default function Product() {
     }
   };
 
+
+
   // Chỉnh sửa sản phẩm
   const handleEditProduct = async (values: any) => {
-    const email = localStorage.getItem('authorEmail');
+    // const email = localStorage.getItem('authorEmail');
     const authorId = localStorage.getItem('authorId');
 
     if (!editingProduct || editingProduct.status === 'Cuộc đấu giá đã kết thúc' || editingProduct.status === 'Cuộc đấu giá đang diễn ra') {
@@ -138,12 +149,12 @@ export default function Product() {
       return;
     }
 
-    if (!email || !authorId) {
+    if (!authorId) {
       message.error('Không tìm thấy email hoặc ID tác giả.');
       return;
     }
     const formData = new FormData();
-    formData.append('email', email);
+    // formData.append('email', email);
     formData.append('authorId', authorId);
     formData.append('productname', values.name);
     formData.append('description', values.description);
@@ -245,79 +256,79 @@ export default function Product() {
     const authorId = localStorage.getItem('authorId');
     if (authorId) {
       getProductById(authorId).then(async (response) => {
-          if (response && response.products) {
-            const fetchedProducts = response.products.map((product: any) => {
-              const endTimeInSeconds = product.endTime;
-              const startTimeInMs = new Date(product.startTime).getTime();
-              const endTime = endTimeInSeconds * 1000;
-              return {
-                id: product.id,
-                name: product.productName,
-                image: product.imageUrl,
-                description: product.description,
-                price: product.startingPrice,
-                startTime: startTimeInMs,
-                endTime,
-              };
-            });
+        if (response && response.products) {
+          const fetchedProducts = response.products.map((product: any) => {
+            const endTimeInSeconds = product.endTime;
+            const startTimeInMs = new Date(product.startTime).getTime();
+            const endTime = endTimeInSeconds * 1000;
+            return {
+              id: product.id,
+              name: product.productName,
+              image: product.imageUrl,
+              description: product.description,
+              price: product.startingPrice,
+              startTime: startTimeInMs,
+              endTime,
+            };
+          });
 
-            const auctionStatusData = await getAuctionStatus();
+          const auctionStatusData = await getAuctionStatus();
 
-            const updatedProducts = fetchedProducts.map((product: any) => {
-              const productStatus = auctionStatusData.find(
-                (statusItem: any) => statusItem.productId === product.id || statusItem.id === product.id
-              );
-              const currentTime = Date.now();
-              let status = '';
+          const updatedProducts = fetchedProducts.map((product: any) => {
+            const productStatus = auctionStatusData.find(
+              (statusItem: any) => statusItem.productId === product.id || statusItem.id === product.id
+            );
+            const currentTime = Date.now();
+            let status = '';
 
-              // Điều kiện cho trạng thái dựa trên startTime và thời gian hiện tại
-              if (currentTime < product.startTime) {
-                status = 'Cuộc đấu giá chưa diễn ra';
-              } else if (currentTime >= product.startTime && currentTime < product.endTime) {
-                status = 'Cuộc đấu giá đang diễn ra';
-              } else {
-                status = 'Cuộc đấu giá đã kết thúc';
-              }
+            // Điều kiện cho trạng thái dựa trên startTime và thời gian hiện tại
+            if (currentTime < product.startTime) {
+              status = 'Cuộc đấu giá chưa diễn ra';
+            } else if (currentTime >= product.startTime && currentTime < product.endTime) {
+              status = 'Cuộc đấu giá đang diễn ra';
+            } else {
+              status = 'Cuộc đấu giá đã kết thúc';
+            }
 
-              return {
-                ...product,
-                status,
-              };
-            });
+            return {
+              ...product,
+              status,
+            };
+          });
 
-            setProducts(updatedProducts);
+          setProducts(updatedProducts);
 
-            const interval = setInterval(() => {
-              setProducts((prevProducts) => {
-                return prevProducts.map((product) => {
-                  const currentTime = Date.now();
-                  if (currentTime < product.startTime) {
-                    return {
-                      ...product,
-                      auctionTime: 'Chưa bắt đầu',
-                      status: 'Cuộc đấu giá chưa diễn ra'
-                    };
-                  } else if (currentTime >= product.startTime && currentTime < product.endTime) {
-                    const remainingTime = Math.max(0, product.endTime - currentTime);
-                    return {
-                      ...product,
-                      auctionTime: `${Math.floor((remainingTime % 3600000) / 60000)} : ${Math.floor((remainingTime % 60000) / 1000)}`,
-                      status: 'Cuộc đấu giá đang diễn ra',
-                    };
-                  } else {
-                    return {
-                      ...product,
-                      auctionTime: 'Hết thời gian',
-                      status: 'Cuộc đấu giá đã kết thúc'
-                    };
-                  }
-                });
+          const interval = setInterval(() => {
+            setProducts((prevProducts) => {
+              return prevProducts.map((product) => {
+                const currentTime = Date.now();
+                if (currentTime < product.startTime) {
+                  return {
+                    ...product,
+                    auctionTime: 'Chưa bắt đầu',
+                    status: 'Cuộc đấu giá chưa diễn ra'
+                  };
+                } else if (currentTime >= product.startTime && currentTime < product.endTime) {
+                  const remainingTime = Math.max(0, product.endTime - currentTime);
+                  return {
+                    ...product,
+                    auctionTime: `${Math.floor((remainingTime % 3600000) / 60000)} : ${Math.floor((remainingTime % 60000) / 1000)}`,
+                    status: 'Cuộc đấu giá đang diễn ra',
+                  };
+                } else {
+                  return {
+                    ...product,
+                    auctionTime: 'Hết thời gian',
+                    status: 'Cuộc đấu giá đã kết thúc'
+                  };
+                }
               });
-            }, 1000);
+            });
+          }, 1000);
 
-            return () => clearInterval(interval);
-          }
-        })
+          return () => clearInterval(interval);
+        }
+      })
         .catch((error) => {
           console.error('Lỗi khi tải sản phẩm:', error);
         });
@@ -452,8 +463,10 @@ export default function Product() {
                 </Button>,
               ]}
             >
+
+
               <Form form={form} id="product-form" layout="vertical" onFinish={handleSubmit}>
-                <Form.Item name="name" label="Product Name" rules={[{ required: true, message: 'Please input product name!' }]}>
+                <Form.Item name="productname" label="Product Name" rules={[{ required: true, message: 'Please input product name!' }]}>
                   <Input />
                 </Form.Item>
                 <Form.Item name="description" label="Description" rules={[{ required: true, message: 'Please input description!' }]}>
@@ -468,16 +481,18 @@ export default function Product() {
                   </Upload>
                 </Form.Item>
                 <Form.Item
-            name="auctionTime"
-            label="Thời gian đấu giá (phút)"
-            rules={[{ required: true, message: 'Thời gian đấu giá không được để trống' }]}
-          >
-            <Input />
-          </Form.Item>
+                  name="durationInMinutes"
+                  label="Thời gian đấu giá (phút)"
+                  rules={[{ required: true, message: 'Thời gian đấu giá không được để trống' }]}
+                >
+                  <Input />
+                </Form.Item>
                 <Form.Item name="startTime" label="Start Time" rules={[{ required: true, message: 'Please select start time!' }]}>
                   <DatePicker showTime />
                 </Form.Item>
               </Form>
+
+
             </Modal>
 
 
