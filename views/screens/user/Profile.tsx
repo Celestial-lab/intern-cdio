@@ -6,8 +6,6 @@ import { Avatar, Button, Col, DatePicker, Form, Input, message, Modal, Radio, Ro
 import { Layout, Menu, theme } from 'antd';
 import {
   AppstoreOutlined,
-  BellOutlined,
-  DollarOutlined,
   FileOutlined,
   HistoryOutlined,
   MailFilled,
@@ -16,10 +14,11 @@ import {
 } from '@ant-design/icons';
 import "@/views/style/Profile.css";
 import { Footer } from 'antd/es/layout/layout';
-import { editProfileById, getProfileByEmail } from '../../services/user/ProfileServices.js';
+import { addCreateInfor, editInforById, getInforById, } from '../../services/user/ProfileServices.js';
 import moment from "moment";
 import { ethers } from 'ethers';
 import { MetaMaskInpageProvider } from "@metamask/providers";
+import NavbarSetting from "@/views/components/NavbarSetting";
 
 declare global {
   interface Window {
@@ -27,7 +26,7 @@ declare global {
   }
 }
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -57,56 +56,134 @@ export default function Profile() {
   const { token: { colorBgContainer } } = theme.useToken();
   const [form] = Form.useForm();
   const [profile, setProfile] = useState({
-    id: '',
-    nickname: '',
     email: '',
-    createdAt: '',
     fullname: '',
     dateofbirth: '',
     gender: '',
     country: '',
-    walletaddress: '',
+    walletAddress: '',
   });
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true)
-  }
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
 
-  const handleOkButton = async () => {
+  const showAddModal = () => {
+    setModalMode('add');
+    setIsModalOpen(true);
+  };
+
+  const showEditModal = () => {
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleModalOk = async () => {
+    if (modalMode === 'add') {
+      await handleAddButton(); // Gọi hàm khi nhấn "Add"
+    } else {
+      await handleEditInfor(); // Gọi hàm khi nhấn "Edit"
+    }
+  };
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        try {
+          const response = await getInforById(userId);
+          console.log('response: ', response);
+          const inforId = response.data.id;
+          localStorage.setItem('inforId', inforId);
+          const data = response.data;
+          if (data) {
+            setProfile({
+              email: data.email,
+              fullname: data.fullname,
+              dateofbirth: data.dateOfBirth,
+              gender: data.gender ? 'Male' : 'Female',
+              country: data.country,
+              walletAddress: data.walletAddress,
+            });
+          } else {
+            console.log('No profile data found for the given loginId');
+          }
+        } catch (error) {
+          console.error('Failed to fetch profile:', error);
+        }
+      }
+    };
+    checkAuth();
+    fetchProfileData();
+  }, []);
+
+  const handleAddButton = async () => {
     try {
-      const values = await form.validateFields(); 
-      const updatedProfile = {
-        fullname: values.fullname || profile.fullname,
+      const values = await form.validateFields();
+      const userId = localStorage.getItem('userId');
+      console.log('values trước khi chạy updated: ', values);
+      const addInfor = {
+        fullname: values.fullName,
+        dateOfBirth: values.dateOfBirth.toISOString(),
         gender: values.gender,
-        walletaddress: values.walletaddress || profile.walletaddress,
-        dateofbirth: values.dateofbirth ? values.dateofbirth.format("YYYY-MM-DD") : profile.dateofbirth,
-        country: values.country || profile.country,
+        country: values.country,
+        walletAddress: values.walletAddress,
+        loginId: userId,
       };
-      console.log('gender status: ', updatedProfile.gender);
-      const response = await editProfileById(profile.id, updatedProfile);
+      const response = await addCreateInfor(addInfor);
+      console.log('response bên frontend: ', response);
       if (response) {
-        setProfile({ ...profile, ...updatedProfile, gender: values.gender });
-        console.log(updatedProfile.gender);
+        setProfile({ ...profile, ...addInfor, gender: values.gender });
         message.success('Profile updated successfully!');
       } else {
         message.error('Failed to update profile!');
-      }
+      };
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error updating profile:', error);
       message.error('Failed to update profile!');
     }
   }
-  const handleCancelButton = () => {
-    setIsModalOpen(false)
+
+  const handleEditInfor = async () => {
+    try {
+      const values = await form.validateFields();
+      const inforId = localStorage.getItem('inforId');
+
+      const updatedProfile = {
+        fullname: values.fullName,
+        dateofbirth: values.dateOfBirth,
+        gender: values.gender,
+        country: values.country,
+        walletAddress: values.walletAddress,
+      };
+
+      console.log('values sau khi nhập vào updated: ', updatedProfile);
+
+      const response = await editInforById(inforId, updatedProfile);
+
+      console.log('response trả về sau edit: ', response);
+
+      if (response) {
+        setProfile(updatedProfile);
+        message.success('Profile updated successfully!');
+      } else {
+        message.error('Failed to update profile!');
+      }
+
+      setIsModalOpen(false);
+
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      message.error('Failed to update profile!');
+    }
   }
-  const [error, setError] = useState<string | null>(null);
+
+  const handleCancelButton = () => {
+    setIsModalOpen(false);
+  };
 
   // Hàm kết nối ví MetaMask
   const connectWallet = async () => {
     try {
-
       const token = localStorage.getItem('accessToken');
       if (!token) {
         message.error("Vui lòng đăng nhập lại");
@@ -115,35 +192,123 @@ export default function Profile() {
         }, 1500);
         return;
       }
+  
+      if (!window.ethereum) {
+        message.error('MetaMask is not installed!');
+        return;
+      }
+  
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+      const walletAddress = await signer.getAddress();
+      const balance = await provider.getBalance(walletAddress);
+      const balanceInEth = ethers.formatEther(balance);
+      const formattedBalance = parseFloat(balanceInEth).toFixed(3);
+  
+      // Lưu số dư vào localStorage
+      localStorage.setItem('userBalance', formattedBalance);
+      localStorage.setItem('userAddress', walletAddress);
 
+  
+      // Cập nhật trường walletAddress trong form
+  
+      const inforId = localStorage.getItem('inforId');
+  
+      if (!inforId) {
+        // Nếu không có inforId, chỉ cập nhật trường walletAddress trong form
+        message.info('Vui lòng thêm thông tin cá nhân trước khi kết nối ví.');
+        // Thực hiện hành động để thêm thông tin nếu cần
+        // Có thể mở modal hoặc thực hiện một hành động nào đó
+
+        form.setFieldsValue({
+          walletAddress: walletAddress,
+        });
+
+      } else {
+        // Nếu đã có inforId, cập nhật profile với địa chỉ ví
+        const updatedProfile = {
+          ...profile,
+          walletAddress: walletAddress,
+        };
+  
+        console.log('updatedProfile: ', updatedProfile);
+    
+        const response = await editInforById(inforId, updatedProfile);
+  
+        console.log('response sau connect: ', response);
+    
+        if (response) {
+          setProfile(updatedProfile);
+          message.success('Wallet connected and updated successfully!');
+  
+          // Cập nhật số tiền hiển thị
+          const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
+          if (showTotalMoneyDiv) {
+            showTotalMoneyDiv.textContent = `${formattedBalance} $`;
+          }
+        } else {
+          message.error('Failed to update wallet address!');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+      message.error('Failed to connect wallet!');
+    }
+  };
+
+
+  const connectWallet1 = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        message.error("Vui lòng đăng nhập lại");
+        setTimeout(() => {
+          window.location.href = '/user/signin';
+        }, 1500);
+        return;
+      }
+  
       if (!window.ethereum) {
         message.error('MetaMask is not installed!');
         return;
       }
       const provider = new ethers.BrowserProvider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const walletAddress = await (await signer).getAddress();
+      const signer = await provider.getSigner();
+      const walletAddress = await signer.getAddress();
       const balance = await provider.getBalance(walletAddress);
       const balanceInEth = ethers.formatEther(balance);
       const formattedBalance = parseFloat(balanceInEth).toFixed(3);
-
+  
       // Lưu số dư vào localStorage
       localStorage.setItem('userBalance', formattedBalance);
       localStorage.setItem('userAddress', walletAddress);
-      console.log('địa chỉ: ', localStorage.getItem('userAddress'));
-  
+
       form.setFieldsValue({
-        walletaddress: walletAddress,
+        walletAddress: walletAddress, // Cập nhật trường walletAddress trong form
       });
+  
+      // Cập nhật profile với địa chỉ ví
       const updatedProfile = {
         ...profile,
-        walletaddress: walletAddress,
+        walletAddress: walletAddress,
       };
-      const response = await editProfileById(profile.id, updatedProfile);
+
+      console.log('updatedProfile: ', updatedProfile);
+  
+      const inforId = localStorage.getItem('inforId');
+  
+      const response = await editInforById(inforId, updatedProfile);
+
+      console.log('response sau connect: ', response);
+  
       if (response) {
         setProfile(updatedProfile);
+
         message.success('Wallet connected and updated successfully!');
+  
+        // Cập nhật số tiền hiển thị
         const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
         if (showTotalMoneyDiv) {
           showTotalMoneyDiv.textContent = `${formattedBalance} $`;
@@ -170,38 +335,7 @@ export default function Profile() {
     }
   };
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      const email = localStorage.getItem('userEmail');
-      if (email) {
-        try {
-          const response = await getProfileByEmail(email);
-          const data = response.data;
-          if (data) {
-            setProfile({
-              id: data.id,
-              nickname: data.nickname,
-              email: data.email,
-              createdAt: data.createdAt || '1 month ago',
-              fullname: data.fullname,
-              dateofbirth: data.dateofbirth,
-              gender: data.gender,
-              country: data.country,
-              walletaddress: data.walletaddress,
-            });
-          } else {
-            console.log('No profile data found for the given email');
-          }
-        } catch (error) {
-          setError('Failed to fetch profile data');
-          console.error('Failed to fetch profile:', error);
-        }
 
-      }
-    };
-    checkAuth();
-    fetchProfileData();
-  }, []);
 
   // đếm ngược thời gian k tương tác với trang web để đăng nhập lại
   const [isActive, setIsActive] = useState(true);
@@ -256,23 +390,9 @@ export default function Profile() {
         <Menu theme="dark" defaultSelectedKeys={['profile']} mode="inline" items={items} />
       </Sider>
       <Layout>
-        <Header className='headerInfor'>
-          <Row className='row'>
-            <Col className='col1' span={12}>
-              <div className='name'><p>Hello, {profile.nickname}</p></div>
-              <div className='date'><p>Tue, 29 July 2024</p></div>
-            </Col>
-            <Col className='col2' span={12}>
-              <Row className='headerRight'>
-                <div className='iconBell'><BellOutlined style={{ color: 'grey' }} /></div>
-                <div className='iconDollar'><DollarOutlined style={{ color: 'grey' }} />
-                  <div className='showTotalMoney'>0 $</div>
-                </div>
-                <div className='avt1'><Avatar shape="square" style={{ color: 'grey', background: 'white' }} size={40} icon={<UserOutlined />} /></div>
-              </Row>
-            </Col>
-          </Row>
-        </Header>
+
+        <NavbarSetting />
+
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
@@ -289,7 +409,7 @@ export default function Profile() {
                   <Col className='colName' span={20.5}>
                     <div className='divName'>
                       <p>
-                        <span className='textName'>{profile.nickname}</span> <br />
+                        <span className='textName'>{profile.fullname}</span> <br />
                         <span className='textEmail'>{profile.email}</span>
                       </p>
                     </div>
@@ -297,19 +417,22 @@ export default function Profile() {
                 </Row>
               </Col>
               <Col className='colEdit' span={12}>
-                <Button className='buttonEdit' type="text" onClick={showModal}>Edit</Button>
+
+                  <Button className='buttonEdit' type="text" onClick={showAddModal}>Add Infor</Button>
+                  <Button className='buttonEdit' type="text" onClick={showEditModal}>Edit</Button>
 
                 <Modal
-                  title="Edit Profile"
+                  title={modalMode === 'add' ? "Add Infor" : "Edit Profile"}
                   open={isModalOpen}
-                  onOk={handleOkButton}
+                  onOk={handleModalOk}
                   onCancel={handleCancelButton}
+                  okText={modalMode === 'add' ? "Add" : "Edit"}
                   okButtonProps={{ className: 'modal-ok-button', type: 'text' }}
                   cancelButtonProps={{ type: 'text' }}
                 >
                   <Form form={form} layout="vertical">
                     <Form.Item
-                      name="fullname"
+                      name="fullName"
                       label="Full Name:"
                       initialValue={profile.fullname}
                     >
@@ -331,11 +454,11 @@ export default function Profile() {
                     <Row className="walletaddress" align="middle">
                       <Col span={18}>
                         <Form.Item
-                          name="walletaddress"
+                          name="walletAddress"
                           label="Wallet Address:"
-                          initialValue={profile.walletaddress}
+                          initialValue={profile.walletAddress}
                         >
-                          <Input placeholder={profile.walletaddress} />
+                          <Input placeholder={profile.walletAddress} />
                         </Form.Item>
                       </Col>
                       <Col span={6}>
@@ -346,7 +469,7 @@ export default function Profile() {
                     </Row>
 
                     <Form.Item
-                      name="dateofbirth"
+                      name="dateOfBirth"
                       label="Date of Birth"
                       initialValue={profile.dateofbirth ? moment(profile.dateofbirth) : null}
                       rules={[{ required: true, message: 'Please select date of birth!' }]}
@@ -363,20 +486,25 @@ export default function Profile() {
                   </Form>
                 </Modal>
 
+
+
+
+
+
               </Col>
             </Row>
             <Row className='row2'>
               <Col className='colInput1' span={12}>
                 <div className='divInput1'>
                   <Form form={form} layout="vertical">
-                    <Form.Item name="full-name" label="Full Name:">
+                    <Form.Item name="fullName" label="Full Name:">
                       <Input placeholder={profile.fullname} />
                     </Form.Item>
                     <Form.Item name="gender" label="Gender:">
                       <Input placeholder={profile.gender} />
                     </Form.Item>
-                    <Form.Item name="wallet-address" label="Wallet Address:" >
-                      <Input placeholder={profile.walletaddress} />
+                    <Form.Item name="walletAddress" label="Wallet Address:" >
+                      <Input placeholder={profile.walletAddress} />
                     </Form.Item>
                   </Form>
                 </div>
@@ -384,7 +512,7 @@ export default function Profile() {
               <Col className='colInput2' span={12}>
                 <div className='divInput2'>
                   <Form form={form} layout="vertical">
-                    <Form.Item name="date" label="Date of birth:">
+                    <Form.Item name="dateOfBirth" label="Date of birth:">
                       <Input placeholder={profile.dateofbirth} />
                     </Form.Item>
                     <Form.Item name="country" label="Country:">

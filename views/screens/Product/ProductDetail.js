@@ -103,7 +103,7 @@ const ProductDetail = () => {
     try {
       const response = await addRegisterAuction(userId, auctionId);
 
-      console.log('response nè: ', response);
+      console.log('response nè: ', response.registration);
 
       if (response) {
         alert('Đăng ký đấu giá thành công!');

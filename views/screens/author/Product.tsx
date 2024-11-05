@@ -77,13 +77,17 @@ export default function Product() {
 
   // Thêm sản phẩm mới
   const handleAddNewProduct = async (values: any) => {
+    const email = localStorage.getItem('authorEmail');
+    const authorId = localStorage.getItem('authorId');
+
+    if (!email || !authorId) {
+      console.error('Không tìm thấy email hoặc ID tác giả.');
+      return;
+    }
+    
     try {
-      const email = localStorage.getItem('authorEmail');
-      const authorId = localStorage.getItem('authorId');
-      if (!email || !authorId) {
-        console.error('Không tìm thấy email hoặc ID tác giả.');
-        return;
-      }
+      
+      
       const formData = new FormData();
       formData.append('email', email);
       formData.append('authorId', authorId);
@@ -111,9 +115,9 @@ export default function Product() {
           auctionTime: newProductData.product.endTime,
           startTime: newProductData.product.startTime,
         };
-        console.log('newProduct trước set: ', newProduct);
+        // console.log('newProduct trước set: ', newProduct);
         setProducts((prevProducts) => [...prevProducts, newProduct]);
-        console.log('newProduct sau set: ', newProduct);
+        // console.log('newProduct sau set: ', newProduct);
         message.success('Upload thành công');
         handleCancel();
       } else {
