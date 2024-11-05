@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { Avatar, Button, Col, DatePicker, Input, Row, Table, Image } from 'antd';
+import { Avatar, Button, Col, DatePicker, Input, Row, Table, Image, message } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import { AppstoreOutlined, BellOutlined, DollarOutlined, FileOutlined, HistoryOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
-import "@/views/style/MyDocument.css"; 
+import "@/views/style/MyDocument.css";
 import { Footer } from 'antd/es/layout/layout';
-import { Approve, getRegisterAuction } from '@/views/services/user/ProfileServices';
+import { Approve, deleteRegisterAuction, getRegisterAuction } from '@/views/services/user/ProfileServices';
 import NavbarSI from '@/views/components/NavbarSI';
 import NavbarSetting from '@/views/components/NavbarSetting';
 import { ethers } from 'ethers';
@@ -31,22 +31,33 @@ const items = [
 
 const MyDocument = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const { token: { colorBgContainer } } = theme.useToken(); 
+  const { token: { colorBgContainer } } = theme.useToken();
   const [registeredAuctions, setRegisteredAuctions] = useState([]);
 
- 
+
   useEffect(() => {
     const fetchRegisteredAuctions = async () => {
       const userId = localStorage.getItem('userId');
       if (userId) {
-        const auctions = await getRegisterAuction(userId);
-        console.log('auction nè: ', auctions);
-        if (auctions) {
-          setRegisteredAuctions(auctions.map((auction: { id: any; productName: any; createdAt: string | number | Date; endTime: number; startingPrice: any; imageUrl: any; }) => ({
-            key: auction.id,
+        const register = await getRegisterAuction(userId);
+        
+
+        //in giá trị ra
+        register.forEach((registration: any, index: number) => {
+          console.log(`cuộc đấu giá ${index + 1}:`, registration);
+
+          const registrationId = registration.registrationId;
+
+          // console.log('registration: ', registrationId)
+        });
+
+        if (register) {
+          setRegisteredAuctions(register.map((auction: any) => ({
+            registrationId: auction.registrationId,
+            auctionId: auction.id,
             name: auction.productName,
             auctionDay: new Date(auction.createdAt).toLocaleDateString(),
-            auctionMinutes: Math.floor((auction.endTime - Date.now() / 1000) / 60), 
+            auctionMinutes: Math.floor((auction.endTime - Date.now() / 1000) / 60),
             startingPrice: auction.startingPrice,
             imageUrl: auction.imageUrl,
           })));
@@ -54,11 +65,15 @@ const MyDocument = () => {
           console.error('Không tìm thấy cuộc đấu giá nào.');
         }
       } else {
-        console.error('Không tìm thấy userId trong localStorage.'); 
+        console.error('Không tìm thấy userId trong localStorage.');
       }
     };
     fetchRegisteredAuctions();
   }, []);
+
+  useEffect(() => {
+    console.log('Giá trị registeredAuctions sau khi cập nhật:', registeredAuctions);
+  }, [registeredAuctions]);
 
   const columns = [
     {
@@ -90,8 +105,11 @@ const MyDocument = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: { key: any; }) => (
-        <Button type="primary" onClick={() => handleJoinAuction(record.key)}>Tham gia đấu giá</Button>
+      render: (_: any, record: { registrationId: any }) => (
+        <div>
+          <Button type="primary" onClick={() => handleJoinAuction(record.registrationId)}>Tham gia đấu giá</Button>
+          <Button type="danger" onClick={() => handleDeleteRegisterAuction(record.registrationId)}>Huỷ đăng ký</Button>
+        </div>
       ),
     },
     {
@@ -109,48 +127,67 @@ const MyDocument = () => {
     // window.location.href = '/user/approve';
   };
 
+  const handleDeleteRegisterAuction = async (registrationId: any) => {
+    try {
+      const response = await deleteRegisterAuction(registrationId);
+      console.log('Response trả về sau khi gọi API: ', response);
+  
+      if (response) {
+        setRegisteredAuctions((prevAuctions) => {
+          const updatedAuctions = prevAuctions.filter(
+            (auction) => auction.registrationId !== registrationId
+          );
+          console.log('Đã xóa sản phẩm đăng ký:', registrationId);
+          console.log('Auction sau khi cập nhật:', updatedAuctions);
+          message.success('Đã xóa sản phẩm đăng ký');
+          return updatedAuctions;
+        });
+      } else {
+        console.error('Xóa sản phẩm thất bại');
+      }
+    } catch (error) {
+      console.error('Có lỗi xảy ra khi xóa sản phẩm:', error);
+    }
+  };
+
   const handleApprove = async (key: any) => {
     try {
-        const userAddress = localStorage.getItem('userAddress');
-        if (!userAddress) {
-            alert("Không tìm thấy địa chỉ ví của người dùng trong localStorage.");
-            return;
-        }
-        if (!window.ethereum) {
-            alert("Vui lòng cài đặt MetaMask!");
-            return;
-        }
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const tokenAddress = "0x463267b530182e5C3Aed5441cC22e76A77d4B51C";
-        const spenderAddress = "0xD33aF4BEb2C050b36d146D84DDA6A9a0221e254c"; 
-        const approveAmount = ethers.parseUnits("1000", 18);
+      const userAddress = localStorage.getItem('userAddress');
+      if (!userAddress) {
+        alert("Không tìm thấy địa chỉ ví của người dùng trong localStorage.");
+        return;
+      }
+      if (!window.ethereum) {
+        alert("Vui lòng cài đặt MetaMask!");
+        return;
+      }
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const tokenAddress = "0x463267b530182e5C3Aed5441cC22e76A77d4B51C";
+      const spenderAddress = "0xD33aF4BEb2C050b36d146D84DDA6A9a0221e254c";
+      const approveAmount = ethers.parseUnits("1000", 18);
 
-        const tokenABI = [
-            "function approve(address spender, uint256 amount) public returns (bool)"
-        ];
-        const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
-        console.log("Hợp đồng token đã được tạo:", tokenContract); 
+      const tokenABI = [
+        "function approve(address spender, uint256 amount) public returns (bool)"
+      ];
+      const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
+      console.log("Hợp đồng token đã được tạo:", tokenContract);
 
-        // Gửi giao dịch approve
-        const transaction = await tokenContract.approve(spenderAddress, approveAmount);
-        console.log("Đang thực hiện approve, đợi xác nhận giao dịch...");
-        await transaction.wait();
-        console.log("Giao dịch approve hoàn tất:", transaction);
-
-
-        alert("Approve thành công!");
-        
-        // window.location.href = '/user/LiveAuction';
+      // Gửi giao dịch approve
+      const transaction = await tokenContract.approve(spenderAddress, approveAmount);
+      console.log("Đang thực hiện approve, đợi xác nhận giao dịch...");
+      await transaction.wait();
+      console.log("Giao dịch approve hoàn tất:", transaction);
+      alert("Approve thành công!");
 
     } catch (error) {
-        console.error("Lỗi khi thực hiện approve:", error);
-        alert("Đã xảy ra lỗi khi thực hiện approve: " + (error));
+      console.error("Lỗi khi thực hiện approve:", error);
+      alert("Đã xảy ra lỗi khi thực hiện approve: " + (error));
     }
-};
+  };
 
-  
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>

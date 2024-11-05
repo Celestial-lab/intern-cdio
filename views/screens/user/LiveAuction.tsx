@@ -54,7 +54,6 @@ export default function LiveAuction() {
   const handleDecrease = useCallback(() => setMultiplier(prev => (prev > 1 ? prev - 1 : 1)), []);
 
 
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -133,39 +132,7 @@ export default function LiveAuction() {
               </div>
             </div>
 
-            <div className='col-5'>
-              <div className='redBox'>
-                <div className='liveMoney-title'>
-                  <LineChartOutlined className='iconChart' />
-                  <h2 className='title'>Auction Progress</h2>
-                </div>
-                <div className='content'>
-                  {cards.slice(0, 6).map(card => (
-                    <Card className={classNames('auctionCard', { topCard: card.topCard })} key={card.id}>
-                      <Row className='rowCard'>
-                        <Col className='colMoney' span={8}>
-                          <div className='moneyAtime'>
-                            <p className={classNames('price', { highlightPrice: card.topCard })}>{card.price}$</p>
-                            <p>{card.time}</p>
-                          </div>
-                        </Col>
-                        <Col className='colRound' span={8}>
-                          <div className='round'>
-                            Vòng đấu {card.round}
-                          </div>
-                        </Col>
-                        <Col className='colUser' span={8}>
-                          <div className='user'>
-                            <Avatar icon={<UserOutlined />} className="navbar-iconStyle" />
-                            <span className={classNames('userName', { highlightUserName: card.topCard })}>{card.user}</span>
-                          </div>
-                        </Col>
-                      </Row>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
+            <div className='col-but col-5'>
               <div className='greenBox'>
                 <div className='currentMoney-title'>
                   <DollarOutlined className='iconChart' />
@@ -173,7 +140,7 @@ export default function LiveAuction() {
                   <div className='currentPrice'>{currentPrice}$</div>
                 </div>
                 <hr className='divider' />
-                <div className='inforPrice'>
+                <div className='inforPrice py-2'>
                   <Row className='price'>
                     <div className='priceField'>{price}$</div>
                     <div className="multiplySymbol">X</div>
@@ -190,143 +157,95 @@ export default function LiveAuction() {
                   </div>
                 </div>
               </div>
+
+              <div className='updateBox'>
+
+                  <div className="update-card card">
+                    <div className="card-header">
+                      Đặt giá thành công!
+                    </div>
+                    <div className="body-noti card-body">
+                        <div className='row'>
+                          <div className='col-7'>
+                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
+                          </div>
+                          <div className='div-time-noti col-5'>
+                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
+                          </div>
+                        </div> 
+                    </div>
+                  </div>
+
+                  <div className="update-card card">
+                    <div className="card-header">
+                      Đặt giá thành công!
+                    </div>
+                    <div className="body-noti card-body">
+                        <div className='row'>
+                          <div className='col-7'>
+                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
+                          </div>
+                          <div className='div-time-noti col-5'>
+                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
+                          </div>
+                        </div> 
+                    </div>
+                  </div>
+
+                  <div className="update-card card">
+                    <div className="card-header">
+                      Đặt giá thành công!
+                    </div>
+                    <div className="body-noti card-body">
+                        <div className='row'>
+                          <div className='col-7'>
+                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
+                          </div>
+                          <div className='div-time-noti col-5'>
+                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
+                          </div>
+                        </div> 
+                    </div>
+                  </div>
+
+                  <div className="update-card card">
+                    <div className="card-header">
+                      Đặt giá thành công!
+                    </div>
+                    <div className="body-noti card-body">
+                        <div className='row'>
+                          <div className='col-7'>
+                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
+                          </div>
+                          <div className='div-time-noti col-5'>
+                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
+                          </div>
+                        </div> 
+                    </div>
+                  </div>
+
+                  <div className="update-card card">
+                    <div className="card-header">
+                      Đặt giá thành công!
+                    </div>
+                    <div className="body-noti card-body">
+                        <div className='row'>
+                          <div className='col-7'>
+                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
+                          </div>
+                          <div className='div-time-noti col-5'>
+                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
+                          </div>
+                        </div> 
+                    </div>
+                  </div>
+
+              </div>
             </div>
 
           </div>
         </div>
       </section>
-
-      {/*==========================================*/}
-      {/* <div className='liveAuction'>
-        <Row>
-          <Col className='time' span={12}>
-            <div className='countDown'>
-              <Row className='rowCount'>
-                <div className='showTime'>
-                  <span className='timeLess'>Time Remaining:</span>
-                  <span className='timeCount'>{`${minutes} : ${seconds < 10 ? '0' : ''}${seconds}`}</span>
-                </div>
-              </Row>
-            </div>
-            <div className='product'>
-              <Avatar shape='square' src="/gif-ne-2.gif" className="avatar" />
-            </div>
-            <div className='inforProduct'>
-              <Row className='infor1'>
-                <div className='inforRound'>
-                  Renewal times: 1
-                </div>
-              </Row>
-              <Row className='infor2'>
-                <div className='leftInfor'>
-                  Product name
-                </div>
-                <div className='rightInfor'>
-                  Author name
-                </div>
-              </Row>
-            </div>
-            <div className='moreProduct'>
-              <div className='suggest1'>
-                <Card className='cardSug1' hoverable style={{ minWidth: 300 }}>
-                  <Card.Meta
-                    className='inforSugPro1'
-                    avatar={<Avatar className='avtSug' src="/gif-ne-3.gif" />}
-                    description={
-                      <>
-                        <p>Current Price: <span className='priceSugPro'>50$</span></p>
-                        <p>Price paid: <span className='priceSugPro'>500$</span></p>
-                        <div className='bidCount'>
-                          <p>Bid count: <span className='priceSugPro'>5</span></p>
-                        </div>
-                      </>
-                    }
-                  />
-                </Card>
-              </div>
-              <div className='suggest2'>
-                <Card className='cardSug1' hoverable style={{ minWidth: 300 }}>
-                  <Card.Meta
-                    className='inforSugPro1'
-                    avatar={<Avatar className='avtSug' src="/gif-ne-4.gif" />}
-                    description={
-                      <>
-                        <p>Current Price: <span className='priceSugPro'>50$</span></p>
-                        <p>Price paid: <span className='priceSugPro'>500$</span></p>
-                        <div className='bidCount'>
-                          <p>Bid count: <span className='priceSugPro'>5</span></p>
-                        </div>
-                      </>
-                    }
-                  />
-                </Card>
-              </div>
-            </div>
-          </Col>
-
-          <Col className='money' span={12}>
-            <div className='redBox'>
-              <div className='liveMoney-title'>
-                <LineChartOutlined className='iconChart' />
-                <h2 className='title'>Auction Progress</h2>
-              </div>
-              <div className='content'>
-                {cards.slice(0, 6).map(card => (
-                  <Card className={classNames('auctionCard', { topCard: card.topCard })} key={card.id}>
-                    <Row className='rowCard'>
-                      <Col className='colMoney' span={8}>
-                        <div className='moneyAtime'>
-                          <p className={classNames('price', { highlightPrice: card.topCard })}>{card.price}$</p>
-                          <p>{card.time}</p>
-                        </div>
-                      </Col>
-                      <Col className='colRound' span={8}>
-                        <div className='round'>
-                          Vòng đấu {card.round}
-                        </div>
-                      </Col>
-                      <Col className='colUser' span={8}>
-                        <div className='user'>
-                          <Avatar icon={<UserOutlined />} className="navbar-iconStyle" />
-                          <span className={classNames('userName', { highlightUserName: card.topCard })}>{card.user}</span>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            <div className='greenBox'>
-              <div className='currentMoney-title'>
-                <DollarOutlined className='iconChart' />
-                <h2 className='title'>Current Price</h2>
-                <div className='currentPrice'>{currentPrice}$</div>
-              </div>
-              <hr className='divider' />
-              <div className='inforPrice'>
-                <Row className='price'>
-                  <div className='priceField'>{price}$</div>
-                  <div className="multiplySymbol">X</div>
-                  <div className='multiplierField'>
-                    <button onClick={handleDecrease} className='decreaseButton'>-</button>
-                    {multiplier}
-                    <button onClick={handleIncrease} className='increaseButton'>+</button>
-                  </div>
-                  <div className="equalSymbol">=</div>
-                  <div className='totalField'>{price * multiplier}$</div>
-                </Row>
-                <div className='buttonPrice'>
-                  <Button className='butPrice' type='primary'>Send {price * multiplier}$</Button>
-                </div>
-              </div>
-            </div>
-
-          </Col>
-        </Row>
-      </div> */}
     </>
-
-
   );
 }

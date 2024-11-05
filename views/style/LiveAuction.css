@@ -96,22 +96,6 @@
 
 
 
-.money {
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    height: 100vh;
-}
-
-.redBox {
-    padding: 2px;
-    margin: 2px;
-    border-radius: 10px;
-    border: 3px solid #8df0b1;
-    display: flex;
-    flex-direction: column;
-    height: 70vh;
-}
-
 .greenBox {
     padding: 2px;
     color: rgb(0, 0, 0);
@@ -119,55 +103,33 @@
     margin-bottom: 2px;
     border-radius: 10px;
     border: 3px solid #8df0b1;
-    height: 30vh;
+    height: fit-content;
 }
 
-.liveMoney-title {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 20px;
-    font-family: var(--space-grotesk-fonts);
-    color: white;
-}
 .title {
-    margin-top: 15.5px;
-    font-size: 23px;
-    font-weight: 400;
-    color: white;
-
+    margin: 0;
 }
+
 .iconChart {
-    margin-top: 10px;
-    margin-left: 10px;
-    width: 25px;
+    margin-left: 5px;
+}
+
+.divider {
+    height: 3px;
     color: white;
-}
-
-.topCard .price {
-    font-weight: bold;
-    color: #22C55E;
-}
-
-.content {
-    margin-top: 10px;
-    height: 600px;
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    border: 1px solid #b5b5b5;
-    border-radius: 8px;
+    margin-top: 0;
 }
 
 .currentMoney-title {
     display: flex;
+    font-family: var(--space-grotesk-fonts);
     align-items: center;
     justify-content: space-between;
-    gap: 3px;
-    font-size: 22px;
-    font-weight: bold;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    /* margin-top: 10px; */
 }
 
 .currentPrice {
@@ -176,57 +138,6 @@
     color: #22C55E;
     font-family: var(--space-grotesk-fonts);
 }
-
-
-.colMoney, .colUser, .colRound {
-    display: flex;
-    align-items: center;
-    font-size: 12px;
-}
-
-.colMoney {
-    justify-content: flex-start;
-    height: 50px; 
-}
-
-.moneyAtime {
-    margin-left: 20px;
-    font-size: 15px;
-}
-
-.round {
-    background-color: #cacaca;
-    color: white;
-    border-radius: 10px;
-    width: 120px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.colRound {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px; 
-}
-
-.user {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-.userName {
-    display: flex;
-    align-self: center;
-}
-.colUser {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    font-size: 12px;
-}
-
 
 .inforPrice {
     height: fit-content;
@@ -249,6 +160,8 @@
     font-weight: bold;
     border-radius: 20px;
     height: 37px;
+    color: white;
+    font-family: var(--space-grotesk-fonts);
 }
 
 
@@ -256,6 +169,7 @@
     width: 130px;
     border: 1.5px solid #a4a4a4;
     position: relative;
+    font-family: var(--space-grotesk-fonts);
 }
 
 .priceField::before {
@@ -264,7 +178,8 @@
     top: -10.5px;
     left: 8px;
     font-size: 12px;
-    background-color: white;
+    background-color: #151A31;
+    font-family: var(--space-grotesk-fonts);
 }
 
 .multiplierField {
@@ -287,15 +202,17 @@
 }
 
 .multiplySymbol {
+    font-family: var(--space-grotesk-fonts);
+    color: white;
     font-size: 15px;
     font-weight: bold;
-
 }
 
 .equalSymbol {
     font-size: 25px;
     font-weight: bold;
-    
+    color: white;
+    font-family: var(--space-grotesk-fonts);
 }
 
 .increaseButton, .decreaseButton {
@@ -328,6 +245,7 @@
     background-color: #22C55E;
     font-size: 15px;
     font-weight: 600;
+    font-family: var(--space-grotesk-fonts);
 }
 .butPrice:hover {
     background-color: rgb(255, 255, 255) !important;
@@ -337,7 +255,47 @@
     font-weight: 600;
 }
 
+.updateBox {
+    padding: 5px ;
+    color: rgb(0, 0, 0);
+    border-radius: 10px;
+    border: 3px solid #8df0b1;
+    height: fit-content;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+}
 
+.update-card {
+    border: 2px solid #4cad6f !important;
+    background-image: linear-gradient(to bottom, #0A0F23, #d7def8) !important;
+}
+
+.card-header {
+    font-family: var(--space-grotesk-fonts);
+    color: #1fdb5d !important;
+}
+
+.body-noti {
+    font-family: var(--space-grotesk-fonts);
+    padding: 10px 16px !important;
+}
+
+.notification {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.div-time-noti {
+    display: flex;
+    justify-content: center;
+}
+
+.time-noti {
+    margin: 0;
+    font-style: italic;
+}
 
 
 

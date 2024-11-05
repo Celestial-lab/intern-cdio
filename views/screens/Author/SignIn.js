@@ -27,9 +27,9 @@ const SignInAuthor = () => {
                 const datatoken = localStorage.getItem('accessToken');
                 console.log('token của jwt nè: ', datatoken);
                 message.success(response.message || 'Sign in successful!');
-                setTimeout(() => {
-                    window.location.href = '/author/settings/ProfileAuthor';
-                }, 1500);
+                // setTimeout(() => {
+                //     window.location.href = '/author/settings/ProfileAuthor';
+                // }, 1500);
             } else {
                 message.error(response?.message || 'Invalid email or password!');
             }

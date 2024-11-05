@@ -1,8 +1,9 @@
 import axios from "../../axios";
 
-export const getProfileByEmail = async (email) => {
+
+export const getInforById = async (userid) => {
   try {
-    const response = await axios.get(`/api/profileuser/${email}`);
+    const response = await axios.get(`/api/info/${userid}`);
     return response.data;
     
   } catch (error) {
@@ -11,9 +12,20 @@ export const getProfileByEmail = async (email) => {
   } 
 }
 
-export const editProfileById = async (id, data) => {
+export const addCreateInfor = async (formData) => {
   try {
-    const response = await axios.put(`/api/profileuser/${id}`, data);
+    const response = await axios.post(`/api/createInfo`, formData);
+    return response.data;
+  }
+  catch (error) {
+    console.log('lỗi ở hàm thêm rồi: ', error);
+    return null;
+  }
+}
+
+export const editInforById = async (inforId, data) => {
+  try {
+    const response = await axios.put(`/api/updateInfo/${inforId}`, data);
     return response.data;
   }
   catch (error) {
@@ -51,6 +63,17 @@ export const Approve = async (spender, amount) => {
   }
   catch (error) {
     console.error('lỗi ở hàm Approve rồi đan le ơi: ', error);
+    return null;
+  }
+}
+
+export const deleteRegisterAuction = async (auctionId) => {
+  try {
+    const response = await axios.delete(`api/registration/${auctionId}`);
+    return response.data;
+  }
+  catch (error) {
+    console.error('lỗi ở hàm delete rồi đan le ơi: ', error);
     return null;
   }
 }
