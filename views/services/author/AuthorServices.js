@@ -27,9 +27,7 @@ export const editProfileById = async (id, data) => {
 //======================================//
 
 export const handleAddProduct = async (formData) => {
-  console.log('formdata: ', formData);
   try {
-
     const response = await axios.post('/api/create', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
