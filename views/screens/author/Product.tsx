@@ -28,7 +28,6 @@ import {
 import { deleteProductById, editProductById, getAuctionStatus, getProductById, handleAddProduct } from '../../services/author/AuthorServices';
 import NavbarSetting from '@/views/components/NavbarSetting';
 import moment from 'moment';
-import axios, { instanceFormData } from '../../axios';
 
 const { Header, Content, Sider } = Layout;
 
@@ -61,7 +60,7 @@ interface Product {
   image: string;
   description: string;
   price: string;
-  durationInMinutes: any;
+  auctionTime: any;
   status: 'Chưa được đấu giá';
 }
 
@@ -75,6 +74,7 @@ export default function Product() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Thêm sản phẩm mới
   const handleAddNewProduct = async (values: any) => {
@@ -86,29 +86,22 @@ export default function Product() {
       return;
     }
 
-    try {
-      const formData = new FormData();
-      // formData.append('email', email);
+    const formData = new FormData();
       formData.append('loginId', authorId);
       formData.append('productname', values.productname);
       formData.append('description', values.description);
       formData.append('startingPrice', values.price);
-      formData.append('durationInMinutes', values.durationInMinutes);
+      formData.append('durationInMinutes', values.auctionTime);
       formData.append('startTime', values.startTime.toISOString());
-
       if (values.image && values.image[0] && values.image[0].originFileObj) {
         formData.append('image', values.image[0].originFileObj);
       } else {
         console.error('Ảnh không tồn tại hoặc không hợp lệ');
-      }
-
-      //log form ra
-      for (const [key, value] of formData.entries()) {
-        console.log(`== ${key}: ${value}`);
       };
 
-      console.log(values)
+      setLoading(true);
 
+    try {
       const newProductData = await handleAddProduct(formData);
 
       console.log('newProductData trước if (và sau khi thực hiện thêm): ', newProductData);
@@ -124,9 +117,7 @@ export default function Product() {
           auctionTime: newProductData.product.endTime,
           startTime: newProductData.product.startTime,
         };
-        // console.log('newProduct trước set: ', newProduct);
         setProducts((prevProducts) => [...prevProducts, newProduct]);
-        // console.log('newProduct sau set: ', newProduct);
         message.success('Upload thành công');
         handleCancel();
       } else {
@@ -134,14 +125,13 @@ export default function Product() {
       }
     } catch (error) {
       console.error('Lỗi khi thêm/cập nhật sản phẩm:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-
-
   // Chỉnh sửa sản phẩm
   const handleEditProduct = async (values: any) => {
-    // const email = localStorage.getItem('authorEmail');
     const authorId = localStorage.getItem('authorId');
 
     if (!editingProduct || editingProduct.status === 'Cuộc đấu giá đã kết thúc' || editingProduct.status === 'Cuộc đấu giá đang diễn ra') {
@@ -150,13 +140,12 @@ export default function Product() {
     }
 
     if (!authorId) {
-      message.error('Không tìm thấy email hoặc ID tác giả.');
+      message.error('Không tìm thấy ID tác giả.');
       return;
     }
     const formData = new FormData();
-    // formData.append('email', email);
-    formData.append('authorId', authorId);
-    formData.append('productname', values.name);
+    formData.append('loginId', authorId);
+    formData.append('productname', values.productname);
     formData.append('description', values.description);
     formData.append('startingPrice', values.price);
     formData.append('durationInMinutes', values.auctionTime);
@@ -165,12 +154,12 @@ export default function Product() {
       formData.append('image', values.image[0].originFileObj);
     }
 
-    // console.log('values từ formData: ', values);
+    console.log('values từ formData: ', values);
 
     try {
       const response = await editProductById(editingProduct.id, formData);
 
-      // console.log('response api trả về: ', response);
+      console.log('response api trả về: ', response);
 
       if (response && response.product) {
         const updatedProduct = {
@@ -183,18 +172,18 @@ export default function Product() {
           image: response.product.image || editingProduct.image,
         };
 
-        // console.log('updatedProduct trước set: ', updatedProduct);
+        console.log('updatedProduct trước set: ', updatedProduct);
 
         setProducts((prevProducts) =>
           prevProducts.map((product) =>
-            product.id === updatedProduct.id ? updatedProduct : product
+            response.product.id === updatedProduct.id ? updatedProduct : product
           )
         );
 
-        // console.log('updatedProduct sau set: ', updatedProduct);
+        console.log('updatedProduct sau set: ', updatedProduct);
 
         message.success('Cập nhật sản phẩm thành công');
-        handleCancel();
+        // handleCancel();
       } else {
         message.error('Cập nhật sản phẩm thất bại');
       }
@@ -207,7 +196,7 @@ export default function Product() {
     const auctionTimeMinutes = Math.round((record.endTime - record.startTime) / 60000);
     setEditingProduct(record);
     form.setFieldsValue({
-      name: record.name,
+      productname: record.name,
       description: record.description,
       price: record.price,
       auctionTime: auctionTimeMinutes,
@@ -357,6 +346,11 @@ export default function Product() {
       ),
     },
     {
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description',
+    },
+    {
       title: 'Giá khởi điểm',
       dataIndex: 'price',
       key: 'price',
@@ -458,6 +452,7 @@ export default function Product() {
                   key="submit"
                   type="primary"
                   htmlType="submit"
+                  loading={loading}
                 >
                   Submit
                 </Button>,
@@ -481,7 +476,7 @@ export default function Product() {
                   </Upload>
                 </Form.Item>
                 <Form.Item
-                  name="durationInMinutes"
+                  name="auctionTime"
                   label="Thời gian đấu giá (phút)"
                   rules={[{ required: true, message: 'Thời gian đấu giá không được để trống' }]}
                 >
