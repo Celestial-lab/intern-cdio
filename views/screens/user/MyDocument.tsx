@@ -6,7 +6,7 @@ import { Layout, Menu, theme } from 'antd';
 import { AppstoreOutlined, BellOutlined, DollarOutlined, FileOutlined, HistoryOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
 import "@/views/style/MyDocument.css";
 import { Footer } from 'antd/es/layout/layout';
-import { Approve, deleteRegisterAuction, getRegisterAuction } from '@/views/services/user/ProfileServices';
+import { Approve, checkAllowance, deleteRegisterAuction, getRegisterAuction } from '@/views/services/user/ProfileServices';
 import NavbarSI from '@/views/components/NavbarSI';
 import NavbarSetting from '@/views/components/NavbarSetting';
 import { ethers } from 'ethers';
@@ -121,11 +121,7 @@ const MyDocument = () => {
     },
   ];
 
-  const handleJoinAuction = (auctionId: any) => {
-    console.log(`Tham gia đấu giá cho cuộc đấu giá ID: ${auctionId}`);
-
-    // window.location.href = '/user/approve';
-  };
+  
 
   const handleDeleteRegisterAuction = async (registrationId: any) => {
     try {
@@ -152,25 +148,34 @@ const MyDocument = () => {
 
   const handleApprove = async (key: any) => {
     try {
-      const userAddress = localStorage.getItem('userAddress');
+      let userAddress = localStorage.getItem('userAddress');
       if (!userAddress) {
-        alert("Không tìm thấy địa chỉ ví của người dùng trong localStorage.");
-        return;
+        alert("Bạn chưa thêm thông tin và kết nối ví. Để thực hiện chức năng Approve, hãy thêm thông tin và kết nối ví");
+        if (!window.ethereum) {
+          alert("Vui lòng cài đặt MetaMask!");
+          return;
+        }
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        userAddress = localStorage.getItem('userAddress');
+        if (!userAddress) {
+          // alert("Không thể lấy địa chỉ ví của người dùng. Hãy thử lại.");
+          return;
+        }
       }
-      if (!window.ethereum) {
-        alert("Vui lòng cài đặt MetaMask!");
-        return;
-      }
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const tokenAddress = "0x463267b530182e5C3Aed5441cC22e76A77d4B51C";
-      const spenderAddress = "0xD33aF4BEb2C050b36d146D84DDA6A9a0221e254c";
-      const approveAmount = ethers.parseUnits("1000", 18);
+
+      // Địa chỉ token và số lượng approve
+      const tokenAddress = "0x65162C4d8dd16594546338C9C637105C031288cF";
+      const spenderAddress = "0xDeAFB1df5c2738a2106D28fCcF12e97F76Ef3BD9";
+      const approveAmount = ethers.parseUnits("10", 18);
 
       const tokenABI = [
         "function approve(address spender, uint256 amount) public returns (bool)"
       ];
+
+      // Khởi tạo đối tượng hợp đồng token
       const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
       console.log("Hợp đồng token đã được tạo:", tokenContract);
 
@@ -183,10 +188,35 @@ const MyDocument = () => {
 
     } catch (error) {
       console.error("Lỗi khi thực hiện approve:", error);
-      alert("Đã xảy ra lỗi khi thực hiện approve: " + (error));
+      alert("Đã xảy ra lỗi khi thực hiện approve: " + error);
+    }
+};
+
+
+  const handleJoinAuction = async (registrationId: any) => {
+    console.log(`Tham gia đấu giá cho cuộc đấu giá ID: ${registrationId}`);
+
+    if (!localStorage.getItem('userAddress') && !localStorage.getItem('inforId')) {
+      message.error('Hãy cập nhật thông tin cá nhân đầy đủ để tham gia đấu giá')
+    } else if (!localStorage.getItem('userAddress') && localStorage.getItem('inforId')) {
+      message.error('Hãy kết nối ví lại để tham gia đấu giá')
+    } else if (localStorage.getItem('userAddress') && localStorage.getItem('inforId')) {
+
+      const userAddress = localStorage.getItem('userAddress');
+      const spenderAddress = "0xDeAFB1df5c2738a2106D28fCcF12e97F76Ef3BD9";
+
+      const response = await checkAllowance(spenderAddress, userAddress);
+
+      console.log('allowance trả về', response.allowance);
+
+      if (response.allowance == 0) {
+        message.error('hãy Approve trước khi tham gia đấu giá')
+      } else {
+        message.success('vô nè')
+        window.location.href = '/user/LiveAuction';
+      }
     }
   };
-
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

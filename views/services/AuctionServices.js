@@ -13,7 +13,7 @@ export const getAuction = async() => {
 
 export const getAuctionById = async(id) => {
     try {
-        const response = await axios.get(`/api/auction/${id}`);
+        const response = await axios.get(`/api/auctions/${id}`);
         console.log('data trả về của api lấy thông tin đấu giá theo id: ', response.data);
         return response.data;
     } catch (error) {

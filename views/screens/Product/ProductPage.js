@@ -85,6 +85,7 @@ const ProductPage = () => {
 
 
   const handleRegisterClick = (auctionId) => {
+
     console.log('Thông tin sản phẩm:', auctionId);
 
     localStorage.setItem('auctionId', auctionId);
