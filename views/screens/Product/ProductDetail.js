@@ -9,6 +9,9 @@ import FooterAll from '@/views/components/Footer';
 import { getAuction, getAuctionById } from '@/views/services/AuctionServices';
 import NavbarAfter from '@/views/components/NavbarAfter';
 import { addRegisterAuction } from '@/views/services/user/ProfileServices';
+import { getUserByLoginId } from '@/views/services/SignUpUserServices';
+import { abort } from 'process';
+import { message } from 'antd';
 
 const ProductDetail = () => {
   const [currentProduct, setCurrentProduct] = useState(null);
@@ -17,7 +20,9 @@ const ProductDetail = () => {
   const router = useRouter();
 
   useEffect(() => {
+
     const auctionId = localStorage.getItem('auctionId');
+
     if (auctionId) {
       const fetchProduct = async () => {
         const productData = await getAuctionById(auctionId);
@@ -91,29 +96,63 @@ const ProductDetail = () => {
       alert('Bạn chưa đăng nhập. Vui lòng đăng nhập để đăng ký đấu giá!');
       router.push('/user/signin');
       return;
-    } 
+    }
+    const loginId = localStorage.getItem('loginId');
+    const getRole = await getUserByLoginId (loginId);
   
-    const userId = localStorage.getItem('userId');
+    console.log('getRole: ', getRole);
+
     const auctionId = localStorage.getItem('auctionId');
-  
     if (!auctionId) {
-      alert('Không tìm thấy thông tin đấu giá. Vui lòng thử lại sau.');
-      return;
-    }
-    try {
-      const response = await addRegisterAuction(userId, auctionId);
+      alert('Không tìm thấy thông tin đấu giá')
+    };
 
-      console.log('response nè: ', response.registration);
+    if (getRole.role == 'user') {
 
-      if (response) {
-        alert('Đăng ký đấu giá thành công!');
-      } else {
-        alert('Đăng ký đấu giá không thành công. Vui lòng thử lại.');
+      const userId = localStorage.getItem('userId');
+
+      try {
+        const response = await addRegisterAuction(userId, auctionId);
+
+        console.log('response trả về sau khi gọi hàm đăng kí đấu giá: ', response);
+
+        if (response) {
+          alert('Đăng ký đấu giá thành công!');
+        } else {
+          alert('Đăng ký đấu giá không thành công. Vui lòng thử lại.');
+        }
+
+      } catch (error) {
+        console.error('Lỗi khi đăng ký đấu giá:', error);
+        alert('Có lỗi xảy ra. Vui lòng thử lại.');
       }
-    } catch (error) {
-      console.error('Lỗi khi đăng ký đấu giá:', error);
-      alert('Có lỗi xảy ra. Vui lòng thử lại.');
-    }
+    } else if (getRole.role == 'author') {
+      message.error('Author không thể đăng kí đấu giá, hãy đăng nhập bằng tài khoản người dùng');
+    };
+
+
+  
+    // const userId = localStorage.getItem('userId');
+    // const auctionId = localStorage.getItem('auctionId');
+  
+    // if (!auctionId) {
+    //   alert('Không tìm thấy thông tin đấu giá. Vui lòng thử lại sau.');
+    //   return;
+    // }
+    // try {
+    //   const response = await addRegisterAuction(userId, auctionId);
+
+    //   console.log('response nè: ', response.registration);
+
+      // if (response) {
+      //   alert('Đăng ký đấu giá thành công!');
+      // } else {
+      //   alert('Đăng ký đấu giá không thành công. Vui lòng thử lại.');
+      // }
+    // } catch (error) {
+      // console.error('Lỗi khi đăng ký đấu giá:', error);
+      // alert('Có lỗi xảy ra. Vui lòng thử lại.');
+    // }
   };
 
   return (

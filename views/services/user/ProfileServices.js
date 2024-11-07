@@ -36,7 +36,7 @@ export const editInforById = async (inforId, data) => {
 
 export const addRegisterAuction = async (userId, auctionId) => {
   try {
-    const response = await axios.post(`/api/register/`, {userId, auctionId})
+    const response = await axios.post(`/api/registerUser/`, {userId, auctionId})
     return response.data;
   }
   catch (error) {
@@ -69,10 +69,20 @@ export const Approve = async (spender, amount) => {
 
 export const deleteRegisterAuction = async (auctionId) => {
   try {
-    const response = await axios.delete(`api/registration/${auctionId}`);
+    const response = await axios.delete(`/api/deletregister/${auctionId}`);
     return response.data;
   }
   catch (error) {
+    console.error('lỗi ở hàm delete rồi đan le ơi: ', error);
+    return null;
+  }
+}
+
+export const checkAllowance = async (spender, owner) => {
+  try {
+    const response = await axios.post(`/api/allowance`, {spender, owner});
+    return response.data
+  } catch (error) {
     console.error('lỗi ở hàm delete rồi đan le ơi: ', error);
     return null;
   }

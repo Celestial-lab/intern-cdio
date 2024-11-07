@@ -22,6 +22,10 @@ const SignIn = () => {
 
             console.log('response: ', response);
 
+            localStorage.setItem('loginId', response.user.id);
+
+            console.log('loginId: ', localStorage.getItem('loginId'));
+
             if (response.user.role === 'user') {
                 localStorage.setItem('userId', response.user.id);
                 localStorage.setItem('accessToken', response.token);
@@ -33,9 +37,6 @@ const SignIn = () => {
                     setTimeout(() => {
                         window.location.href = '/user/settings/Profile';
                     }, 1500)
-                    // setTimeout(() => {
-                    //     window.location.href = '/';
-                    // }, 1500);
                 } else {
                     message.error('Invalid email or password!');
                 }

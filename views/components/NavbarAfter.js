@@ -22,7 +22,8 @@ const NavbarAfter = () => {
       <button
         onClick={(e) => {
           e.preventDefault();
-          localStorage.removeItem('accessToken');
+          localStorage.clear();
+        //   localStorage.removeItem('accessToken', 'userId', 'loginId', 'authorId');
           window.location.href = '/user/signin';
         }}
       >

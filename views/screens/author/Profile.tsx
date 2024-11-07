@@ -117,7 +117,6 @@ export default function Profile() {
           setError('Failed to fetch profile data');
           console.error('Failed to fetch profile:', error);
         }
-
       }
     };
     checkAuth();
