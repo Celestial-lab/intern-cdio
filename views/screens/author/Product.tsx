@@ -13,7 +13,6 @@ import {
   Upload,
   theme,
   MenuProps,
-  message,
   DatePicker,
 } from 'antd';
 import {
@@ -25,9 +24,13 @@ import {
   UploadOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { deleteProductById, editProductById, getAuctionStatus, getProductById, handleAddProduct } from '../../services/author/AuthorServices';
+import { getProductById } from '../../services/author/AuthorServices';
 import NavbarSetting from '@/views/components/NavbarSetting';
+import { getAuction } from '@/views/services/AuctionServices';
 import moment from 'moment';
+import { handleAddNewProduct } from '@/views/utils/author/compProduct/addProduct';
+import { handleEditProduct } from '@/views/utils/author/compProduct/editProduct';
+import { handleDeleteProduct } from '@/views/utils/author/compProduct/deleteProduct';
 
 const { Header, Content, Sider } = Layout;
 
@@ -70,131 +73,28 @@ export default function Product() {
   const [form] = Form.useForm();
   const [openModal, setOpenModal] = useState(false);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deletingProductId, setDeletingProductId] = useState<number | null>(null);
 
-  // Thêm sản phẩm mới
-  const handleAddNewProduct = async (values: any) => {
 
-    const authorId = localStorage.getItem('authorId');
-
-    if (!authorId) {
-      console.error('Không tìm thấy ID tác giả.');
-      return;
-    }
-
-    const formData = new FormData();
-      formData.append('loginId', authorId);
-      formData.append('productname', values.productname);
-      formData.append('description', values.description);
-      formData.append('startingPrice', values.price);
-      formData.append('durationInMinutes', values.auctionTime);
-      formData.append('startTime', values.startTime.toISOString());
-      if (values.image && values.image[0] && values.image[0].originFileObj) {
-        formData.append('image', values.image[0].originFileObj);
-      } else {
-        console.error('Ảnh không tồn tại hoặc không hợp lệ');
-      };
-
-      setLoading(true);
-
-    try {
-      const newProductData = await handleAddProduct(formData);
-
-      console.log('newProductData trước if (và sau khi thực hiện thêm): ', newProductData);
-      
-      if (newProductData) {
-        const newProduct = {
-          key: newProductData.product.id,
-          name: newProductData.product.productName,
-          image: newProductData.product.image || newProductData.product.imageUrl,
-          description: newProductData.product.description,
-          price: newProductData.product.startingPrice,
-          status: newProductData.product.active,
-          auctionTime: newProductData.product.endTime,
-          startTime: newProductData.product.startTime,
-        };
-        setProducts((prevProducts) => [...prevProducts, newProduct]);
-        message.success('Upload thành công');
-        handleCancel();
-      } else {
-        console.error('Thêm sản phẩm thất bại');
-      }
-    } catch (error) {
-      console.error('Lỗi khi thêm/cập nhật sản phẩm:', error);
-    } finally {
-      setLoading(false);
-    }
+  // Mở modal Add Product
+  const openAddProductModal = () => {
+    setIsEditMode(false);
+    form.resetFields();
+    setOpenModal(true);
   };
 
-  // Chỉnh sửa sản phẩm
-  const handleEditProduct = async (values: any) => {
-    const authorId = localStorage.getItem('authorId');
-
-    if (!editingProduct || editingProduct.status === 'Cuộc đấu giá đã kết thúc' || editingProduct.status === 'Cuộc đấu giá đang diễn ra') {
-      message.error('Sản phẩm không thể chỉnh sửa vì trạng thái không cho phép.');
-      return;
-    }
-
-    if (!authorId) {
-      message.error('Không tìm thấy ID tác giả.');
-      return;
-    }
-    const formData = new FormData();
-    formData.append('loginId', authorId);
-    formData.append('productname', values.productname);
-    formData.append('description', values.description);
-    formData.append('startingPrice', values.price);
-    formData.append('durationInMinutes', values.auctionTime);
-    formData.append('startTime', values.startTime.toISOString());
-    if (values.image && values.image[0]) {
-      formData.append('image', values.image[0].originFileObj);
-    }
-
-    console.log('values từ formData: ', values);
-
-    try {
-      const response = await editProductById(editingProduct.id, formData);
-
-      console.log('response api trả về: ', response);
-
-      if (response && response.product) {
-        const updatedProduct = {
-          ...editingProduct,
-          name: values.name,
-          description: values.description,
-          price: values.price,
-          auctionTime: values.auctionTime,
-          startTime: values.startTime.unix(),
-          image: response.product.image || editingProduct.image,
-        };
-
-        console.log('updatedProduct trước set: ', updatedProduct);
-
-        setProducts((prevProducts) =>
-          prevProducts.map((product) =>
-            response.product.id === updatedProduct.id ? updatedProduct : product
-          )
-        );
-
-        console.log('updatedProduct sau set: ', updatedProduct);
-
-        message.success('Cập nhật sản phẩm thành công');
-        // handleCancel();
-      } else {
-        message.error('Cập nhật sản phẩm thất bại');
-      }
-    } catch (error) {
-      message.error('Lỗi khi cập nhật sản phẩm');
-    }
-  };
-
+  // Mở modal Edit Product với thông tin sản phẩm
   const openEditProductModal = (record: Product) => {
+    setIsEditMode(true);
+    setEditingProduct(record); // Lưu sản phẩm đang chỉnh sửa
     const auctionTimeMinutes = Math.round((record.endTime - record.startTime) / 60000);
-    setEditingProduct(record);
+
+    // Đặt các giá trị của sản phẩm vào form
     form.setFieldsValue({
       productname: record.name,
       description: record.description,
@@ -204,41 +104,33 @@ export default function Product() {
       status: record.status,
       image: [{ url: record.image, name: 'Current Image' }],
     });
-    setOpenModal(true);
+
+    setOpenModal(true); // Mở modal
   };
 
-  const handleSubmit = (values: any) => {
-    if (editingProduct) {
-      handleEditProduct(values);
+  const handleSubmit = async (formData: any) => {
+    setLoading(true);
+    if (isEditMode) {
+      await handleEditProduct(formData, editingProduct.id, editingProduct, setProducts); // Gọi hàm chỉnh sửa
     } else {
-      handleAddNewProduct(values);
+      await handleAddNewProduct(formData, setLoading, setProducts, () => {});
     }
+    setLoading(false); // Tắt trạng thái loading
+    setOpenModal(false); // Đóng modal sau khi hoàn tất
   };
 
-  const handleDelete = (record: Product) => {
-    setDeletingProduct(record);
+  const handleDelete = (id: number) => {
+    setDeletingProductId(id);
     setConfirmDeleteVisible(true);
   };
 
+  // Xác nhận xóa sản phẩm
   const confirmDeleteProduct = async () => {
-    if (deletingProduct) {
-      try {
-        await deleteProductById(deletingProduct.id);
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => product.id !== deletingProduct.id)
-        );
-        message.success('Xóa sản phẩm thành công');
-      } catch (error) {
-        message.error('Lỗi khi xóa sản phẩm');
-      }
+    if (deletingProductId !== null) {
+      await handleDeleteProduct(deletingProductId);
+      setDeletingProductId(null);
       setConfirmDeleteVisible(false);
     }
-  };
-
-  const handleCancel = () => {
-    setOpenModal(false);
-    form.resetFields();
-    setEditingProduct(null);
   };
 
   useEffect(() => {
@@ -260,9 +152,7 @@ export default function Product() {
               endTime,
             };
           });
-
-          const auctionStatusData = await getAuctionStatus();
-
+          const auctionStatusData = await getAuction();
           const updatedProducts = fetchedProducts.map((product: any) => {
             const productStatus = auctionStatusData.find(
               (statusItem: any) => statusItem.productId === product.id || statusItem.id === product.id
@@ -284,9 +174,7 @@ export default function Product() {
               status,
             };
           });
-
           setProducts(updatedProducts);
-
           const interval = setInterval(() => {
             setProducts((prevProducts) => {
               return prevProducts.map((product) => {
@@ -323,11 +211,6 @@ export default function Product() {
         });
     }
   }, []);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
   const columns = [
     {
       title: 'Tên sản phẩm',
@@ -384,7 +267,7 @@ export default function Product() {
           <Button
             danger
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+            onClick={() => handleDelete(record.id)}
             style={{ marginLeft: '8px' }}
           >
             Xóa
@@ -393,7 +276,6 @@ export default function Product() {
       ),
     },
   ];
-
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -416,7 +298,7 @@ export default function Product() {
           <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row justify="space-between">
               <div style={{ marginBottom: '16px' }}>
-                <Button className='butUpload' type="text" onClick={() => setOpenModal(true)}>Upload Product</Button>
+                <Button className='butUpload' type="text" onClick={() => openAddProductModal()}>Upload Product</Button>
               </div>
 
               <div className='search' style={{ marginBottom: '16px', display: 'flex', justifyContent: 'right' }}>
@@ -436,30 +318,17 @@ export default function Product() {
               pagination={{ pageSize: 4 }}
             />
 
-
-
-
             <Modal
-              title={editingProduct ? 'Edit Product' : 'Add Product'}
-              open={openModal}
-              onCancel={handleCancel}
+              title={isEditMode ? 'Edit Product' : 'Add Product'}
+              visible={openModal}
+              onCancel={() => setOpenModal(false)}
               footer={[
-                <Button key="back" onClick={handleCancel}>
-                  Cancel
-                </Button>,
-                <Button
-                  form="product-form"
-                  key="submit"
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                >
+                <Button key="cancel" onClick={() => setOpenModal(false)}>Cancel</Button>,
+                <Button key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
                   Submit
                 </Button>,
               ]}
             >
-
-
               <Form form={form} id="product-form" layout="vertical" onFinish={handleSubmit}>
                 <Form.Item name="productname" label="Product Name" rules={[{ required: true, message: 'Please input product name!' }]}>
                   <Input />
@@ -486,21 +355,16 @@ export default function Product() {
                   <DatePicker showTime />
                 </Form.Item>
               </Form>
-
-
             </Modal>
-
-
-
-
-
 
             {/* Modal xác nhận xóa sản phẩm */}
             <Modal
-              title="Xác nhận xóa"
-              open={confirmDeleteVisible}
+              title="Confirm Delete"
+              visible={confirmDeleteVisible}
+              onCancel={() => setConfirmDeleteVisible(false)}
               onOk={confirmDeleteProduct}
-              onCancel={handleCancel}
+              okText="Yes"
+              cancelText="No"
             >
               <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
             </Modal>
@@ -510,5 +374,4 @@ export default function Product() {
     </Layout>
   );
 }
-
 

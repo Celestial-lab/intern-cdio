@@ -1,7 +1,8 @@
-'use client';
+'use client'
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
+// import { useRouter } from 'next/router';
 import Navbar from '@/views/components/Navbar';
 import "@/views/style/ProductDetail.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -10,22 +11,27 @@ import { getAuction, getAuctionById } from '@/views/services/AuctionServices';
 import NavbarAfter from '@/views/components/NavbarAfter';
 import { addRegisterAuction } from '@/views/services/user/ProfileServices';
 import { getUserByLoginId } from '@/views/services/SignUpUserServices';
-import { abort } from 'process';
 import { message } from 'antd';
 
 const ProductDetail = () => {
   const [currentProduct, setCurrentProduct] = useState(null);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [remainingTime, setRemainingTime] = useState('');
-  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // const router = useRouter();
+  const params = useParams();
+  // const searchParams = useSearchParams();
+
+//câu hỏi là: vì sao khi dùng useParams thì ra nhưng useRouter thì không có thông tin gì?
 
   useEffect(() => {
 
-    const auctionId = localStorage.getItem('auctionId');
-
-    if (auctionId) {
+    console.log("params", params.auctionId)
+  
+    if (params.auctionId) {
       const fetchProduct = async () => {
-        const productData = await getAuctionById(auctionId);
+        const productData = await getAuctionById(params.auctionId);
         if (productData) {
           setCurrentProduct(productData);
         } else {
@@ -34,7 +40,7 @@ const ProductDetail = () => {
       };
       fetchProduct();
     } else {
-      console.error('Không có auctionId trong localStorage!');
+      console.error('Không có auctionId!');
     }
   }, []);
 
@@ -50,11 +56,9 @@ const ProductDetail = () => {
     fetchSuggestedProducts();
   }, []);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-
-    console.log('token access: ', token);
     if (!token) {
       setIsLoggedIn(false);
       const userConfirmed = window.confirm("Bạn chưa đăng nhập, hãy đăng nhập!");
@@ -62,7 +66,7 @@ const ProductDetail = () => {
         window.location.href = '/user/signin';
       }
     } else {
-      setIsLoggedIn(true); 
+      setIsLoggedIn(true);
     }
   }, []);
 
@@ -98,12 +102,12 @@ const ProductDetail = () => {
       return;
     }
     const loginId = localStorage.getItem('loginId');
-    const getRole = await getUserByLoginId (loginId);
-  
+    const getRole = await getUserByLoginId(loginId);
+
     console.log('getRole: ', getRole);
 
-    const auctionId = localStorage.getItem('auctionId');
-    if (!auctionId) {
+    // const auctionId = localStorage.getItem('auctionId');
+    if (!params.auctionId) {
       alert('Không tìm thấy thông tin đấu giá')
     };
 
@@ -112,7 +116,7 @@ const ProductDetail = () => {
       const userId = localStorage.getItem('userId');
 
       try {
-        const response = await addRegisterAuction(userId, auctionId);
+        const response = await addRegisterAuction(userId, params.auctionId);
 
         console.log('response trả về sau khi gọi hàm đăng kí đấu giá: ', response);
 
@@ -130,29 +134,6 @@ const ProductDetail = () => {
       message.error('Author không thể đăng kí đấu giá, hãy đăng nhập bằng tài khoản người dùng');
     };
 
-
-  
-    // const userId = localStorage.getItem('userId');
-    // const auctionId = localStorage.getItem('auctionId');
-  
-    // if (!auctionId) {
-    //   alert('Không tìm thấy thông tin đấu giá. Vui lòng thử lại sau.');
-    //   return;
-    // }
-    // try {
-    //   const response = await addRegisterAuction(userId, auctionId);
-
-    //   console.log('response nè: ', response.registration);
-
-      // if (response) {
-      //   alert('Đăng ký đấu giá thành công!');
-      // } else {
-      //   alert('Đăng ký đấu giá không thành công. Vui lòng thử lại.');
-      // }
-    // } catch (error) {
-      // console.error('Lỗi khi đăng ký đấu giá:', error);
-      // alert('Có lỗi xảy ra. Vui lòng thử lại.');
-    // }
   };
 
   return (

@@ -2,15 +2,18 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import "@/views/style/LiveAuction.css";
-import NavbarSI from '@/views/components/NavbarSI';
-import { Col, Row, Card, Avatar, Button, Switch } from 'antd';
-import { DollarOutlined, EditOutlined, EllipsisOutlined, LineChartOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import Meta from 'antd/es/card/Meta';
-import classNames from 'classnames';
+import { Row, Button, message} from 'antd';
+import { DollarOutlined } from '@ant-design/icons';
 import Navbar from '@/views/components/Navbar';
 import NavbarAfter from '@/views/components/NavbarAfter';
+import { useParams } from 'next/navigation';
+import { getAuctionById, getHighestPrice } from '@/views/services/AuctionServices';
+
+
+
 
 export default function LiveAuction() {
+  
   const [multiplier, setMultiplier] = useState(1);
   const [cards, setCards] = useState([
     { id: 1, price: 1000, time: '10:00:32', round: 1, user: 'User A', topCard: true },
@@ -21,34 +24,109 @@ export default function LiveAuction() {
     { id: 6, price: 700, time: '09:05:00', round: 6, user: 'User F', topCard: false },
   ]);
   const [countdown, setCountdown] = useState(600); // 10 minutes countdown
+  // lấy auctionId và registrationId từ useParams
+  const {auctionIdLive, registrationId} = useParams();
+  const [auctionData, setAuctionData] = useState<any[]>([]);
+  const [minutes, setMinutess] = useState(0);
+  const [seconds, setSecondss] = useState(0);
+  const [highestPrice, setHighestPrice] = useState(0);
+  const [timeLeft, setTimeLeft] = useState<{ minutes: number; seconds: number }>({ minutes: 0, seconds: 0 });
+
+  
+  useEffect(() => {
+    const getInforAuction = async () => {
+      if (auctionIdLive) {
+        const response = await getAuctionById(auctionIdLive);
+
+        console.log('response: ', response);
+
+        if (response) {
+          const auctionDataAfterGet = [{
+            name: response.productName,
+            timeRemaining: response.endTime,
+            description: response.description,
+            startingPrice: response.startingPrice,
+            imageUrl: response.imageUrl,
+            id: response.auctionId,
+            active: response.active,
+            startTime: response.startTime,
+          }];
+          setAuctionData(auctionDataAfterGet);
+        }
+      }
+    };
+    getInforAuction();
+  }, [auctionIdLive]);
 
   useEffect(() => {
-    const cardInterval = setInterval(() => {
-      setCards(prevCards => {
-        const updatedCards = [...prevCards];
-        const firstCard = updatedCards.shift();
-        if (firstCard) {
-          updatedCards.push({ ...firstCard, topCard: false });
-          updatedCards[0].topCard = true;
-        }
-        return updatedCards;
-      });
-    }, 2000);
+    if (auctionData.length > 0) {
+      const startTimeStr = auctionData[0].startTime;
+      const startTime = new Date(startTimeStr).getTime();
+      // console.log('startTime: ', startTime);
+  
+      const timeless = auctionData[0].timeRemaining * 1000; // Chuyển từ giây sang mili giây
+      // console.log('timeless: ', timeless);
+  
+      const currentTime = new Date().getTime(); // Thời gian hiện tại
+      // console.log('currentTime: ', currentTime);
+  
+      // Kiểm tra nếu startTime không hợp lệ
+      if (isNaN(startTime)) {
+        console.error('startTime không hợp lệ:', startTimeStr);
+        return; // Dừng lại nếu startTime không hợp lệ
+      }
+  
+      if (currentTime < startTime) {
+        message.error('Cuộc đấu giá chưa diễn ra');
+      } else if (currentTime >= startTime && currentTime < timeless) {
+        message.success('Cuộc đấu giá đang diễn ra');
+  
+        const updateTimer = setInterval(() => {
+          const now = new Date().getTime();
+          const remainingTime = Math.max(0, timeless - now);
+  
+          if (remainingTime > 0) {
+            const minutesLeft = Math.floor((remainingTime % 3600000) / 60000);
+            const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
+  
+            setTimeLeft({
+              minutes: minutesLeft,
+              seconds: secondsLeft,
+            });
+          } else {
+            // console.log('Đếm ngược kết thúc.');
+            clearInterval(updateTimer); // Dừng bộ đếm khi hết thời gian
+            setTimeLeft({ minutes: 0, seconds: 0 });
+          }
+        }, 1000);
+      } else {
+        message.error('Cuộc đấu giá đã kết thúc');
+      }
+    }
+  }, [auctionData]);
 
-    const countdownInterval = setInterval(() => {
-      setCountdown(prevCountdown => (prevCountdown > 0 ? prevCountdown - 1 : 0));
-    }, 1000);
+  //lấy giá trị tiền cao nhất
+  useEffect (() => {
+    const getHighest = async () => {
+      if (auctionIdLive) {
+        const response = await getHighestPrice(auctionIdLive);
 
-    return () => {
-      clearInterval(cardInterval);
-      clearInterval(countdownInterval);
+        console.log('response lấy giá trị cao nhất', response);
+
+        const highestPriceGet = response.highestBidder;
+
+        setHighestPrice(highestPriceGet);
+
+        
+      }
     };
-  }, []);
+    getHighest();
+  }, [])
+
+ 
 
   const price = 1000;
   const currentPrice = 1000;
-  const minutes = Math.floor(countdown / 60);
-  const seconds = countdown % 60;
 
   const handleIncrease = useCallback(() => setMultiplier(prev => prev + 1), []);
   const handleDecrease = useCallback(() => setMultiplier(prev => (prev > 1 ? prev - 1 : 1)), []);
@@ -79,12 +157,12 @@ export default function LiveAuction() {
             <div className='col-7'>
               <div className='row row-count'>
                 <h2 className='timeLess'>Time Remaining:</h2>
-                <h3 className='timeCount'>{`${minutes} : ${seconds < 10 ? '0' : ''}${seconds}`}</h3>
+                <h3 className='timeCount'>{`${timeLeft.minutes} : ${timeLeft.seconds < 10 ? '0' : ''}${timeLeft.seconds}`}</h3>
               </div>
 
               <div className='row row-product'>
                 <div className='div-pro'>
-                  <img className='image-product' src='/gif-12-CartoonHangover.gif' />
+                  <img className='image-product' src={auctionData[0]?.imageUrl} alt="Product Image" />
                 </div>
               </div>
 
@@ -96,10 +174,10 @@ export default function LiveAuction() {
 
               <div className='row row-infor1'>
                 <div className='col-6 leftInfor'>
-                  <h3 className='product-name'>Product name</h3>
+                  <h3 className='product-name'>{auctionData[0]?.name}</h3>
                 </div>
                 <div className='col-6 rightInfor'>
-                  <h3 className='author-name'>Author name</h3>
+                  <h3 className='author-name'>{auctionData[0]?.description}</h3>
                 </div>
               </div>
 
@@ -137,7 +215,7 @@ export default function LiveAuction() {
                 <div className='currentMoney-title'>
                   <DollarOutlined className='iconChart' />
                   <h2 className='title'>Current Price</h2>
-                  <div className='currentPrice'>{currentPrice}$</div>
+                  <div className='currentPrice'>{highestPrice}$</div>
                 </div>
                 <hr className='divider' />
                 <div className='inforPrice py-2'>

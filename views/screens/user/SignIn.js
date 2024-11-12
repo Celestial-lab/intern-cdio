@@ -1,64 +1,52 @@
 'use client'
 
 import { Button, Checkbox, Col, Form, Input, Row, message, Select } from "antd";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "@/views/style/SignIn.css";
 import handleSignInApi from '../../services/SignInUserServices';
+import { AuthContext } from "@/views/store/context/AuthContext";
 
 const SignIn = () => {
     const [form] = Form.useForm();
     const [checked, setChecked] = useState(false);
+    const { login } = useContext(AuthContext);
 
-    // Hàm xử lý khi người dùng đăng nhập
     const handleSubmit = async () => {
 
         try {
             const values = await form.validateFields();
-            const { email, password, role } = values;
+            const { email, password  } = values;
 
-            console.log('values: ', values);
-
-            const response = await handleSignInApi(email, password, role);
+            const response = await handleSignInApi(email, password);
 
             console.log('response: ', response);
 
             localStorage.setItem('loginId', response.user.id);
 
-            console.log('loginId: ', localStorage.getItem('loginId'));
+            if (response.errorCode === 0){
+                message.success('Sign-in successful!');
 
-            if (response.user.role === 'user') {
-                localStorage.setItem('userId', response.user.id);
-                localStorage.setItem('accessToken', response.token);
+                login(response.user.email, response.user.role);
 
-                console.log('id user: ', localStorage.getItem('userId'));
+                if (response.user.role === 'user') {
 
-                if (response.errorCode === 0 && response.user.role === 'user') {
+                    localStorage.setItem('userId', response.user.id);
+                    localStorage.setItem('accessToken', response.token);
                     message.success('Welcome User!');
-                    setTimeout(() => {
-                        window.location.href = '/user/settings/Profile';
-                    }, 1500)
-                } else {
-                    message.error('Invalid email or password!');
-                }
-            };
-
-            if (response.user.role === 'author') {
-
-                localStorage.setItem('authorId', response.user.id);
-                localStorage.setItem('accessToken', response.token);
-
-                console.log('id author: ', localStorage.getItem('authorId'));
-
-                if (response.errorCode === 0 && response.user.role === 'author') {
+                    // setTimeout(() => {
+                    //     window.location.href = '/user/settings/Profile';
+                    // }, 1500)
+                } else if (response.user.role === 'author') {
+                    localStorage.setItem('authorId', response.user.id);
+                    localStorage.setItem('accessToken', response.token);
                     message.success('Welcome Author!');
                     setTimeout(() => {
                         window.location.href = '/author/settings/ProductAuthor';
-                    }, 1500)
-                } else {
-                    message.error('Invalid email or password!');
+                    }, 1500);
                 }
-            };
-
+            } else {
+                message.error('Invalid email or password!');
+            }
         } catch (error) {
             console.error('Sign in failed:', error);
             message.error('Sign in failed, please try again!');
@@ -112,52 +100,3 @@ const SignIn = () => {
 };
 
 export default SignIn;
-
-
-
-// <div className="custom-row">
-        //     <Row gutter={[0, 0]}>
-        //         <Col span={16}>
-        //             <Row>
-        //                 <Col span={6} />
-        //                 <Col span={12} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        //                     <img className='imageLogoCelectial' src='/CeLestial-wbg.png' alt='Logo' />
-        //                     <h2>Welcome Back User</h2>
-        //                     <p>Start your journey with our product</p>
-        //                     <div className='divInput'>
-        //                         <Form form={form} layout="vertical">
-        //                             <Form.Item
-        //                                 name="email"
-        //                                 label="Email*"
-        //                                 rules={[{ required: true, message: 'Please input your email!' }]}>
-        //                                 <Input className="inputtable" />
-        //                             </Form.Item>
-        //                             <Form.Item
-        //                                 name="password"
-        //                                 label="Password*"
-        //                                 rules={[{ required: true, message: 'Please input your password!' }]}>
-        //                                 <Input className="inputtable" type="password" />
-        //                             </Form.Item>
-        //                             <div className="options-row">
-        //                                 <label className="custom-checkbox">
-        //                                     <Checkbox onChange={onChange} className="hidden-checkbox" />
-        //                                     <span className="checkmark"></span>
-        //                                     Remember me
-        //                                 </label>
-        //                                 <a href="/user/signup" className="forgot-link">Forgot your password?</a>
-        //                             </div>
-        //                             <Button className='buttonConnect' onClick={handleSubmit}>Sign In</Button>
-        //                             <p style={{ marginTop: '20px', fontSize: '14px' }}>
-        //                                 Don’t have an account? <a href="/user/signup" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign Up</a>
-        //                             </p>
-        //                         </Form>
-        //                     </div>
-        //                 </Col>
-        //                 <Col span={6} />
-        //             </Row>
-        //         </Col>
-        //         <Col span={8}>
-        //             <img className='imageLogo' src='/ImagebackGround.jpg' alt='Logo' />
-        //         </Col>
-        //     </Row>
-        // </div>

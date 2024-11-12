@@ -1,18 +1,19 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { Avatar, Button, Col, DatePicker, Input, Row, Table, Image, message } from 'antd';
+import { Button, Col, DatePicker, Input, Row, Table, Image, Modal } from 'antd';
 import { Layout, Menu, theme } from 'antd';
-import { AppstoreOutlined, BellOutlined, DollarOutlined, FileOutlined, HistoryOutlined, ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, FileOutlined, HistoryOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import "@/views/style/MyDocument.css";
 import { Footer } from 'antd/es/layout/layout';
-import { Approve, checkAllowance, deleteRegisterAuction, getRegisterAuction } from '@/views/services/user/ProfileServices';
-import NavbarSI from '@/views/components/NavbarSI';
+import { getRegisterAuction } from '@/views/services/user/ProfileServices';
 import NavbarSetting from '@/views/components/NavbarSetting';
-import { ethers } from 'ethers';
+import { useRouter } from 'next/navigation';
+import { handleDeleteRegis } from '@/views/utils/user/compMyDocument/compDeleteRegis';
+import { handleApprove } from '@/views/utils/user/compMyDocument/compApprove';
+import { handleJoinLiveAuction } from '@/views/utils/user/compMyDocument/compJoinAuction';
 
-const { Header, Content, Sider } = Layout;
-
+const { Content, Sider } = Layout;
 
 function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, href?: string) {
   return {
@@ -33,6 +34,8 @@ const MyDocument = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
   const [registeredAuctions, setRegisteredAuctions] = useState([]);
+  const [deletingRegisId, setDeletingRegisId] = useState<number | null>(null);
+  const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
 
 
   useEffect(() => {
@@ -40,27 +43,25 @@ const MyDocument = () => {
       const userId = localStorage.getItem('userId');
       if (userId) {
         const register = await getRegisterAuction(userId);
-        
-
-        //in giá trị ra
+        // in giá trị ra
         register.forEach((registration: any, index: number) => {
           console.log(`cuộc đấu giá ${index + 1}:`, registration);
-
           const registrationId = registration.registrationId;
-
-          // console.log('registration: ', registrationId)
+          console.log('registration: ', registrationId);
         });
-
         if (register) {
-          setRegisteredAuctions(register.map((auction: any) => ({
+          // Sử dụng map để chuyển đổi dữ liệu và log mảng đã chuyển đổi
+          const mappedAuctions = register.map((auction: any) => ({
             registrationId: auction.registrationId,
-            auctionId: auction.id,
+            auctionIdLive: auction.id,
             name: auction.productName,
             auctionDay: new Date(auction.createdAt).toLocaleDateString(),
             auctionMinutes: Math.floor((auction.endTime - Date.now() / 1000) / 60),
             startingPrice: auction.startingPrice,
             imageUrl: auction.imageUrl,
-          })));
+          }));
+          // Cập nhật state với mảng đã map
+          setRegisteredAuctions(mappedAuctions);
         } else {
           console.error('Không tìm thấy cuộc đấu giá nào.');
         }
@@ -71,9 +72,6 @@ const MyDocument = () => {
     fetchRegisteredAuctions();
   }, []);
 
-  useEffect(() => {
-    console.log('Giá trị registeredAuctions sau khi cập nhật:', registeredAuctions);
-  }, [registeredAuctions]);
 
   const columns = [
     {
@@ -105,10 +103,10 @@ const MyDocument = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: { registrationId: any }) => (
+      render: (_: any, record: { auctionIdLive: any, registrationId: any }) => (
         <div>
-          <Button type="primary" onClick={() => handleJoinAuction(record.registrationId)}>Tham gia đấu giá</Button>
-          <Button type="danger" onClick={() => handleDeleteRegisterAuction(record.registrationId)}>Huỷ đăng ký</Button>
+          <Button type="primary" onClick={() => JoinAuction(record.auctionIdLive, record.registrationId)}>Tham gia đấu giá</Button>
+          <Button type="primary" onClick={() => handleDelete(record.registrationId)}>Huỷ đăng ký</Button>
         </div>
       ),
     },
@@ -116,107 +114,33 @@ const MyDocument = () => {
       title: 'Approve',
       key: 'action',
       render: (_: any, record: { key: any; }) => (
-        <Button type="primary" onClick={() => handleApprove(record.key)}>Approve</Button>
+        <Button type="primary" onClick={() => handleApproveAuction(record.key)}>Approve</Button>
       ),
     },
   ];
 
-  
+  const handleDelete = (id: number) => {
+    setDeletingRegisId(id);
+    setConfirmDeleteVisible(true);
+  };
 
-  const handleDeleteRegisterAuction = async (registrationId: any) => {
-    try {
-      const response = await deleteRegisterAuction(registrationId);
-      console.log('Response trả về sau khi gọi API: ', response);
-  
-      if (response) {
-        setRegisteredAuctions((prevAuctions) => {
-          const updatedAuctions = prevAuctions.filter(
-            (auction) => auction.registrationId !== registrationId
-          );
-          console.log('Đã xóa sản phẩm đăng ký:', registrationId);
-          console.log('Auction sau khi cập nhật:', updatedAuctions);
-          message.success('Đã xóa sản phẩm đăng ký');
-          return updatedAuctions;
-        });
-      } else {
-        console.error('Xóa sản phẩm thất bại');
-      }
-    } catch (error) {
-      console.error('Có lỗi xảy ra khi xóa sản phẩm:', error);
+  const confirmDeleteProduct = async () => {
+    if (deletingRegisId !== null) {
+      await handleDeleteRegis(deletingRegisId, setRegisteredAuctions);
+      setDeletingRegisId(null);
+      setConfirmDeleteVisible(false);
     }
   };
 
-  const handleApprove = async (key: any) => {
-    try {
-      let userAddress = localStorage.getItem('userAddress');
-      if (!userAddress) {
-        alert("Bạn chưa thêm thông tin và kết nối ví. Để thực hiện chức năng Approve, hãy thêm thông tin và kết nối ví");
-        if (!window.ethereum) {
-          alert("Vui lòng cài đặt MetaMask!");
-          return;
-        }
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        userAddress = localStorage.getItem('userAddress');
-        if (!userAddress) {
-          // alert("Không thể lấy địa chỉ ví của người dùng. Hãy thử lại.");
-          return;
-        }
-      }
+  const router = useRouter();
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+  const handleApproveAuction = async () => {
+    await handleApprove();
+  }
 
-      // Địa chỉ token và số lượng approve
-      const tokenAddress = "0x65162C4d8dd16594546338C9C637105C031288cF";
-      const spenderAddress = "0xDeAFB1df5c2738a2106D28fCcF12e97F76Ef3BD9";
-      const approveAmount = ethers.parseUnits("10", 18);
-
-      const tokenABI = [
-        "function approve(address spender, uint256 amount) public returns (bool)"
-      ];
-
-      // Khởi tạo đối tượng hợp đồng token
-      const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
-      console.log("Hợp đồng token đã được tạo:", tokenContract);
-
-      // Gửi giao dịch approve
-      const transaction = await tokenContract.approve(spenderAddress, approveAmount);
-      console.log("Đang thực hiện approve, đợi xác nhận giao dịch...");
-      await transaction.wait();
-      console.log("Giao dịch approve hoàn tất:", transaction);
-      alert("Approve thành công!");
-
-    } catch (error) {
-      console.error("Lỗi khi thực hiện approve:", error);
-      alert("Đã xảy ra lỗi khi thực hiện approve: " + error);
-    }
-};
-
-
-  const handleJoinAuction = async (registrationId: any) => {
-    console.log(`Tham gia đấu giá cho cuộc đấu giá ID: ${registrationId}`);
-
-    if (!localStorage.getItem('userAddress') && !localStorage.getItem('inforId')) {
-      message.error('Hãy cập nhật thông tin cá nhân đầy đủ để tham gia đấu giá')
-    } else if (!localStorage.getItem('userAddress') && localStorage.getItem('inforId')) {
-      message.error('Hãy kết nối ví lại để tham gia đấu giá')
-    } else if (localStorage.getItem('userAddress') && localStorage.getItem('inforId')) {
-
-      const userAddress = localStorage.getItem('userAddress');
-      const spenderAddress = "0xDeAFB1df5c2738a2106D28fCcF12e97F76Ef3BD9";
-
-      const response = await checkAllowance(spenderAddress, userAddress);
-
-      console.log('allowance trả về', response.allowance);
-
-      if (response.allowance == 0) {
-        message.error('hãy Approve trước khi tham gia đấu giá')
-      } else {
-        message.success('vô nè')
-        window.location.href = '/user/LiveAuction';
-      }
-    }
-  };
+  const JoinAuction = async (auctionIdLive: any, registrationId: any) => {
+    await handleJoinLiveAuction(auctionIdLive, registrationId, router)
+  }
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -226,7 +150,6 @@ const MyDocument = () => {
       </Sider>
       <Layout>
         <NavbarSetting />
-
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
@@ -235,7 +158,6 @@ const MyDocument = () => {
           }}>
             <h3>My Document</h3>
           </div>
-
           <div className='dibInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row className='row1'>
               <div className='divSearch'>
@@ -251,18 +173,28 @@ const MyDocument = () => {
                 <Button className='butSearch' type='text'>Search</Button>
               </div>
             </Row>
-
             <Row className='row2'>
               <Col className='colRow2'>
                 <Row className='rowProduct'>
                   <div className='divTable'>
                     <Col className='colTable'>
-                      <Table columns={columns} dataSource={registeredAuctions} rowKey="key" /> {/* Cập nhật dataSource */}
+                      <Table columns={columns} dataSource={registeredAuctions} rowKey="key" />
                     </Col>
                   </div>
                 </Row>
               </Col>
             </Row>
+            <Modal
+              title="Confirm Delete"
+              visible={confirmDeleteVisible}
+              onCancel={() => setConfirmDeleteVisible(false)}
+              onOk={confirmDeleteProduct}
+              okText="Yes"
+              cancelText="No"
+            >
+              <p>Bạn có chắc chắn muốn huỷ đăng ký cuộc đấu giá này không?</p>
+            </Modal>
+
           </div>
         </Content>
 
@@ -272,5 +204,4 @@ const MyDocument = () => {
     </Layout>
   )
 }
-
 export default MyDocument;

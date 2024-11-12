@@ -45,6 +45,7 @@ export const addRegisterAuction = async (userId, auctionId) => {
   }
 }
 
+//hàm gọi api trả về danh sách các cuộc đấu giá đã đăng kí
 export const getRegisterAuction = async (userId) => {
   try {
     const response = await axios.get(`/api/${userId}/auctions`);

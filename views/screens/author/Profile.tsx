@@ -11,15 +11,18 @@ import {
 } from '@ant-design/icons';
 import "@/views/style/ProfileAuthor.css";
 import { Footer } from 'antd/es/layout/layout';
-import { editProfileById, getProfileByEmail } from '../../services/author/AuthorServices';
 import moment from "moment";
-import { ethers } from 'ethers';
 import { MetaMaskInpageProvider } from "@metamask/providers";
 import NavbarSetting from '@/views/components/NavbarSetting';
-import { addCreateInfor, editInforById, getInforById } from '@/views/services/user/ProfileServices';
+import { getInforById } from '@/views/services/user/ProfileServices';
+import { useProfile } from '@/views/hook/useProfile';
+import { handleAddProfile } from '@/views/utils/author/compProfile/addProfile';
+import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile';
+import { connectWallet } from '@/views/utils/connectWallet';
 
 
-const { Header, Content, Sider } = Layout;
+
+const { Content, Sider } = Layout;
 
 declare global {
   interface Window {
@@ -54,22 +57,18 @@ export default function Profile() {
   const { token: { colorBgContainer } } = theme.useToken();
   const [form] = Form.useForm();
 
-  const [profile, setProfile] = useState({
-    email: '',
-    fullname: '',
-    dateofbirth: '',
-    gender: '',
-    country: '',
-    walletAddress: '',
-  });
+  // đã tách hook useState profile ra file riêng
+  const [profile, updateProfile] = useProfile();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
+  const [isActive, setIsActive] = useState(true);
+  const [timer, setTimer] = useState(600);
+
   const handleCancelButton = () => {
     setIsModalOpen(false)
   }
-
-  const [error, setError] = useState<string | null>(null);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
 
   const showAddModal = () => {
     setModalMode('add');
@@ -81,12 +80,18 @@ export default function Profile() {
     setIsModalOpen(true);
   };
 
-  const handleModalOk = async () => {
+  const handleSubmit = async () => {
     if (modalMode === 'add') {
-      await handleAddButton(); // Gọi hàm khi nhấn "Add"
+      await handleAddProfile(form, updateProfile);
+      setIsModalOpen(false);
     } else {
-      await handleEditInfor(); // Gọi hàm khi nhấn "Edit"
+      await handleEditProfile(form, updateProfile, profile);
+      setIsModalOpen(false);
     }
+  };
+
+  const handleConnectWallet = async () => {
+    await connectWallet(form, updateProfile);
   };
 
   useEffect(() => {
@@ -96,13 +101,15 @@ export default function Profile() {
         try {
           const response = await getInforById(authorId);
           const inforId = response.data.id;
+
           localStorage.setItem('inforId', inforId);
 
           console.log('response sau get: ', response);
 
           const data = response.data;
+
           if (data) {
-            setProfile({
+            updateProfile({
               email: data.email,
               fullname: data.fullname,
               dateofbirth: data.dateOfBirth,
@@ -119,168 +126,11 @@ export default function Profile() {
         }
       }
     };
-    checkAuth();
     fetchProfileData();
   }, []);
 
-  const handleAddButton = async () => {
-    try {
-      const values = await form.validateFields();
-
-      const authorId = localStorage.getItem('authorId');
-
-      console.log('values trước khi chạy updated: ', values);
-      const addInfor = {
-        fullname: values.fullName,
-        dateOfBirth: values.dateOfBirth.toISOString(),
-        gender: values.gender,
-        country: values.country,
-        walletAddress: values.walletAddress,
-        loginId: authorId,
-      };
-      const response = await addCreateInfor(addInfor);
-      console.log('response bên frontend: ', response);
-      if (response) {
-        setProfile({ ...profile, ...addInfor, gender: values.gender });
-        message.success('Profile updated successfully!');
-      } else {
-        message.error('Failed to update profile!');
-      };
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      message.error('Failed to update profile!');
-    }
-  }
-
-  const handleEditInfor = async () => {
-    try {
-      const values = await form.validateFields();
-
-      const inforId = localStorage.getItem('inforId');
-
-      const updatedProfile = {
-        fullname: values.fullName,
-        dateofbirth: values.dateOfBirth,
-        gender: values.gender,
-        country: values.country,
-        walletAddress: values.walletAddress,
-      };
-
-      console.log('values sau khi nhập vào updated: ', updatedProfile);
-
-      const response = await editInforById(inforId, updatedProfile);
-
-      console.log('response trả về sau edit: ', response);
-
-      if (response) {
-        setProfile(updatedProfile);
-        message.success('Profile updated successfully!');
-      } else {
-        message.error('Failed to update profile!');
-      }
-
-      // setIsModalOpen(false);
-
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      message.error('Failed to update profile!');
-    }
-  }
-
-  // Hàm kết nối ví MetaMask
-  const connectWallet = async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        message.error("Vui lòng đăng nhập lại");
-        setTimeout(() => {
-          window.location.href = '/user/signin';
-        }, 1500);
-        return;
-      }
-  
-      if (!window.ethereum) {
-        message.error('MetaMask is not installed!');
-        return;
-      }
-  
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = await provider.getSigner();
-      const walletAddress = await signer.getAddress();
-      const balance = await provider.getBalance(walletAddress);
-      const balanceInEth = ethers.formatEther(balance);
-      const formattedBalance = parseFloat(balanceInEth).toFixed(3);
-  
-      // Lưu số dư vào localStorage
-      localStorage.setItem('userBalance', formattedBalance);
-      localStorage.setItem('userAddress', walletAddress);
-
-  
-      // Cập nhật trường walletAddress trong form
-  
-      const inforId = localStorage.getItem('inforId');
-  
-      if (!inforId) {
-        // Nếu không có inforId, chỉ cập nhật trường walletAddress trong form
-        message.info('Vui lòng thêm thông tin cá nhân trước khi kết nối ví.');
-        // Thực hiện hành động để thêm thông tin nếu cần
-        // Có thể mở modal hoặc thực hiện một hành động nào đó
-
-        form.setFieldsValue({
-          walletAddress: walletAddress,
-        });
-
-      } else {
-        // Nếu đã có inforId, cập nhật profile với địa chỉ ví
-        const updatedProfile = {
-          ...profile,
-          walletAddress: walletAddress,
-        };
-  
-        console.log('updatedProfile: ', updatedProfile);
-    
-        const response = await editInforById(inforId, updatedProfile);
-  
-        console.log('response sau connect: ', response);
-    
-        if (response) {
-          setProfile(updatedProfile);
-          message.success('Wallet connected and updated successfully!');
-  
-          // Cập nhật số tiền hiển thị
-          const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
-          if (showTotalMoneyDiv) {
-            showTotalMoneyDiv.textContent = `${formattedBalance} $`;
-          }
-        } else {
-          message.error('Failed to update wallet address!');
-        }
-      }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
-      message.error('Failed to connect wallet!');
-    }
-  };
-
-
-  const checkAuth = () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      message.error("Vui lòng đăng nhập lại");
-      setTimeout(() => {
-        window.location.href = '/user/signin';
-      }, 1500);
-    } else {
-      console.log("Token hợp lệ, tiếp tục truy cập trang");
-    }
-  };
-
-
   // đếm ngược thời gian k tương tác với trang web để đăng nhập lại
-  const [isActive, setIsActive] = useState(true);
-  const [timer, setTimer] = useState(600);
+  
   useEffect(() => {
     let countdown: string | number | NodeJS.Timeout | undefined;
     if (isActive) {
@@ -295,8 +145,7 @@ export default function Profile() {
               ),
               okText: 'Ok',
               onOk: () => {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('userEmail');
+                localStorage.clear();
                 window.location.href = '/user/signin';
               },
               closable: false,
@@ -311,10 +160,12 @@ export default function Profile() {
       clearInterval(countdown);
     };
   }, [isActive]);
+
   const handleUserActivity = () => {
     setTimer(600);
     setIsActive(true);
   };
+  
   useEffect(() => {
     window.addEventListener('mousemove', handleUserActivity);
     window.addEventListener('keydown', handleUserActivity);
@@ -323,13 +174,6 @@ export default function Profile() {
       window.removeEventListener('keydown', handleUserActivity);
     };
   }, []);
-
-  // useEffect(() => {
-  //   const showTotalMoneyDiv = document.querySelector('.showTotalMoney');
-  //   if (showTotalMoneyDiv) {
-  //     showTotalMoneyDiv.textContent = '0 CELE';
-  //   }
-  // }, []);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -372,7 +216,7 @@ export default function Profile() {
                 <Modal
                   title={modalMode === 'add' ? "Add Infor" : "Edit Profile"}
                   open={isModalOpen}
-                  onOk={handleModalOk}
+                  onOk={handleSubmit}
                   onCancel={handleCancelButton}
                   okText={modalMode === 'add' ? "Add" : "Edit"}
                   okButtonProps={{ className: 'modal-ok-button', type: 'text' }}
@@ -410,7 +254,7 @@ export default function Profile() {
                         </Form.Item>
                       </Col>
                       <Col span={6}>
-                        <Button className='butConnectInModal' type="text" onClick={connectWallet}>
+                        <Button className='butConnectInModal' type="text" onClick={handleConnectWallet}>
                           Connect Wallet
                         </Button>
                       </Col>
@@ -467,7 +311,7 @@ export default function Profile() {
                       <Input placeholder={profile.country} />
                     </Form.Item>
                   </Form>
-                  <Button className='connectWalletBut' type="text" onClick={connectWallet}>Connect Wallet</Button>
+                  <Button className='connectWalletBut' type="text" onClick={handleConnectWallet}>Connect Wallet</Button>
                 </div>
               </Col>
             </Row>
@@ -503,5 +347,5 @@ export default function Profile() {
         </Footer>
       </Layout>
     </Layout>
-  )
-}
+  );
+};

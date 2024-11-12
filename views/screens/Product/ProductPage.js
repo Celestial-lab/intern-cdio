@@ -8,9 +8,12 @@ import { DownOutlined } from '@ant-design/icons';
 import "@/views/style/Product.css";
 import FooterAll from '@/views/components/Footer.js';
 import { getAuction } from '@/views/services/AuctionServices';
+import { useRouter } from 'next/navigation';
 
 const { Title } = Typography;
 const { Option } = Select;
+
+
 
 const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,6 +24,8 @@ const ProductPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = sortedProducts.slice(startIndex, endIndex);
+
+  
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
@@ -40,7 +45,9 @@ const ProductPage = () => {
     const fetchAuctions = async () => {
       try {
         const auctionData = await getAuction();
+
         console.log('Dữ liệu trả về từ API:', auctionData);
+
         if (auctionData && Array.isArray(auctionData) && auctionData.length > 0) {
           setSortedProducts(auctionData);
         } else {
@@ -54,8 +61,6 @@ const ProductPage = () => {
     };
     fetchAuctions();
   }, []);
-
-  
 
   const handleMenuClick = (e) => {
     const key = e.key;
@@ -82,15 +87,18 @@ const ProductPage = () => {
       <Menu.Item key="desc">Sort Z-A</Menu.Item>
     </Menu>
   );
+  
+  const router = useRouter();
 
-
+//bỏ setLocal
   const handleRegisterClick = (auctionId) => {
 
-    console.log('Thông tin sản phẩm:', auctionId);
+    console.log('id cuộc đấu giá:', auctionId);
 
-    localStorage.setItem('auctionId', auctionId);
+    router.push(`/products/${auctionId}`);
 
-    window.location.href = `/products/${auctionId}`;
+    // localStorage.setItem('auctionId', auctionId);
+
   };
 
   if (loading) {
