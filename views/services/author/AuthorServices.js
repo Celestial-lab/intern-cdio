@@ -1,4 +1,4 @@
-import axios, { instanceFormData } from '../../axios';
+import axios from '../../axios';
 
 export const getProfileByEmail = async (email) => {
   try {

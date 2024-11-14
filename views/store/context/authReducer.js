@@ -1,16 +1,17 @@
 
-export const SET_AUTH_INFO = 'set auth infor';
-export const CLEAR_AUTH_INFO = 'clear auth infor';
+export const ACTION_SET_EMAIL_ROLE = 'ACTION_SET_EMAIL_ROLE';
+export const ACTION_CLEAR_EMAIL_ROLE = 'ACTION_CLEAR_EMAIL_ROLE';
 
-export const authReducer = (state, actions) => {
-    switch (actions.type) {
-        case SET_AUTH_INFO:
-            return {
+export const authReducer = (state, action) => {
+    switch (action.type) {
+        case ACTION_SET_EMAIL_ROLE:
+            const updatedState = {
                 ...state,
-                email: actions.payload.email,
-                role: actions.payload.role,
+                email: action.payload.email,
+                role: action.payload.role,
             };
-        case CLEAR_AUTH_INFO:
+            return updatedState;
+        case ACTION_CLEAR_EMAIL_ROLE:
             return {
                 ...state,
                 email: null,

@@ -23,8 +23,8 @@ export const handleApprove = async() => {
         const signer = await provider.getSigner();
   
         // Địa chỉ token và số lượng approve
-        const tokenAddress = "0x65162C4d8dd16594546338C9C637105C031288cF";
-        const spenderAddress = "0xDeAFB1df5c2738a2106D28fCcF12e97F76Ef3BD9";
+        const tokenAddress = "0x4f4DcDab99C23D37451c2A369AEd4255dF4bDfb8";
+        const spenderAddress = "0x00E0DAd8665a5d70B3aAE546a9182186a3b94cCf";
         const approveAmount = ethers.parseUnits("10", 18);
   
         const tokenABI = [

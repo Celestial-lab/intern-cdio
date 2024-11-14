@@ -1,16 +1,14 @@
-import { SET_AUTH_INFO, CLEAR_AUTH_INFO } from '@/views/store/context/authReducer';
+import { ACTION_SET_EMAIL_ROLE, ACTION_CLEAR_EMAIL_ROLE } from '@/views/store/context/authReducer';
 
-export const setAuthInfor = (dispatch, email, role) => {
-    console.log('giá trị context trong hàm login: ', email, role);
+export const actionSetEmailRole = (dispatch, email, role) => {
     dispatch({
-        type: SET_AUTH_INFO,
-        payload: { email, role },
+        type: ACTION_SET_EMAIL_ROLE,
+        payload: { email, role }
     });
 };
 
-
-export const clearAuthInfor = (dispatch) => {
+export const actionClearEmailRole = (dispatch) => {
     dispatch({ 
-        type: CLEAR_AUTH_INFO
+        type: ACTION_CLEAR_EMAIL_ROLE
     })
 };

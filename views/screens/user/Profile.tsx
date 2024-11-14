@@ -11,6 +11,7 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import ClipLoader from 'react-spinners/ClipLoader';
 import "@/views/style/Profile.css";
 import { Footer } from 'antd/es/layout/layout';
 import { getInforById } from '../../services/user/ProfileServices.js';
@@ -21,9 +22,7 @@ import { connectWallet } from '@/views/utils/connectWallet';
 import { useProfile } from '@/views/hook/useProfile';
 import { handleAddProfile } from '@/views/utils/user/compProfile/addProfile.js';
 import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile.js';
-import { AuthContext, AuthProvider } from '@/views/store/context/AuthContext';
-import { useContext } from "react";
-
+import { useAuthContent } from '@/views/store/context/AuthContext';
 declare global {
   interface Window {
     ethereum?: MetaMaskInpageProvider;
@@ -64,13 +63,15 @@ export default function Profile() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
 
-  const { role } = useContext(AuthContext);
-  const { email, login } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { state } = useAuthContent();
 
 
-  useEffect(() => {
-    console.log('giá trị email và role sau khi setState ở trang login:', { email, role });
-}, [email, role]);
+  // chạy useEffect mối khi giá trị phụ thuộc (state) thay đổi
+  // useEffect(() => {
+  //   console.log('state: ', state);
+  // }, [state]);
 
   const showAddModal = () => {
     setModalMode('add');
@@ -93,13 +94,12 @@ export default function Profile() {
   };
 
   const handleConnectWallet = async () => {
-    await connectWallet(form, updateProfile, profile, role, login);
+    await connectWallet(form, updateProfile, profile, state);
   };
 
   const handleCancelButton = () => {
     setIsModalOpen(false);
   };
-
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -107,7 +107,7 @@ export default function Profile() {
       if (userId) {
         try {
           const response = await getInforById(userId);
-          console.log('response: ', response);
+          // console.log('response: ', response);
           const inforId = response.data.id;
           localStorage.setItem('inforId', inforId);
           const data = response.data;
@@ -176,7 +176,6 @@ export default function Profile() {
   }, []);
 
   return (
-    <AuthProvider>
 
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
@@ -340,7 +339,5 @@ export default function Profile() {
         </Footer>
       </Layout>
     </Layout>
-
-    </AuthProvider>
   );
 }

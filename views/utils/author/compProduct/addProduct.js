@@ -4,6 +4,7 @@ import { message } from 'antd';
 import { handleAddProduct } from '@/views/services/author/AuthorServices';
 import moment from 'moment';
 import React, { useState, useEffect } from 'react';
+import { createAuction } from '@/views/contract/compContract/createAuction';
 
 export const handleAddNewProduct = async (formData, setLoading, setProducts, handleCancel) => {
   const authorId = localStorage.getItem('authorId');
@@ -37,9 +38,28 @@ export const handleAddNewProduct = async (formData, setLoading, setProducts, han
   }
 
   setLoading(true);
+
   try {
+    // Bước 1: Gọi API để thêm sản phẩm
     const newProductData = await handleAddProduct(formToSubmit);
+
     if (newProductData) {
+      // Bước 2: Sau khi thêm thành công vào backend, gọi smart contract để tạo đấu giá trên blockchain
+      const { bidContract } = await connectContract();
+      if (bidContract) {
+        await createAuction(
+          bidContract,
+          formData.productname,
+          formData.description,
+          formData.image[0]?.originFileObj.name || '', // URL ảnh sản phẩm
+          ethers.utils.parseUnits(formData.price.toString(), 'ether'), // giá khởi điểm, chuyển đổi sang ether
+          formData.auctionTime * 60 // thời gian đấu giá chuyển đổi sang giây
+        );
+
+        message.success('Auction created successfully on blockchain!');
+      }
+
+      // Cập nhật danh sách sản phẩm sau khi thành công
       const newProduct = {
         key: newProductData.product.id,
         name: newProductData.product.productName,
@@ -50,6 +70,7 @@ export const handleAddNewProduct = async (formData, setLoading, setProducts, han
         auctionTime: newProductData.product.endTime,
         startTime: newProductData.product.startTime,
       };
+
       setProducts((prevProducts) => [...prevProducts, newProduct]);
       message.success('Upload thành công');
       handleCancel();
@@ -57,7 +78,8 @@ export const handleAddNewProduct = async (formData, setLoading, setProducts, han
       console.error('Thêm sản phẩm thất bại');
     }
   } catch (error) {
-    console.error('Lỗi khi thêm sản phẩm:', error);
+    console.error('Lỗi khi thêm sản phẩm hoặc tạo đấu giá:', error);
+    message.error('Failed to create product or auction!');
   } finally {
     setLoading(false);
   }

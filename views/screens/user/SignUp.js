@@ -1,90 +1,31 @@
 'use client'
 
-import { Button, Modal, Form, Input, message, Select } from "antd";
-import React, { useEffect, useState, useCallback } from "react";
+import { Button, Modal, Form, Input, Select } from "antd";
+import React, { useState } from "react";
 import "@/views/style/SignUp.css";
-import { getUserByLoginId, handleSignUpApi, verifiedByCode } from '../../services/SignUpUserServices';
+import { handleSubmitSignup, handleVerificationSubmit } from '@/views/utils/compSignUp';
 
 const SignUp = () => {
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [verificationCode, setVerificationCode] = useState('');
     const [formModal] = Form.useForm();
     const [attemptsLeft, setAttemptsLeft] = useState(3);
 
-
     const handleSubmit = async () => {
-        try {
-            const values = await form.validateFields();
-            const { email, password, role } = values;
-            const response = await handleSignUpApi(email, password, role);
-            
-            console.log('response trả về bên frontend: ', response);
-
-            localStorage.setItem('loginId', response.user.id);
-            if (response.user.verified == false) {
-                message.success('đăng kí thành công! hãy nhập mã code để xác minh tài khoản');
-                setIsModalOpen(true);
-            } else {
-                message.success('đăng kí và xác minh thành công');
-            }
-            // setTimeout(() => {
-            //     window.location.href = '/user/signin';
-            // }, 1500);
-        } catch (error) {
-
-            console.error('Sign up failed:', error);
-            message.error('Sign up failed!');
-        }
+        await handleSubmitSignup(form, setIsModalOpen);
     };
 
-    const handleVerificationSubmit = async () => {
-        const loginId = localStorage.getItem('loginId');
-
-        console.log('loginId ở hàm nhấn nút veri: ', loginId);
-
-        try {
-            const { code } = await formModal.validateFields(['code']);
-            const email = form.getFieldValue('email');
-            const response = await verifiedByCode(email, code);
-            const getVerify = await getUserByLoginId(loginId);
-            console.log('Kết quả hàm getVerify:', getVerify);
-
-            if (getVerify.verified == false) {
-                if (attemptsLeft > 1) {
-                    setAttemptsLeft(attemptsLeft - 1);
-                    message.warning(`Sai mã xác thực. Còn ${attemptsLeft - 1} lần thử.`);
-                } else {
-                    message.error('Xác minh thất bại, đăng ký không thành công');
-                    setIsModalOpen(false);
-                }
-            } else {
-                message.success('xác minh thành công');
-                setIsModalOpen(false);
-                setTimeout(() => {
-                    window.location.href = '/user/signin';
-                }, 1500);
-            }
-        } catch (error) {
-            console.error('Xác minh thất bại:', error);
-        }
-    };
-
-
-    const handleTestOpenModal = (event) => {
-        event.preventDefault();
-        setIsModalOpen(true);
+    const handleSubmitCode = async () => {
+        await handleVerificationSubmit(form, formModal, attemptsLeft, setAttemptsLeft, setIsModalOpen);
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
     };
 
-
     return (
         <>
             <div class="container" id="container">
-
                 <div class="title-container">
                     <div class="overlay">
                         <div class="overlay-panel">
@@ -94,7 +35,6 @@ const SignUp = () => {
                         </div>
                     </div>
                 </div>
-
                 <div class="overlay-container">
                     <Form form={form}>
                         <h1>Create Account</h1>
@@ -139,11 +79,9 @@ const SignUp = () => {
                     </Form>
                 </div>
             </div>
-
             <Modal
                 open={isModalOpen}
                 width={750}
-                // height={460}
                 footer={null}
                 closable={true}
                 onCancel={handleCancel}
@@ -163,7 +101,7 @@ const SignUp = () => {
                             <Input placeholder="Nhập mã xác thực" />
                         </Form.Item>
                     </Form>
-                    <Button className="submit-code" type="primary" onClick={handleVerificationSubmit}>Submit Code</Button>
+                    <Button className="submit-code" type="primary" onClick={handleSubmitCode}>Submit Code</Button>
                 </div>
             </Modal>
         </>
@@ -171,61 +109,3 @@ const SignUp = () => {
 }
 
 export default SignUp;
-
-
-// <div className="custom-row">
-//     <Row gutter={[0, 0]}>
-//         <Col span={7} />
-//         <Col span={10} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-//             <img className='imageLogo' src='/CeLestial-wbg.png' alt='Logo' />
-//             <h2>Join our community</h2>
-//             <p>Start your journey with product</p>
-//             <div className='divInput'>
-// <Form form={form} layout="vertical" method="POST">
-//     <Form.Item
-//         name="email"
-//         label="Email*"
-//         className="formItem"
-//         rules={[{ required: true, message: 'Please input your email!' }]}
-//     >
-//         <Input className="inputtable" />
-//     </Form.Item>
-//     <Form.Item
-//         name="password"
-//         label="Password*"
-//         className="formItem"
-//         rules={[{ required: true, message: 'Please input your password!' }]}
-//     >
-//         <Input className="inputtable" type="password" />
-//     </Form.Item>
-//     <Form.Item
-//         name="role"
-//         label="Select a role"
-//         rules={[{ required: true, message: 'Please select your role!' }]}>
-//         <Select
-//             placeholder="Select a role"
-//             optionFilterProp="label"
-//             // onChange={onChange}
-//             options={[
-//                 {
-//                     value: 'user',
-//                     label: 'User',
-//                 },
-//                 {
-//                     value: 'author',
-//                     label: 'Author',
-//                 },
-//             ]}
-//         />
-//     </Form.Item>
-
-//                     <Button className='buttonConnect' onClick={handleSubmit}>Sign Up</Button>
-//                     <p style={{ marginTop: '20px', fontSize: '14px' }}>
-//                         Already have an account? <a href="/user/signin" style={{ color: '#22C55E', textDecoration: 'none' }}>Sign In</a>
-//                     </p>
-//                 </Form>
-//             </div>
-//         </Col>
-//         <Col span={7} />
-//     </Row>
-// </div>

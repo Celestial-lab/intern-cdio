@@ -9,7 +9,6 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
   return (
-    <AuthProvider>
     <html lang="en">
 
       <head>
@@ -20,11 +19,12 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
 
       <body>
         
+        <AuthProvider>
           <div>
             {children}
           </div>
+        </AuthProvider>
       </body>
     </html>
-    </AuthProvider>
   );
 }

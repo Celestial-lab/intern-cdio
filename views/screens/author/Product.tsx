@@ -113,7 +113,7 @@ export default function Product() {
     if (isEditMode) {
       await handleEditProduct(formData, editingProduct.id, editingProduct, setProducts); // Gọi hàm chỉnh sửa
     } else {
-      await handleAddNewProduct(formData, setLoading, setProducts, () => {});
+      await handleAddNewProduct(formData, setLoading, setProducts,  () => {});
     }
     setLoading(false); // Tắt trạng thái loading
     setOpenModal(false); // Đóng modal sau khi hoàn tất
@@ -159,7 +159,6 @@ export default function Product() {
             );
             const currentTime = Date.now();
             let status = '';
-
             // Điều kiện cho trạng thái dựa trên startTime và thời gian hiện tại
             if (currentTime < product.startTime) {
               status = 'Cuộc đấu giá chưa diễn ra';
@@ -309,7 +308,6 @@ export default function Product() {
                 />
               </div>
             </Row>
-
             <Table
               dataSource={products.filter(product =>
                 product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -317,7 +315,6 @@ export default function Product() {
               columns={columns}
               pagination={{ pageSize: 4 }}
             />
-
             <Modal
               title={isEditMode ? 'Edit Product' : 'Add Product'}
               visible={openModal}
@@ -356,7 +353,6 @@ export default function Product() {
                 </Form.Item>
               </Form>
             </Modal>
-
             {/* Modal xác nhận xóa sản phẩm */}
             <Modal
               title="Confirm Delete"

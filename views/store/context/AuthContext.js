@@ -1,35 +1,49 @@
 'use client'
 
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { authReducer } from '@/views/store/context/authReducer';
 import { authInitState } from '@/views/store/context/authInitState';
-import { setAuthInfor, clearAuthInfor } from '@/views/store/context/authActions';
+import { actionSetEmailRole, actionClearEmailRole } from '@/views/store/context/authActions';
 
 export const AuthContext = createContext();
 
-export const AuthProvider  = ({children}) => {
+export const AuthProvider = ({ children }) => {
 
     const [state, dispatch] = useReducer(authReducer, authInitState);
 
-    // console.log('state: ', state);
-
     // Hàm đăng nhập
     const login = (email, role) => {
-        setAuthInfor(dispatch, email, role);
-        console.log('Login success, email:', email, 'role:', role);
+        actionSetEmailRole(dispatch, email, role);
+        localStorage.setItem('email', email);
+        localStorage.setItem('role', role);
     };
 
-    //hàm đăng xuất
+    // Hàm đăng xuất
     const logout = () => {
-        clearAuthInfor(dispatch);
+        actionClearEmailRole(dispatch);
+        localStorage.removeItem('email');
+        localStorage.removeItem('role');
     };
 
-    // console.log('AuthProvider state:', state);
+    useEffect(() => {
+        const email = localStorage.getItem('email');
+        const role = localStorage.getItem('role');
+        if (email && role) {
+            dispatch({
+                type: 'ACTION_SET_EMAIL_ROLE',
+                payload: { email, role }
+            });
+            console.log("Đã tải email và role từ localStorage:", { email, role });
+        } else {
+            console.log("Không tìm thấy email hoặc role trong localStorage.");
+        }
+    }, []);
 
-    return (      
-
-        <AuthContext.Provider value={{ ...state, login, logout }}>
+    return (
+        <AuthContext.Provider value={{ state, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 }
+
+export const useAuthContent = () => useContext(AuthContext);

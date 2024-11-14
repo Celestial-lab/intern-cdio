@@ -19,6 +19,7 @@ import { useProfile } from '@/views/hook/useProfile';
 import { handleAddProfile } from '@/views/utils/author/compProfile/addProfile';
 import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile';
 import { connectWallet } from '@/views/utils/connectWallet';
+import { useAuthContent } from '@/views/store/context/AuthContext';
 
 
 
@@ -65,6 +66,7 @@ export default function Profile() {
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
   const [isActive, setIsActive] = useState(true);
   const [timer, setTimer] = useState(600);
+  const { state } = useAuthContent();
 
   const handleCancelButton = () => {
     setIsModalOpen(false)
@@ -91,7 +93,7 @@ export default function Profile() {
   };
 
   const handleConnectWallet = async () => {
-    await connectWallet(form, updateProfile);
+    await connectWallet(form, updateProfile, profile, state);
   };
 
   useEffect(() => {
