@@ -93,7 +93,6 @@ export default function Product() {
     setIsEditMode(true);
     setEditingProduct(record); // Lưu sản phẩm đang chỉnh sửa
     const auctionTimeMinutes = Math.round((record.endTime - record.startTime) / 60000);
-
     // Đặt các giá trị của sản phẩm vào form
     form.setFieldsValue({
       productname: record.name,
@@ -104,8 +103,7 @@ export default function Product() {
       status: record.status,
       image: [{ url: record.image, name: 'Current Image' }],
     });
-
-    setOpenModal(true); // Mở modal
+    setOpenModal(true);
   };
 
   const handleSubmit = async (formData: any) => {

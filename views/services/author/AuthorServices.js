@@ -73,3 +73,25 @@ export const deleteProductById = async (id) => {
     return null;
   }
 }
+
+export const uploadImageToCloudinary = async (imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile); 
+
+  try {
+    const response = await axios.post('/api/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data && response.data.imageUrl) {
+      return response.data.imageUrl; 
+    } else {
+      throw new Error('Không nhận được URL từ API');
+    }
+  } catch (error) {
+    console.error('Lỗi khi upload ảnh:', error);
+    throw new Error('Không thể upload ảnh lên Cloudinary');
+  }
+};
