@@ -13,7 +13,8 @@ const createFormData = (values, authorId, imageUrl) => {
   formData.append('loginId', authorId);
   formData.append('productname', values.productname);
   formData.append('description', values.description);
-  formData.append('startingPrice', values.price);
+  const startingPrice = parseFloat(values.price); 
+  formData.append('startingPrice', startingPrice);
   formData.append('durationInMinutes', values.auctionTime);
   formData.append('startTime', values.startTime.toISOString());
   formData.append('imageUrl', imageUrl);

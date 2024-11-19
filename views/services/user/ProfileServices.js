@@ -74,7 +74,7 @@ export const deleteRegisterAuction = async (auctionId) => {
     return response.data;
   }
   catch (error) {
-    console.error('lỗi ở hàm delete rồi đan le ơi: ', error);
+    console.error('lỗi ở hàm deleteRegisterAuction rồi đan le ơi: ', error);
     return null;
   }
 }
@@ -84,7 +84,7 @@ export const checkAllowance = async (spender, owner) => {
     const response = await axios.post(`/api/allowance`, {spender, owner});
     return response.data
   } catch (error) {
-    console.error('lỗi ở hàm delete rồi đan le ơi: ', error);
+    console.error('lỗi ở hàm checkAllowance rồi đan le ơi: ', error);
     return null;
   }
 }

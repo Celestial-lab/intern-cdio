@@ -37,7 +37,6 @@ const MyDocument = () => {
   const [deletingRegisId, setDeletingRegisId] = useState<number | null>(null);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
 
-
   useEffect(() => {
     const fetchRegisteredAuctions = async () => {
       const userId = localStorage.getItem('userId');

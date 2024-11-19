@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams, useParams } from 'next/navigation';
-// import { useRouter } from 'next/router';
+import { useSearchParams, useParams } from 'next/navigation';
 import Navbar from '@/views/components/Navbar';
 import "@/views/style/ProductDetail.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,11 +18,7 @@ const ProductDetail = () => {
   const [remainingTime, setRemainingTime] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // const router = useRouter();
   const params = useParams();
-  // const searchParams = useSearchParams();
-
-//câu hỏi là: vì sao khi dùng useParams thì ra nhưng useRouter thì không có thông tin gì?
 
   useEffect(() => {
 

@@ -2,137 +2,124 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import "@/views/style/LiveAuction.css";
-import { Row, Button, message} from 'antd';
+import { Row, Button, message } from 'antd';
 import { DollarOutlined } from '@ant-design/icons';
 import Navbar from '@/views/components/Navbar';
 import NavbarAfter from '@/views/components/NavbarAfter';
 import { useParams } from 'next/navigation';
-import { getAuctionById, getHighestPrice } from '@/views/services/AuctionServices';
-
-
-
+import { handlePutBid, fetchData } from '@/views/utils/user/compLiveAuction/compPutBid';
+import { getInforAuction, getCurrentPriceFrom2, endedAuction } from '@/views/utils/user/compLiveAuction/compAboutPrice';
 
 export default function LiveAuction() {
-  
   const [multiplier, setMultiplier] = useState(1);
-  const [cards, setCards] = useState([
-    { id: 1, price: 1000, time: '10:00:32', round: 1, user: 'User A', topCard: true },
-    { id: 2, price: 900, time: '09:45:21', round: 2, user: 'User B', topCard: false },
-    { id: 3, price: 850, time: '09:30:15', round: 3, user: 'User C', topCard: false },
-    { id: 4, price: 800, time: '09:20:10', round: 4, user: 'User D', topCard: false },
-    { id: 5, price: 750, time: '09:10:05', round: 5, user: 'User E', topCard: false },
-    { id: 6, price: 700, time: '09:05:00', round: 6, user: 'User F', topCard: false },
-  ]);
-  const [countdown, setCountdown] = useState(600); // 10 minutes countdown
-  // lấy auctionId và registrationId từ useParams
-  const {auctionIdLive, registrationId} = useParams();
+  const { auctionIdLive, registrationId } = useParams();
   const [auctionData, setAuctionData] = useState<any[]>([]);
-  const [minutes, setMinutess] = useState(0);
-  const [seconds, setSecondss] = useState(0);
-  const [highestPrice, setHighestPrice] = useState(0);
+  const [currentPrice, setCurrentPrice] = useState(0);
   const [timeLeft, setTimeLeft] = useState<{ minutes: number; seconds: number }>({ minutes: 0, seconds: 0 });
-
-  
-  useEffect(() => {
-    const getInforAuction = async () => {
-      if (auctionIdLive) {
-        const response = await getAuctionById(auctionIdLive);
-
-        console.log('response: ', response);
-
-        if (response) {
-          const auctionDataAfterGet = [{
-            name: response.productName,
-            timeRemaining: response.endTime,
-            description: response.description,
-            startingPrice: response.startingPrice,
-            imageUrl: response.imageUrl,
-            id: response.auctionId,
-            active: response.active,
-            startTime: response.startTime,
-          }];
-          setAuctionData(auctionDataAfterGet);
-        }
-      }
-    };
-    getInforAuction();
-  }, [auctionIdLive]);
-
-  useEffect(() => {
-    if (auctionData.length > 0) {
-      const startTimeStr = auctionData[0].startTime;
-      const startTime = new Date(startTimeStr).getTime();
-      // console.log('startTime: ', startTime);
-  
-      const timeless = auctionData[0].timeRemaining * 1000; // Chuyển từ giây sang mili giây
-      // console.log('timeless: ', timeless);
-  
-      const currentTime = new Date().getTime(); // Thời gian hiện tại
-      // console.log('currentTime: ', currentTime);
-  
-      // Kiểm tra nếu startTime không hợp lệ
-      if (isNaN(startTime)) {
-        console.error('startTime không hợp lệ:', startTimeStr);
-        return; // Dừng lại nếu startTime không hợp lệ
-      }
-  
-      if (currentTime < startTime) {
-        message.error('Cuộc đấu giá chưa diễn ra');
-      } else if (currentTime >= startTime && currentTime < timeless) {
-        message.success('Cuộc đấu giá đang diễn ra');
-  
-        const updateTimer = setInterval(() => {
-          const now = new Date().getTime();
-          const remainingTime = Math.max(0, timeless - now);
-  
-          if (remainingTime > 0) {
-            const minutesLeft = Math.floor((remainingTime % 3600000) / 60000);
-            const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
-  
-            setTimeLeft({
-              minutes: minutesLeft,
-              seconds: secondsLeft,
-            });
-          } else {
-            // console.log('Đếm ngược kết thúc.');
-            clearInterval(updateTimer); // Dừng bộ đếm khi hết thời gian
-            setTimeLeft({ minutes: 0, seconds: 0 });
-          }
-        }, 1000);
-      } else {
-        message.error('Cuộc đấu giá đã kết thúc');
-      }
-    }
-  }, [auctionData]);
-
-  //lấy giá trị tiền cao nhất
-  useEffect (() => {
-    const getHighest = async () => {
-      if (auctionIdLive) {
-        const response = await getHighestPrice(auctionIdLive);
-
-        console.log('response lấy giá trị cao nhất', response);
-
-        const highestPriceGet = response.highestBidder;
-
-        setHighestPrice(highestPriceGet);
-
-        
-      }
-    };
-    getHighest();
-  }, [])
-
- 
-
-  const price = 1000;
-  const currentPrice = 1000;
-
-  const handleIncrease = useCallback(() => setMultiplier(prev => prev + 1), []);
-  const handleDecrease = useCallback(() => setMultiplier(prev => (prev > 1 ? prev - 1 : 1)), []);
-
-
+  const [bidMount, setBidMount] = useState(0);
+  const [bidSuccess, setBidSuccess] = useState(false);
+  const stepPrice = 10;
+  const [filteredBids, setFilteredBids] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+  const [isAuctionEnded, setIsAuctionEnded] = useState(false);
+ 
+  const handleIncrease = () => setMultiplier(multiplier + 1);
+  const handleDecrease = () => {
+    if (multiplier > 1) setMultiplier(multiplier - 1);
+  };
+
+  useEffect(() => {
+    setBidMount((stepPrice * multiplier) + currentPrice);
+  }, [multiplier, stepPrice, currentPrice]);
+
+
+  // lấy giá tiền hiện tại cho cuộc đấu giá
+  useEffect(() => {
+    if (isAuctionEnded == true) return;
+    const fetchCurrentPrice = async () => {
+      await getCurrentPriceFrom2(auctionIdLive, setCurrentPrice);
+      setBidSuccess(false);
+    };
+    fetchCurrentPrice();
+    const intervalId = setInterval(fetchCurrentPrice, 15000);
+    return () => clearInterval(intervalId);
+  }, [bidSuccess, currentPrice, isAuctionEnded]);
+
+  //use Efect lấy thông tin cuộc đấu giá để hiển thị 
+  useEffect(() => {
+    getInforAuction(auctionIdLive, setAuctionData);
+  }, []);
+
+  //xử lí khi nhấn nút đặt giá
+  const handleSubmitBid = async () => {
+    const inforId = localStorage.getItem('inforId');
+    try {
+      await handlePutBid(auctionIdLive, bidMount, inforId);
+      setBidSuccess(true);
+    } catch (error) {
+      console.error("Lỗi khi đặt giá:", error);
+    } finally {
+      fetchData();
+      setMultiplier(1);
+    }
+  };
+
+  // useEffect lấy danh sách đặt giá và convert
+  useEffect(() => {
+    const getBid = async() => {
+      await fetchData(auctionIdLive, setFilteredBids);
+    }
+    getBid();
+  }, [auctionIdLive, bidSuccess]);
+
+
+// Hàm thực hiện công việc khi đấu giá kết thúc
+const handleAuctionEnd = async () => {
+  console.log('làm việc khi đấu giá kết thúc');
+
+  await endedAuction(auctionIdLive);
+
+  setIsAuctionEnded(true); // Đánh dấu cuộc đấu giá đã kết thúc
+};
+//use Effect đếm ngược thời gian đấu giá
+useEffect(() => {
+  if (auctionData.length > 0) {
+    const startTimeStr = auctionData[0].startTime;
+    const startTime = new Date(startTimeStr).getTime();
+    const timeless = auctionData[0].timeRemaining * 1000;
+    const currentTime = new Date().getTime();
+    if (isNaN(startTime)) {
+      console.error('startTime không hợp lệ:', startTimeStr);
+      return;
+    }
+    if (currentTime < startTime) {
+      message.error('Cuộc đấu giá chưa diễn ra');
+    } else if (currentTime >= startTime && currentTime < timeless) {
+      message.success('Cuộc đấu giá đang diễn ra');
+      const updateTimer = setInterval(() => {
+        const now = new Date().getTime();
+        const remainingTime = Math.max(0, timeless - now);
+        if (remainingTime > 0) {
+          const minutesLeft = Math.floor((remainingTime % 3600000) / 60000);
+          const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
+          setTimeLeft({
+            minutes: minutesLeft,
+            seconds: secondsLeft,
+          });
+        } else {
+          clearInterval(updateTimer); // Dừng bộ đếm khi hết thời gian
+          setTimeLeft({ minutes: 0, seconds: 0 });
+          handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
+        }
+      }, 1000);
+    } else {
+      message.error('Cuộc đấu giá đã kết thúc');
+    }
+  }
+}, [auctionData]);
+  
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -215,12 +202,12 @@ export default function LiveAuction() {
                 <div className='currentMoney-title'>
                   <DollarOutlined className='iconChart' />
                   <h2 className='title'>Current Price</h2>
-                  <div className='currentPrice'>{highestPrice}$</div>
+                  <div className='currentPrice'>{currentPrice}$</div>
                 </div>
                 <hr className='divider' />
                 <div className='inforPrice py-2'>
                   <Row className='price'>
-                    <div className='priceField'>{price}$</div>
+                    <div className='priceField'>{stepPrice}$</div>
                     <div className="multiplySymbol">X</div>
                     <div className='multiplierField'>
                       <button onClick={handleDecrease} className='decreaseButton'>-</button>
@@ -228,97 +215,43 @@ export default function LiveAuction() {
                       <button onClick={handleIncrease} className='increaseButton'>+</button>
                     </div>
                     <div className="equalSymbol">=</div>
-                    <div className='totalField'>{price * multiplier}$</div>
+                    <div className='totalField'>{stepPrice * multiplier}$</div>
                   </Row>
                   <div className='buttonPrice'>
-                    <Button className='butPrice' type='primary'>Send {price * multiplier}$</Button>
+                    <Button className='butPrice' type='primary' onClick={() => { handleSubmitBid() }}>Send {(stepPrice * multiplier) + currentPrice} $</Button>
                   </div>
                 </div>
               </div>
 
+
               <div className='updateBox'>
-
-                  <div className="update-card card">
-                    <div className="card-header">
-                      Đặt giá thành công!
-                    </div>
-                    <div className="body-noti card-body">
-                        <div className='row'>
+                {filteredBids && filteredBids.length > 0 ? (
+                  filteredBids.map((bid, index) => (
+                    <div className="update-card card" key={index}>
+                      <div className="card-header">
+                        Đặt giá thành công!
+                      </div>
+                      <div className="body-noti card-body">
+                        <div className='row' > {/* Dùng index hoặc auctionId để làm key */}
                           <div className='col-7'>
-                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
+                            <h3 className='notification'>Bạn đã đặt giá: {bid.bidAmount}$</h3>
                           </div>
                           <div className='div-time-noti col-5'>
-                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
+                            <p className='time-noti' title="Source Title">
+                              {new Date().toLocaleTimeString()}
+                            </p>
                           </div>
-                        </div> 
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="update-card card">
-                    <div className="card-header">
-                      Đặt giá thành công!
-                    </div>
-                    <div className="body-noti card-body">
-                        <div className='row'>
-                          <div className='col-7'>
-                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
-                          </div>
-                          <div className='div-time-noti col-5'>
-                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
-                          </div>
-                        </div> 
-                    </div>
-                  </div>
-
-                  <div className="update-card card">
-                    <div className="card-header">
-                      Đặt giá thành công!
-                    </div>
-                    <div className="body-noti card-body">
-                        <div className='row'>
-                          <div className='col-7'>
-                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
-                          </div>
-                          <div className='div-time-noti col-5'>
-                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
-                          </div>
-                        </div> 
-                    </div>
-                  </div>
-
-                  <div className="update-card card">
-                    <div className="card-header">
-                      Đặt giá thành công!
-                    </div>
-                    <div className="body-noti card-body">
-                        <div className='row'>
-                          <div className='col-7'>
-                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
-                          </div>
-                          <div className='div-time-noti col-5'>
-                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
-                          </div>
-                        </div> 
-                    </div>
-                  </div>
-
-                  <div className="update-card card">
-                    <div className="card-header">
-                      Đặt giá thành công!
-                    </div>
-                    <div className="body-noti card-body">
-                        <div className='row'>
-                          <div className='col-7'>
-                            <h3 className='notification'>Bạn đã đặt giá: 1200$</h3>
-                          </div>
-                          <div className='div-time-noti col-5'>
-                            <p className='time-noti'title="Source Title">10 : 35 : 30</p>
-                          </div>
-                        </div> 
-                    </div>
-                  </div>
-
+                  ))
+                ) : (
+                  <p className="no-bids-message" style={{ color: 'red', fontWeight: 'bold' }}>
+                    Không có lượt đặt giá nào được tìm thấy
+                  </p>
+                )}
               </div>
+
             </div>
 
           </div>

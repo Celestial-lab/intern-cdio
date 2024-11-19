@@ -15,7 +15,7 @@ export const handleJoinLiveAuction = async(auctionIdLive, registrationId, router
       message.error('Hãy kết nối ví lại để tham gia đấu giá')
     } else if (localStorage.getItem('userAddress') && localStorage.getItem('inforId')) {
       const userAddress = localStorage.getItem('userAddress');
-      const spenderAddress = "0xDeAFB1df5c2738a2106D28fCcF12e97F76Ef3BD9";
+      const spenderAddress = process.env.NEXT_PUBLIC_Contract_Auction;
       const response = await checkAllowance(spenderAddress, userAddress);
 
       console.log('allowance trả về', response.allowance);
@@ -24,7 +24,8 @@ export const handleJoinLiveAuction = async(auctionIdLive, registrationId, router
         message.error('hãy Approve trước khi tham gia đấu giá');
       } else {
         message.success('vô nè');
-        router.push(`/user/LiveAuction/${auctionIdLive}/${registrationId}`);
+
+        window.location.href = `/user/LiveAuction/${auctionIdLive}/${registrationId}`;
       }
     }
 }
