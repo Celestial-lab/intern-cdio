@@ -1,13 +1,19 @@
 .col1 {
     margin: 0;
-    padding: 0;
+    padding-left: 25px;
     line-height: normal;
     height: auto;
     display: inline-block;
 }
 
+.helloName {
+    font-family: var(--space-grotesk-fonts) !important;
+}
+
 .col2 {
     height: 100%;
+    padding-right: 25px;
+    margin-top: 25px;
 }
 
 .headerRight {

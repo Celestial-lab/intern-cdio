@@ -1,28 +1,48 @@
+:root {
+    --space-grotesk-fonts: 'Space Grotesk';
+}
+
 .headerInfor {
     background-color: rgb(245 245 245);
 }
 
+.ant-layout {
+    background-color: #080D20;
+    font-family: var(--space-grotesk-fonts) !important;
+}
 .divTitle {
-    background-color: rgb(116, 255, 186) !important;
+    background-color: #22C55E !important;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
     margin-top: 10px;
-    padding-left: 15px !important; 
+}
+
+.titFromDiv {
+    color: #e6e6e6;
+    font-size: 25px;
+    margin: 10px;
+    padding-left: 10px;
 }
 
 .row {
     height: 100%;
 }
 
-.col1 {
+.col13 {
     height: 100%;
+    padding: 0 !important;
 }
 
 .col2 {
     height: 100%;
 }
 
+.ant-form-item-label {
+    font-family: var(--space-grotesk-fonts);
+}
+
 .divInfor {
+    background-color: #f4f4f4 !important;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     display: flex;
@@ -118,6 +138,7 @@
     font-weight: lighter;
 }
 .connectWalletBut{
+    font-family: var(--space-grotesk-fonts);
     background-color: #22C55E;
     color: white;
     margin-top: 30px;
@@ -129,6 +150,7 @@
     color: white;
     margin-top: 6px;
     margin-left: 7px;
+    font-family: var(--space-grotesk-fonts);
 }
 
 .colEdit {
@@ -140,6 +162,7 @@
     padding-left: 10px;
 }
 .buttonEdit {
+    font-family: var(--space-grotesk-fonts);
     background-color: #22C55E;
     color: white;
 }
@@ -189,4 +212,6 @@
     color: white;
   }
   
-  
+.showInfor {
+    background-color: #22C55E;
+}

@@ -37,7 +37,7 @@ export default function LiveAuction() {
 
   // lấy giá tiền hiện tại cho cuộc đấu giá
   useEffect(() => {
-    if (isAuctionEnded == true) return;
+    if (isAuctionEnded) return;
     const fetchCurrentPrice = async () => {
       await getCurrentPriceFrom2(auctionIdLive, setCurrentPrice);
       setBidSuccess(false);
@@ -52,6 +52,10 @@ export default function LiveAuction() {
     getInforAuction(auctionIdLive, setAuctionData);
   }, []);
 
+
+
+
+
   //xử lí khi nhấn nút đặt giá
   const handleSubmitBid = async () => {
     const inforId = localStorage.getItem('inforId');
@@ -65,6 +69,11 @@ export default function LiveAuction() {
       setMultiplier(1);
     }
   };
+
+
+
+
+
 
   // useEffect lấy danh sách đặt giá và convert
   useEffect(() => {

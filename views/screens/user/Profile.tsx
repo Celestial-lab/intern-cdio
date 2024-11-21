@@ -183,14 +183,16 @@ export default function Profile() {
         <Menu theme="dark" defaultSelectedKeys={['profile']} mode="inline" items={items} />
       </Sider>
       <Layout>
+
         <NavbarSetting />
+
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
             maxHeight: 60,
             background: colorBgContainer,
-          }}><h3>Profile</h3></div>
-          <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
+          }}><h3 className='titFromDiv'>Profile</h3></div>
+          <div className='divInfor' style={{ padding: 15, minHeight: 485}}>
             <Row className='row1'>
               <Col className='colAvt' span={12}>
                 <Row className='rowName'>
@@ -209,8 +211,8 @@ export default function Profile() {
               </Col>
               <Col className='colEdit' span={12}>
 
-                  <Button className='buttonEdit' type="text" onClick={showAddModal}>Add Infor</Button>
-                  <Button className='buttonEdit' type="text" onClick={showEditModal}>Edit</Button>
+                <Button className='buttonEdit' type="text" onClick={showAddModal}>Add Infor</Button>
+                <Button className='buttonEdit' type="text" onClick={showEditModal}>Edit</Button>
 
                 <Modal
                   title={modalMode === 'add' ? "Add Infor" : "Edit Profile"}
@@ -276,14 +278,21 @@ export default function Profile() {
                     </Form.Item>
                   </Form>
                 </Modal>
+
+
+
               </Col>
             </Row>
+
             <Row className='row2'>
               <Col className='colInput1' span={12}>
                 <div className='divInput1'>
+
                   <Form form={form} layout="vertical">
                     <Form.Item name="fullName" label="Full Name:">
-                      <Input placeholder={profile.fullname} />
+
+                      <span className='showInfor'>{profile.fullname}</span>
+                      {/* <Input placeholder={profile.fullname} /> */}
                     </Form.Item>
                     <Form.Item name="gender" label="Gender:">
                       <Input placeholder={profile.gender} />
@@ -308,8 +317,9 @@ export default function Profile() {
                 </div>
               </Col>
             </Row>
+
             <Row className='row3'>
-              <Col className='col1' span={12}>
+              <Col className='col13' span={12}>
                 <Row className='row31'>
                   <div>
                     <span className='textEmailAddress'>My email Address</span>
@@ -333,10 +343,9 @@ export default function Profile() {
               <Col className='col2' span={12}>
               </Col>
             </Row>
+
           </div>
         </Content>
-        <Footer>
-        </Footer>
       </Layout>
     </Layout>
   );

@@ -46,13 +46,18 @@ const addAuctionToBlockchain = async (values, imageUrl) => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const auctionContract = new ethers.Contract(contractAddress, AuctionABI, signer);
+
+    const gasPrice = ethers.parseUnits("100", "gwei");
+
     const tx = await auctionContract.createAuction(
       values.productname,
       values.description,
       imageUrl,
       ethers.parseUnits(values.price.toString(), 'ether'),
-      values.auctionTime * 60
+      values.auctionTime * 60,
+      {gasPrice: gasPrice},
     );
+
     console.log('Đang thêm vào blockchain...', tx);
     const receipt = await tx.wait();
     console.log('Tạo đấu giá thành công trên blockchain', receipt);

@@ -148,7 +148,9 @@ const MyDocument = () => {
         <Menu theme="dark" defaultSelectedKeys={['myDocument']} mode="inline" items={items} />
       </Sider>
       <Layout>
+
         <NavbarSetting />
+        
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,

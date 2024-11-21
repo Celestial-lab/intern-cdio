@@ -49,8 +49,8 @@ export default function NavbarSetting() {
     <div>
       <Row className='row'>
         <Col className='col1' span={12}>
-          <p style={{ fontWeight: 750 }}>Hello, {profile.nickname}</p>
-          <p style={{ color: '#ADA7A7' }}>{formattedDate}</p>
+          <p className='helloName' style={{ fontWeight: 750, color: 'white' }}>Hello, {profile.nickname}</p>
+          <p className='helloName' style={{ color: '#ADA7A7' }}>{formattedDate}</p>
         </Col>
         <Col className='col2' span={12}>
           <Row className='headerRight'>
