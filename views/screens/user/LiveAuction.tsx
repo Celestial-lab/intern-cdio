@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import "@/views/style/LiveAuction.css";
-import { Row, Button, message } from 'antd';
+import { Row, Button, message, Modal, Spin } from 'antd';
 import { DollarOutlined } from '@ant-design/icons';
 import Navbar from '@/views/components/Navbar';
 import NavbarAfter from '@/views/components/NavbarAfter';
@@ -21,10 +21,11 @@ export default function LiveAuction() {
   const stepPrice = 10;
   const [filteredBids, setFilteredBids] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
 
   const [isAuctionEnded, setIsAuctionEnded] = useState(false);
- 
+
   const handleIncrease = () => setMultiplier(multiplier + 1);
   const handleDecrease = () => {
     if (multiplier > 1) setMultiplier(multiplier - 1);
@@ -77,58 +78,62 @@ export default function LiveAuction() {
 
   // useEffect lấy danh sách đặt giá và convert
   useEffect(() => {
-    const getBid = async() => {
+    const getBid = async () => {
       await fetchData(auctionIdLive, setFilteredBids);
     }
     getBid();
   }, [auctionIdLive, bidSuccess]);
 
 
-// Hàm thực hiện công việc khi đấu giá kết thúc
-const handleAuctionEnd = async () => {
-  console.log('làm việc khi đấu giá kết thúc');
+  // Hàm thực hiện công việc khi đấu giá kết thúc
+  const handleAuctionEnd = async () => {
+    console.log('làm việc khi đấu giá kết thúc');
 
-  await endedAuction(auctionIdLive);
+    await endedAuction(auctionIdLive);
 
-  setIsAuctionEnded(true); // Đánh dấu cuộc đấu giá đã kết thúc
-};
-//use Effect đếm ngược thời gian đấu giá
-useEffect(() => {
-  if (auctionData.length > 0) {
-    const startTimeStr = auctionData[0].startTime;
-    const startTime = new Date(startTimeStr).getTime();
-    const timeless = auctionData[0].timeRemaining * 1000;
-    const currentTime = new Date().getTime();
-    if (isNaN(startTime)) {
-      console.error('startTime không hợp lệ:', startTimeStr);
-      return;
+    setIsAuctionEnded(true); // Đánh dấu cuộc đấu giá đã kết thúc
+  };
+  //use Effect đếm ngược thời gian đấu giá
+  useEffect(() => {
+    if (auctionData.length > 0) {
+      const startTimeStr = auctionData[0].startTime;
+      const startTime = new Date(startTimeStr).getTime();
+      const timeless = auctionData[0].timeRemaining * 1000;
+      const currentTime = new Date().getTime();
+      if (isNaN(startTime)) {
+        console.error('startTime không hợp lệ:', startTimeStr);
+        return;
+      }
+      if (currentTime < startTime) {
+        message.error('Cuộc đấu giá chưa diễn ra');
+      } else if (currentTime >= startTime && currentTime < timeless) {
+        message.success('Cuộc đấu giá đang diễn ra');
+        const updateTimer = setInterval(() => {
+          const now = new Date().getTime();
+          const remainingTime = Math.max(0, timeless - now);
+          if (remainingTime > 0) {
+            const minutesLeft = Math.floor((remainingTime % 3600000) / 60000);
+            const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
+            setTimeLeft({
+              minutes: minutesLeft,
+              seconds: secondsLeft,
+            });
+          } else {
+            clearInterval(updateTimer); // Dừng bộ đếm khi hết thời gian
+            setTimeLeft({ minutes: 0, seconds: 0 });
+            setIsModalOpen(true);
+            setTimeout(() => {
+              // setIsModalOpen(false);
+              handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
+            }, 2000);
+          }
+        }, 1000);
+      } else {
+        message.error('Cuộc đấu giá đã kết thúc');
+      }
     }
-    if (currentTime < startTime) {
-      message.error('Cuộc đấu giá chưa diễn ra');
-    } else if (currentTime >= startTime && currentTime < timeless) {
-      message.success('Cuộc đấu giá đang diễn ra');
-      const updateTimer = setInterval(() => {
-        const now = new Date().getTime();
-        const remainingTime = Math.max(0, timeless - now);
-        if (remainingTime > 0) {
-          const minutesLeft = Math.floor((remainingTime % 3600000) / 60000);
-          const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
-          setTimeLeft({
-            minutes: minutesLeft,
-            seconds: secondsLeft,
-          });
-        } else {
-          clearInterval(updateTimer); // Dừng bộ đếm khi hết thời gian
-          setTimeLeft({ minutes: 0, seconds: 0 });
-          handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
-        }
-      }, 1000);
-    } else {
-      message.error('Cuộc đấu giá đã kết thúc');
-    }
-  }
-}, [auctionData]);
-  
+  }, [auctionData]);
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -149,6 +154,20 @@ useEffect(() => {
       <section className='sec-liveAuction'>
         <div className='div-live container py-2'>
           <div className='row'>
+
+
+            <Modal
+              title="Thông báo"
+              visible={isModalOpen}
+              footer={null}
+              closable={false}
+              centered
+            >
+              <div style={{ textAlign: 'center' }}>
+                <Spin size="large" />
+                <p>Cuộc đấu giá đã kết thúc, vui lòng chờ trong giây lát...</p>
+              </div>
+            </Modal>
 
             <div className='col-7'>
               <div className='row row-count'>
