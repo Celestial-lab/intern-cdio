@@ -26,6 +26,8 @@ export const handleApprove = async() => {
         const tokenAddress = process.env.NEXT_PUBLIC_Contract_Token;
         const spenderAddress = process.env.NEXT_PUBLIC_Contract_Auction;
         const approveAmount = ethers.parseUnits("10", 18);
+
+        const gasPrice = ethers.parseUnits("300", "gwei");
   
         const tokenABI = [
           "function approve(address spender, uint256 amount) public returns (bool)"
@@ -36,7 +38,7 @@ export const handleApprove = async() => {
         console.log("Hợp đồng token đã được tạo:", tokenContract);
   
         // Gửi giao dịch approve
-        const transaction = await tokenContract.approve(spenderAddress, approveAmount);
+        const transaction = await tokenContract.approve(spenderAddress, approveAmount, {gasPrice: gasPrice});
         console.log("Đang thực hiện approve, đợi xác nhận giao dịch...");
         await transaction.wait();
         console.log("Giao dịch approve hoàn tất:", transaction);

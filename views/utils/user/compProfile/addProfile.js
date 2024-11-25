@@ -8,7 +8,6 @@ export const handleAddProfile = async(form, updateProfile, profile) => {
     try {
         const values = await form.validateFields();
         const userId = localStorage.getItem('userId');
-        console.log('values trước khi chạy updated: ', values);
         const addInfor = {
           fullname: values.fullName,
           dateOfBirth: values.dateOfBirth.toISOString(),
@@ -20,6 +19,7 @@ export const handleAddProfile = async(form, updateProfile, profile) => {
         const response = await addCreateInfor(addInfor);
         console.log('response bên frontend: ', response);
         if (response) {
+          localStorage.setItem('inforId', response.info.id);
           updateProfile({ ...profile, ...addInfor, gender: values.gender });
           message.success('Profile updated successfully!');
         } else {

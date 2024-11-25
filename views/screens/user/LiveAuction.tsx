@@ -53,10 +53,6 @@ export default function LiveAuction() {
     getInforAuction(auctionIdLive, setAuctionData);
   }, []);
 
-
-
-
-
   //xử lí khi nhấn nút đặt giá
   const handleSubmitBid = async () => {
     const inforId = localStorage.getItem('inforId');
@@ -71,11 +67,6 @@ export default function LiveAuction() {
     }
   };
 
-
-
-
-
-
   // useEffect lấy danh sách đặt giá và convert
   useEffect(() => {
     const getBid = async () => {
@@ -85,14 +76,18 @@ export default function LiveAuction() {
   }, [auctionIdLive, bidSuccess]);
 
 
+
   // Hàm thực hiện công việc khi đấu giá kết thúc
   const handleAuctionEnd = async () => {
     console.log('làm việc khi đấu giá kết thúc');
 
     await endedAuction(auctionIdLive);
 
-    setIsAuctionEnded(true); // Đánh dấu cuộc đấu giá đã kết thúc
+    setIsAuctionEnded(true);
   };
+
+
+
   //use Effect đếm ngược thời gian đấu giá
   useEffect(() => {
     if (auctionData.length > 0) {
@@ -122,10 +117,13 @@ export default function LiveAuction() {
             clearInterval(updateTimer); // Dừng bộ đếm khi hết thời gian
             setTimeLeft({ minutes: 0, seconds: 0 });
             setIsModalOpen(true);
-            setTimeout(() => {
-              // setIsModalOpen(false);
-              handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
-            }, 2000);
+
+            setTimeout(async () => {
+              
+              await handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
+              setIsModalOpen(false);
+            }, 5000);
+
           }
         }, 1000);
       } else {

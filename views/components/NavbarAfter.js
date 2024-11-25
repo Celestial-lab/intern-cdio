@@ -1,36 +1,77 @@
 'use client'
 
-import React from 'react';
-import { Layout, Menu, Dropdown, Button } from 'antd';
+import React, { cache, useEffect, useState } from 'react';
+import { Layout, Menu, Dropdown, Button, message } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@/views/style/components/NavbarAfter.css";
+import { getBalace, getInforById } from '@/views/services/user/ProfileServices';
 
 const { Header } = Layout;
 
 const NavbarAfter = () => {
-    
+
+    const [balance, setBalance] = useState('0');
+
+    const getInforOf = async () => {
+        const role = localStorage.getItem('role');
+        if (role == 'user') {
+            const userId = localStorage.getItem('userId');
+            const responseUser = await getInforById(userId);
+            if (responseUser.errorCode == 1) {
+                message.info('Hãy thêm thông tin!');
+                return;
+            } else {
+                const WAOfUser = responseUser.data.walletAddress;
+                const responseBalanceUser = await getBalace(WAOfUser);
+                const balanceUser = responseBalanceUser.balanceOf;
+                setBalance(balanceUser);
+            }
+        } else {
+            const authorId = localStorage.getItem('authorId');
+            const responseAuthor = await getInforById(authorId);
+            if (responseAuthor.errorCode == 1) {
+                message.info('Hãy thêm thông tin!');
+                return;
+            } else {
+                const WAOfAuthor = responseAuthor.data.walletAddress;
+                const responseBalanceAuthor = await getBalace(WAOfAuthor);
+                const balanceAuthor = responseBalanceAuthor.balanceOf;
+                setBalance(balanceAuthor);
+            }
+        };
+    };
+
+
+    useEffect(() => {
+        getInforOf();
+    }, [])
+
     const userMenu = (
         <div className="login-dropdown">
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          window.location.href = '/user/settings/Profile';
-        }}
-      >
-        Edit Profile
-      </button>
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          localStorage.clear();
-        //   localStorage.removeItem('accessToken', 'userId', 'loginId', 'authorId');
-          window.location.href = '/user/signin';
-        }}
-      >
-        Logout
-      </button>
-    </div>
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = '/user/settings/Profile';
+                }}
+            >
+                Edit Profile
+            </button>
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    localStorage.clear();
+                    //   localStorage.removeItem('accessToken', 'userId', 'loginId', 'authorId');
+                    window.location.href = '/user/signin';
+                }}
+            >
+                Logout
+            </button>
+        </div>
     );
+
+    const goToDoc = () => {
+        window.location.href = '/user/settings/MyDocument';
+    };
 
     return (
         <nav className="navbar navbar-expand-lg navbar-light">
@@ -63,9 +104,11 @@ const NavbarAfter = () => {
                     <div className="infor-user">
                         <div className='row row-infor'>
                             <div className='col-4 cart'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" className="bi bi-cart" viewBox="0 0 16 16">
-                                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
-                                </svg>
+                                <a onClick={e => goToDoc()}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" className="bi bi-cart" viewBox="0 0 16 16">
+                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                                    </svg>
+                                </a>
                             </div>
                             <div className='col-4 money'>
                                 <div className='icon-money'>
@@ -74,11 +117,10 @@ const NavbarAfter = () => {
                                     </svg>
                                 </div>
                                 <div className='show-total'>
-                                    <h3 className='total'>100</h3>
+                                    <h3 className='total'>{balance}</h3>
                                 </div>
                             </div>
                             <div className='col-4 user'>
-                                {/* Dropdown cho user icon */}
                                 <Dropdown overlay={userMenu} trigger={['click']}>
                                     <a onClick={e => e.preventDefault()}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" className="bi bi-person" viewBox="0 0 16 16">

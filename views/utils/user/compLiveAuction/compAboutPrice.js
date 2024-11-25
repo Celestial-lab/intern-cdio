@@ -45,6 +45,9 @@ export const getCurrentPriceFrom2 = async (auctionIdLive, setCurrentPrice) => {
 export const endedAuction = async (auctionIdLive) => {
     if (auctionIdLive) {
         const response = await endAuctionById(auctionIdLive);
-        console.log('response from getCurrentPriceFrom2: ', response);
+        console.log('response trả về khi kết thúc đấu giá: ', response);
+        if (response.status == 'Kết thúc cuộc đấu giá thành công') {
+          console.log('đã kết thúc đấu giá thành công, có thể gọi hàm get result');
+        }
     }
 }

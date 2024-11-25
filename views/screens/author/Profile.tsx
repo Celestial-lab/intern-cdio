@@ -18,10 +18,8 @@ import { getInforById } from '@/views/services/user/ProfileServices';
 import { useProfile } from '@/views/hook/useProfile';
 import { handleAddProfile } from '@/views/utils/author/compProfile/addProfile';
 import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile';
-import { connectWallet } from '@/views/utils/connectWallet';
+import { connectWallet, connectWalletFromAddModal } from '@/views/utils/connectWallet';
 import { useAuthContent } from '@/views/store/context/AuthContext';
-
-
 
 const { Content, Sider } = Layout;
 
@@ -93,7 +91,11 @@ export default function Profile() {
   };
 
   const handleConnectWallet = async () => {
-    await connectWallet(form, updateProfile, profile, state);
+    if (modalMode == 'add') {
+      await connectWalletFromAddModal(form, updateProfile, profile, state);
+    } else {
+      await connectWallet(form, updateProfile, profile, state);
+    }
   };
 
   useEffect(() => {
@@ -102,26 +104,37 @@ export default function Profile() {
       if (authorId) {
         try {
           const response = await getInforById(authorId);
-          const inforId = response.data.id;
-
-          localStorage.setItem('inforId', inforId);
-
-          console.log('response sau get: ', response);
-
           const data = response.data;
 
-          if (data) {
-            updateProfile({
-              email: data.email,
-              fullname: data.fullname,
-              dateofbirth: data.dateOfBirth,
-              gender: data.gender ? 'Male' : 'Female',
-              country: data.country,
-              walletAddress: data.walletAddress,
-            });
-          } else {
-            console.log('No profile data found for the given email');
-          }
+          console.log('response.data: ', data);
+          console.log('response.errorCode: ', response.errorCode);
+
+          switch (response.errorCode) {
+            case 1:
+              message.warning('Bạn chưa thêm thông tin cá nhân, hãy thêm thông tin để có thể đấu giá nhé!');
+              return;
+            case 0:
+              if (data) {
+                localStorage.setItem('inforId', response.data.id);
+                updateProfile({
+                  email: data.email, 
+                  fullname: data.fullname,
+                  dateofbirth: data.dateOfBirth,
+                  gender: data.gender ? 'Male' : 'Female',
+                  country: data.country,
+                  walletAddress: data.walletAddress,
+                });
+              } else {
+                console.log('No profile data found for the given loginId');
+              }
+              return;
+            default:
+              console.error('Unexpected error code:', response.errorCode);
+              message.error('Đã xảy ra lỗi không xác định.');
+              return;
+          };
+
+        
         } catch (error) {
           setError('Failed to fetch profile data');
           console.error('Failed to fetch profile:', error);

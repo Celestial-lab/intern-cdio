@@ -18,7 +18,7 @@ import { getInforById } from '../../services/user/ProfileServices.js';
 import moment from "moment";
 import { MetaMaskInpageProvider } from "@metamask/providers";
 import NavbarSetting from "@/views/components/NavbarSetting";
-import { connectWallet } from '@/views/utils/connectWallet';
+import { connectWallet, connectWalletFromAddModal } from '@/views/utils/connectWallet';
 import { useProfile } from '@/views/hook/useProfile';
 import { handleAddProfile } from '@/views/utils/user/compProfile/addProfile.js';
 import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile.js';
@@ -63,15 +63,7 @@ export default function Profile() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
 
-  const [isLoading, setIsLoading] = useState(true);
-
   const { state } = useAuthContent();
-
-
-  // chạy useEffect mối khi giá trị phụ thuộc (state) thay đổi
-  // useEffect(() => {
-  //   console.log('state: ', state);
-  // }, [state]);
 
   const showAddModal = () => {
     setModalMode('add');
@@ -94,7 +86,11 @@ export default function Profile() {
   };
 
   const handleConnectWallet = async () => {
-    await connectWallet(form, updateProfile, profile, state);
+    if (modalMode == 'add') {
+      await connectWalletFromAddModal(form, updateProfile, profile, state);
+    } else {
+      await connectWallet(form, updateProfile, profile, state);
+    }
   };
 
   const handleCancelButton = () => {
@@ -107,22 +103,38 @@ export default function Profile() {
       if (userId) {
         try {
           const response = await getInforById(userId);
-          // console.log('response: ', response);
-          const inforId = response.data.id;
-          localStorage.setItem('inforId', inforId);
           const data = response.data;
-          if (data) {
-            updateProfile({
-              email: data.email,
-              fullname: data.fullname,
-              dateofbirth: data.dateOfBirth,
-              gender: data.gender ? 'Male' : 'Female',
-              country: data.country,
-              walletAddress: data.walletAddress,
-            });
-          } else {
-            console.log('No profile data found for the given loginId');
-          }
+
+          console.log('response.data: ', data);
+          console.log('response.errorCode: ', response.errorCode);
+
+          switch (response.errorCode) {
+            case 1:
+              message.warning('Bạn chưa thêm thông tin cá nhân, hãy thêm thông tin để có thể đấu giá nhé!');
+              return;
+            case 0:
+              if (data) {
+                localStorage.setItem('inforId', response.data.id);
+                updateProfile({
+                  email: data.email, 
+                  fullname: data.fullname,
+                  dateofbirth: data.dateOfBirth,
+                  gender: data.gender ? 'Male' : 'Female',
+                  country: data.country,
+                  walletAddress: data.walletAddress,
+                });
+              } else {
+                console.log('No profile data found for the given loginId');
+              }
+              return;
+            default:
+              console.error('Unexpected error code:', response.errorCode);
+              message.error('Đã xảy ra lỗi không xác định.');
+              return;
+          };
+          
+
+
         } catch (error) {
           console.error('Failed to fetch profile:', error);
         }

@@ -46,16 +46,30 @@ const addAuctionToBlockchain = async (values, imageUrl) => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const auctionContract = new ethers.Contract(contractAddress, AuctionABI, signer);
-
     const gasPrice = ethers.parseUnits("100", "gwei");
+
+    // Tính toán thời gian kết thúc
+    const startTimeInSeconds = Math.floor(new Date(values.startTime).getTime() / 1000); 
+    const currentBlockTimestamp = Math.floor(Date.now() / 1000); 
+
+    const timeToStart = startTimeInSeconds - currentBlockTimestamp; 
+
+    if (timeToStart < 0) {
+      console.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
+      message.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
+      return;
+    }
+
+    const auctionDurationInSeconds = values.auctionTime * 60;
+    const totalDuration = timeToStart + auctionDurationInSeconds - 25;
 
     const tx = await auctionContract.createAuction(
       values.productname,
       values.description,
       imageUrl,
-      ethers.parseUnits(values.price.toString(), 'ether'),
-      values.auctionTime * 60,
-      {gasPrice: gasPrice},
+      ethers.parseUnits(values.price.toString(), 'ether'), 
+      totalDuration,
+      { gasPrice: gasPrice },
     );
 
     console.log('Đang thêm vào blockchain...', tx);
@@ -67,6 +81,7 @@ const addAuctionToBlockchain = async (values, imageUrl) => {
     throw new Error('Ethereum wallet chưa được cài đặt.');
   }
 };
+
 
 //gọi API để thêm đấu giá vào cơ sở dữ liệu
 const addAuctionToDatabase = async (formData) => {
@@ -89,9 +104,6 @@ export const handleAddNewProduct = async (values, setLoading, setProducts) => {
     //Tạo dữ liệu formData để gửi API
     const formData = createFormData(values, authorId, imageUrl);
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`Giá trị formData trong hàm chính ${key}: ${value}`);
-    }
     //Thêm đấu giá vào blockchain
     await addAuctionToBlockchain(values, imageUrl);
     //Thêm đấu giá vào cơ sở dữ liệu

@@ -5,10 +5,9 @@ export const getInforById = async (userid) => {
   try {
     const response = await axios.get(`/api/info/${userid}`);
     return response.data;
-    
   } catch (error) {
-    console.error('Failed to fetch profile data:', error);
-    return null;
+    console.error('Failed to fetch profile data:', error.response);
+    return error.response.data;
   } 
 }
 
@@ -19,7 +18,7 @@ export const addCreateInfor = async (formData) => {
   }
   catch (error) {
     console.log('lỗi ở hàm thêm rồi: ', error);
-    return null;
+    return error;
   }
 }
 
@@ -29,8 +28,8 @@ export const editInforById = async (inforId, data) => {
     return response.data;
   }
   catch (error) {
-    console.error('loi o edit profile roi dan oi', error);
-    return null;
+    console.error('loi o edit profile roi dan oi', error.response);
+    return error.response;
   }
 }
 
@@ -83,6 +82,17 @@ export const checkAllowance = async (spender, owner) => {
   try {
     const response = await axios.post(`/api/allowance`, {spender, owner});
     return response.data
+  } catch (error) {
+    console.error('lỗi ở hàm checkAllowance rồi đan le ơi: ', error);
+    return null;
+  }
+}
+
+//hàm gọi lấy giá tiền của address user
+export  const getBalace = async(addressAccount) => {
+  try {
+    const response = await axios.get(`/api/balanceOf/${addressAccount}`);
+    return response.data;
   } catch (error) {
     console.error('lỗi ở hàm checkAllowance rồi đan le ơi: ', error);
     return null;

@@ -61,11 +61,11 @@ const handlePutBidToBlockchain = async (auctionId, bidMount) => {
   
       // Khởi tạo đối tượng contract
       const auctionContract = new ethers.Contract(contractAddress, AuctionABI, signer);
-      // const gasPrice = ethers.parseUnits("0.005", "gwei");
+      const gasPrice = ethers.parseUnits("2000", "gwei");
       // console.log('gasprice: ', gasPrice);
   
       // Gửi giao dịch bid
-      const tx = await auctionContract.bid(auctionId, amountInUnits);
+      const tx = await auctionContract.bid(auctionId, amountInUnits, {gasPrice: gasPrice});
       
       console.log("Đang thực hiện đặt giá...");
       

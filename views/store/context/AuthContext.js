@@ -33,7 +33,6 @@ export const AuthProvider = ({ children }) => {
                 type: 'ACTION_SET_EMAIL_ROLE',
                 payload: { email, role }
             });
-            console.log("Đã tải email và role từ localStorage:", { email, role });
         } else {
             console.log("Không tìm thấy email hoặc role trong localStorage.");
         }

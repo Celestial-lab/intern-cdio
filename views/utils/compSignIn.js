@@ -18,14 +18,14 @@ export const handleSubmitSignin = async(form, login) => {
                 localStorage.setItem('accessToken', response.token);
                 message.success('Welcome User!');
                 setTimeout(() => {
-                    window.location.href = '/user/settings/Profile';
-                }, 1500)
+                    window.location.href = '/';
+                }, 1500);
             } else if (response.user.role === 'author') {
                 localStorage.setItem('authorId', response.user.id);
                 localStorage.setItem('accessToken', response.token);
                 message.success('Welcome Author!');
                 setTimeout(() => {
-                    window.location.href = '/author/settings/ProductAuthor';
+                    window.location.href = '/author/settings/ProfileAuthor';
                 }, 1500);
             }
         } else {

@@ -19,14 +19,6 @@ const Navbar = () => {
       >
         Login for User
       </button>
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          window.location.href = '/author/signin';
-        }}
-      >
-        Login for Author
-      </button>
     </div>
   );
 
@@ -39,14 +31,6 @@ const Navbar = () => {
         }}
       >
         Sign Up for User
-      </button>
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          window.location.href = '/author/signup';
-        }}
-      >
-        Sign Up for Author
       </button>
     </div>
   );
@@ -81,13 +65,13 @@ const Navbar = () => {
 
           <div class="button">
             <Dropdown overlay={loginMenu} trigger={['hover']}>
-              <a className="login"  href='#'>
+              <a className="login"  href='/user/signin'>
                 Login
               </a>
             </Dropdown>
 
             <Dropdown overlay={signupMenu} trigger={['hover']}>
-              <button className="signup">
+              <button className="signup" href=''>
                 Sign Up
               </button>
             </Dropdown>

@@ -71,10 +71,11 @@ export const getAmountBidByBidder = async(bidderId) => {
 //hàm gọi api khi kết thúc thời gian đấu giá
 export const endAuctionById = async(auctionId) => {
     try {
-        const response = await axios.post(`/api/auctions/${auctionId}/end`);
+        const response = await axios.post(`/api/auctions/${auctionId}/endAuction`);
+        console.log('response của hàm gọi api end: ', response);
         return response.data;
     } catch (error) {
-        console.error('có lỗi ở hàm endAuctionById: ', error);
+        console.error('có lỗi ở hàm endAuctionById: ', error.response?.data || error.message);
         throw error;
     }
 }
