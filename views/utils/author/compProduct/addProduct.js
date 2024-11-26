@@ -42,43 +42,42 @@ const uploadProductImage = async (image) => {
 //gọi hàm createAuction trên smart contract
 const addAuctionToBlockchain = async (values, imageUrl) => {
   if (window.ethereum) {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    await window.ethereum.request({ method: "eth_requestAccounts" });
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const auctionContract = new ethers.Contract(contractAddress, AuctionABI, signer);
     const gasPrice = ethers.parseUnits("100", "gwei");
 
-    // Tính toán thời gian kết thúc
-    const startTimeInSeconds = Math.floor(new Date(values.startTime).getTime() / 1000); 
-    const currentBlockTimestamp = Math.floor(Date.now() / 1000); 
+    const currentBlock = await provider.getBlock("latest");
+    const currentBlockTimestamp = currentBlock.timestamp; 
 
-    const timeToStart = startTimeInSeconds - currentBlockTimestamp; 
+    const startTimeInSeconds = Math.floor(new Date(values.startTime).getTime() / 1000);
 
-    if (timeToStart < 0) {
-      console.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
-      message.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
+    if (startTimeInSeconds < currentBlockTimestamp) {
+      console.error("Thời gian bắt đầu phải lớn hơn thời gian hiện tại");
+      message.error("Thời gian bắt đầu phải lớn hơn thời gian hiện tại");
       return;
     }
 
-    const auctionDurationInSeconds = values.auctionTime * 60;
-    const totalDuration = timeToStart + auctionDurationInSeconds - 25;
-
+    const auctionDurationInSeconds = values.auctionTime * 60; 
+    const endTime = startTimeInSeconds + auctionDurationInSeconds; 
+  
     const tx = await auctionContract.createAuction(
       values.productname,
       values.description,
       imageUrl,
-      ethers.parseUnits(values.price.toString(), 'ether'), 
-      totalDuration,
-      { gasPrice: gasPrice },
+      ethers.parseUnits(values.price.toString(), "ether"), 
+      endTime, 
+      { gasPrice: gasPrice }
     );
 
-    console.log('Đang thêm vào blockchain...', tx);
+    console.log("Đang thêm vào blockchain...", tx);
     const receipt = await tx.wait();
-    console.log('Tạo đấu giá thành công trên blockchain', receipt);
+    console.log("Tạo đấu giá thành công trên blockchain", receipt);
   } else {
-    console.error('Ethereum wallet chưa được cài đặt.');
-    message.error('Vui lòng cài đặt ví MetaMask');
-    throw new Error('Ethereum wallet chưa được cài đặt.');
+    console.error("Ethereum wallet chưa được cài đặt.");
+    message.error("Vui lòng cài đặt ví MetaMask");
+    throw new Error("Ethereum wallet chưa được cài đặt.");
   }
 };
 
