@@ -46,7 +46,7 @@ const addAuctionToBlockchain = async (values, imageUrl) => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const auctionContract = new ethers.Contract(contractAddress, AuctionABI, signer);
-    const gasPrice = ethers.parseUnits("100", "gwei");
+    const gasPrice = ethers.parseUnits("1", "gwei"); //gốc là 100 để tăng tốc độ thêm sản phẩm
 
     // Tính toán thời gian kết thúc
     const startTimeInSeconds = Math.floor(new Date(values.startTime).getTime() / 1000); 
