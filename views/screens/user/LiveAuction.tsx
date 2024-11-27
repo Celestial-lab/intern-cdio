@@ -9,10 +9,11 @@ import NavbarAfter from '@/views/components/NavbarAfter';
 import { useParams } from 'next/navigation';
 import { handlePutBid, fetchData } from '@/views/utils/user/compLiveAuction/compPutBid';
 import { getInforAuction, getCurrentPriceFrom2, endedAuction } from '@/views/utils/user/compLiveAuction/compAboutPrice';
+import SplashScreen from '@/views/screens/splashScreen';
 
 export default function LiveAuction() {
   const [multiplier, setMultiplier] = useState(1);
-  const { auctionIdLive, registrationId } = useParams();
+  const { auctionIdLive } = useParams();
   const [auctionData, setAuctionData] = useState<any[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [timeLeft, setTimeLeft] = useState<{ minutes: number; seconds: number }>({ minutes: 0, seconds: 0 });
@@ -23,6 +24,7 @@ export default function LiveAuction() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [openSplashScreen, setOpenSplashScreen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [isAuctionEnded, setIsAuctionEnded] = useState(false);
@@ -80,72 +82,84 @@ export default function LiveAuction() {
 
   // Hàm thực hiện công việc khi đấu giá kết thúc
   const handleAuctionEnd = async () => {
-    if (isAuctionEnded) {
-      console.log('Đấu giá đã kết thúc, không gọi lại API');
-      return;
+    if (isAuctionEnded) return;
+  
+    console.log("Đấu giá đã kết thúc");
+    try {
+      await endedAuction(auctionIdLive);
+
+      setIsAuctionEnded(true);
+
+      setTimeout(async () => {
+        setOpenSplashScreen(true);
+      }, 3000);
+      
+    } catch (error) {
+      console.error("Lỗi khi kết thúc đấu giá:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    if (auctionData.length > 0) {
+      const startTimeStr = auctionData[0].startTime;
+      const startTime = new Date(startTimeStr).getTime();
+      const timeless = auctionData[0].timeRemaining * 1000;
+      const currentTime = new Date().getTime();
+  
+      if (isNaN(startTime)) {
+        console.error('startTime không hợp lệ:', startTimeStr);
+        return;
+      }
+  
+      if (currentTime < startTime) {
+        message.error('Cuộc đấu giá chưa diễn ra');
+      } else if (currentTime >= startTime && currentTime < timeless) {
+        message.success('Cuộc đấu giá đang diễn ra');
+  
+        // Chỉ tạo setInterval một lần
+        if (!timerRef.current) {
+          timerRef.current = setInterval(() => {
+            const now = new Date().getTime();
+            const remainingTime = Math.max(0, timeless - now);
+            if (remainingTime > 0) {
+              const minutesLeft = Math.floor((remainingTime % 3600000) / 60000);
+              const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
+              setTimeLeft({
+                minutes: minutesLeft,
+                seconds: secondsLeft,
+              });
+            } else {
+              if (timerRef.current) clearInterval(timerRef.current);
+              timerRef.current = null; // Reset ref
+              setTimeLeft({ minutes: 0, seconds: 0 });
+              setIsModalOpen(true);
+  
+              setTimeout(async () => {
+                await handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
+                setIsModalOpen(false);
+              }, 5000);
+            }
+          }, 1000);
+        }
+      } else {
+        message.error('Cuộc đấu giá đã kết thúc');
+      }
     }
   
-    console.log('Làm việc khi đấu giá kết thúc');
-    await endedAuction(auctionIdLive);
-    setIsAuctionEnded(true); // Đánh dấu trạng thái kết thúc
-  };
-
-
-useEffect(() => {
-  if (auctionData.length > 0) {
-    const startTimeStr = auctionData[0].startTime;
-    const startTime = new Date(startTimeStr).getTime();
-    const timeless = auctionData[0].timeRemaining * 1000;
-    const currentTime = new Date().getTime();
-
-    if (isNaN(startTime)) {
-      console.error('startTime không hợp lệ:', startTimeStr);
-      return;
-    }
-
-    if (currentTime < startTime) {
-      message.error('Cuộc đấu giá chưa diễn ra');
-    } else if (currentTime >= startTime && currentTime < timeless) {
-      message.success('Cuộc đấu giá đang diễn ra');
-
-      // Chỉ tạo setInterval một lần
-      if (!timerRef.current) {
-        timerRef.current = setInterval(() => {
-          const now = new Date().getTime();
-          const remainingTime = Math.max(0, timeless - now);
-          if (remainingTime > 0) {
-            const minutesLeft = Math.floor((remainingTime % 3600000) / 60000);
-            const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
-            setTimeLeft({
-              minutes: minutesLeft,
-              seconds: secondsLeft,
-            });
-          } else {
-            if (timerRef.current) clearInterval(timerRef.current);
-            timerRef.current = null; // Reset ref
-            setTimeLeft({ minutes: 0, seconds: 0 });
-            setIsModalOpen(true);
-
-            setTimeout(async () => {
-              await handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
-              setIsModalOpen(false);
-            }, 2000);
-          }
-        }, 1000);
+    // Dọn dẹp setInterval khi component unmount hoặc dữ liệu thay đổi
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
-    } else {
-      message.error('Cuộc đấu giá đã kết thúc');
-    }
-  }
+    };
+  }, [auctionData]);
 
-  // Dọn dẹp setInterval khi component unmount hoặc dữ liệu thay đổi
-  return () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-}, [auctionData]);
+
+  // useEffect(() => {
+  //   setOpenSplashScreen(true);
+  // }, [])
 
 
   useEffect(() => {
@@ -164,6 +178,8 @@ useEffect(() => {
   return (
     <>
       {isLoggedIn ? <NavbarAfter /> : <Navbar />}
+
+      {openSplashScreen && <SplashScreen auctionIdLive={auctionIdLive} onComplete={() => setOpenSplashScreen(false)} winner={undefined} price={undefined} />}
 
       <section className='sec-liveAuction'>
         <div className='div-live container py-2'>

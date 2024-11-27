@@ -44,7 +44,7 @@ const NavbarAfter = () => {
 
     useEffect(() => {
         getInforOf();
-    }, [])
+    }, [balance])
 
     const userMenu = (
         <div className="login-dropdown">

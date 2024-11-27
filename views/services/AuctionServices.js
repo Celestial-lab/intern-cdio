@@ -81,12 +81,36 @@ export const endAuctionById = async(auctionId) => {
 }
 
 //hàm gọi api hiển thị thông tin người thằng cuộc đấu giá theo auctionId
-// export const getAuctionResult = async(auctionId) => {
-//     try {
-//         const response = await axios.get(`/api/auction/${auctionId}/result`);
-//         return response.data;
-//     } catch (error) {
-//         console.error('có lỗi ở hàm getAuctionResult: ', error);
-//         throw error;
-//     }
-// }
+export const getAuctionResult = async(auctionId) => {
+    try {
+        const response = await axios.get(`/api/auction/${auctionId}/result`);
+        return response.data;
+    } catch (error) {
+        console.error('có lỗi ở hàm getAuctionResult: ', error);
+        throw error;
+    }
+}
+
+//hàm gọi api gửi email về người chiến thắng cuộc đấu giá
+export const sendEmailToWinner = async(auctionId) => {
+    try {
+        const response = await axios.get(`/api/getEmailByWinnerAddress/${auctionId}`);
+        console.log('response.data: ', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('có lỗi ở hàm sendEmailToWinner: ', error);
+        throw error;
+    }
+}
+
+//hàm gọi api hiển thị danh sách kết quả cuộc đấu giá
+export const showAuctionResult = async() => {
+    try {
+        const response = await axios.get(`/api/completed-auction`);
+        console.log('response.data: ', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('có lỗi ở hàm showAuctionResult: ', error);
+        throw error;
+    }
+}
