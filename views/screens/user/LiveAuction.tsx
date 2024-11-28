@@ -83,20 +83,21 @@ export default function LiveAuction() {
   // Hàm thực hiện công việc khi đấu giá kết thúc
   const handleAuctionEnd = async () => {
     if (isAuctionEnded) return;
+    console.log("xử lí khi đấu giá kết thúc...");
   
-    console.log("Đấu giá đã kết thúc");
-  
+    setTimeout(() => {
+      setOpenSplashScreen(true);
+    }, 3000);
+
     try {
       await endedAuction(auctionIdLive);
     } catch (error) {
       console.error("Lỗi khi kết thúc đấu giá:", error);
     } finally {
-      // Đảm bảo các state luôn chạy
+
       setIsAuctionEnded(true);
   
-      setTimeout(() => {
-        setOpenSplashScreen(true);
-      }, 3000);
+      
     }
   };
 
@@ -158,9 +159,9 @@ export default function LiveAuction() {
   }, [auctionData]);
 
 
-  // useEffect(() => {
-  //   setOpenSplashScreen(true);
-  // }, [])
+  useEffect(() => {
+    setOpenSplashScreen(true);
+  }, [])
 
 
   useEffect(() => {

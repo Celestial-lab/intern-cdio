@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import '@/views/style/components/SplashScreen.css';
-import { getAuctionResult, sendEmailToWinner } from '@/views/services/AuctionServices';
+import { getAuctionResult, sendEmailToWinner, getHighestBidder, getHighestPrice } from '@/views/services/AuctionServices';
 
 const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
 
@@ -10,9 +10,10 @@ const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
 
   //lấy thông tin người chiến thắng của cuộc đấu giá ấy
   const getResult = async () => {
-    const response = await getAuctionResult(auctionIdLive);
-    setWinner(response.winner);
-    setHighestPrice(response.highestBid)
+    const getWinner = await getHighestBidder(auctionIdLive);
+    const getPrice = await getHighestPrice(auctionIdLive);
+    setWinner(getWinner.highestBidder);
+    setHighestPrice(getPrice.highestBid)
   };
   const formatWalletAddress = (address) => {
     if (!address) return "Đang cập nhật";
@@ -27,7 +28,7 @@ const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
   useEffect(() => {
     const fetch = async() => {
       await getResult();
-      sendEmail();
+      // sendEmail();
     }
     fetch();
   }, []);

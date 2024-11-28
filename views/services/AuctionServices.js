@@ -24,16 +24,27 @@ export const getAuctionById = async(id) => {
     }
 }
 
-//hàm gọi api trả về thông tin số tiền cao nhất hiện tại
-export const getHighestPrice = async(auctionId) => {
+//hàm gọi api trả về thông tin người đặt giá cao nhất
+export const getHighestBidder = async(auctionId) => {
     try {
         const response = await axios.get(`/api/auctions/${auctionId}/current-highest-bidder`);
+        return response.data;
+    } catch (error) {
+        console.error('lấy người đặt giá cao nhất thất bại: ', error);
+        throw error;
+    }
+};
+
+//hàm gọi api trả về thông tin giá đặt cao nhất
+export const getHighestPrice = async(auctionId) => {
+    try {
+        const response = await axios.get(`/api/auctions/${auctionId}/current-highest-bid`);
         return response.data;
     } catch (error) {
         console.error('lấy giá tiền cao nhất thất bại: ', error);
         throw error;
     }
-}
+};
 
 //hàm gọi api đặt giá theo auctionId, bidAmount, inforId
 export const putBid = async(auctionId, bidAmount, bidderId) => {
@@ -44,7 +55,7 @@ export const putBid = async(auctionId, bidAmount, bidderId) => {
         console.error('đặt giá thất bại: ', error);
         throw error;
     }
-}
+};
 
 //hàm gọi api lấy giá hiện tại của cuộc đấu giá
 export const getCurrentPrice = async(auctionId) => {
@@ -78,7 +89,7 @@ export const endAuctionById = async(auctionId) => {
         console.error('có lỗi ở hàm endAuctionById: ', error);
         return error.response.data;
     }
-}
+};
 
 //hàm gọi api hiển thị thông tin người thằng cuộc đấu giá theo auctionId
 export const getAuctionResult = async(auctionId) => {
@@ -89,7 +100,7 @@ export const getAuctionResult = async(auctionId) => {
         console.error('có lỗi ở hàm getAuctionResult: ', error);
         throw error;
     }
-}
+};
 
 //hàm gọi api gửi email về người chiến thắng cuộc đấu giá
 export const sendEmailToWinner = async(auctionId) => {
@@ -101,7 +112,7 @@ export const sendEmailToWinner = async(auctionId) => {
         console.error('có lỗi ở hàm sendEmailToWinner: ', error);
         throw error;
     }
-}
+};
 
 //hàm gọi api hiển thị danh sách kết quả cuộc đấu giá
 export const showAuctionResult = async() => {
@@ -113,4 +124,4 @@ export const showAuctionResult = async() => {
         console.error('có lỗi ở hàm showAuctionResult: ', error);
         throw error;
     }
-}
+};

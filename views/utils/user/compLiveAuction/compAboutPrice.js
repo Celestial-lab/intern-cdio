@@ -48,15 +48,39 @@ export const endedAuction = async (auctionIdLive) => {
     return;
   }
 
-  const response = await endAuctionById(auctionIdLive);
-  console.log("response trả về khi kết thúc đấu giá:", response);
+  try {
+    const response = await endAuctionById(auctionIdLive);
+    console.log("response trả về khi kết thúc đấu giá:", response);
 
-  if (response.errorCode === 0) {
-    console.log("Đã kết thúc đấu giá thành công, có thể gọi hàm get result");
-  } else if (response.errorCode === 5) {
-    console.log("Bị lỗi khi kết thúc đấu giá.");
+    // if (response.errorCode === 0) {
+    //   console.log("Đã kết thúc đấu giá thành công.");
+    // } else if (response.errorCode === 5) {
+
+    //   const errorMessage = response.error || "";
+    //   const errorRegex = /(?:reason|message)="([^"]+)"|code=(-?\d+)/g;
+
+    //   const matches = [...errorMessage.matchAll(errorRegex)];
+    //   const extractedInfo = matches.reduce((acc, match) => {
+    //     if (match[1]) acc.message = match[1]; // Lấy message nếu có
+    //     if (match[2]) acc.code = match[2];   // Lấy code nếu có
+    //     return acc;
+    //   }, {});
+
+      // console.log("Thông tin lỗi trích xuất:", extractedInfo);
+
+      // Xử lý lỗi theo từng trường hợp cụ thể
+      // if (extractedInfo.message === "Auction already ended") {
+      //   console.warn("Cuộc đấu giá đã kết thúc trước đó.");
+      // } else if (extractedInfo.message === "already known") {
+      //   console.warn("Giao dịch đã tồn tại. Không cần thực hiện thêm.");
+      // } else if (extractedInfo.code === "-32000") {
+      //   console.error("Lỗi Ethereum: Không thể xử lý yêu cầu.");
+      // } else {
+      //   console.error("Lỗi không xác định:", extractedInfo);
+      // }
+    
+
+  } catch (error) {
+    console.error("Lỗi mạng hoặc server:", error);
   }
-
-  // Trả về kết quả, bất kể thành công hay lỗi
-  return response;
 };
