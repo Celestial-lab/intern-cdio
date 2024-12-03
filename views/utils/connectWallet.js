@@ -86,21 +86,23 @@ const editProfile = async (form ,walletAddress, profile, updateProfile) => {
   }
 };
 
-export const connectWallet = async (form, updateProfile, profile, state) => {
+export const connectWallet = async (form, updateProfile, profile, role) => {
   const connection = await connect();
   if (!connection) {
     return;
   }
   const { walletAddress, formattedBalance, signer } = connection;
 
+
+
   // Lưu thông tin vào localStorage
-  if (state.role === 'user') {
+  if (role === 'user') {
     localStorage.setItem('userBalance', formattedBalance);
     localStorage.setItem('userAddress', walletAddress);
-  } else if (state.role === 'author') {
+  } else if (role === 'author') {
     localStorage.setItem('authorBalance', formattedBalance);
     localStorage.setItem('authorAddress', walletAddress);
-  }
+  };
 
   // Cập nhật profile
   const isUpdated = await editProfile(form ,walletAddress, profile, updateProfile);
@@ -110,7 +112,32 @@ export const connectWallet = async (form, updateProfile, profile, state) => {
   };
 };
 
-export const connectWalletFromAddModal = async (form, updateProfile, profile, state) => {
+export const connectWalletOut = async () => {
+  const connection = await connect();
+  if (!connection) {
+    return;
+  }
+  const { walletAddress, formattedBalance, signer } = connection;
+
+  const role = localStorage.getItem('role');
+
+  message.success('connect')
+
+  // Lưu thông tin vào localStorage
+  if (role == 'user') {
+    localStorage.setItem('userBalance', formattedBalance);
+    localStorage.setItem('userAddress', walletAddress);
+  } else if (role == 'author') {
+    localStorage.setItem('authorBalance', formattedBalance);
+    localStorage.setItem('authorAddress', walletAddress);
+  };
+
+  console.log('check: ', localStorage.getItem('userAddress'));
+
+};
+
+
+export const connectWalletFromAddModal = async (form, updateProfile, profile, role) => {
   const connection = await connect();
   
   if (!connection) {

@@ -20,25 +20,12 @@ const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
     return `${address.slice(0, 5)}...${address.slice(-3)}`;
   };
 
-  //gửi email tới người chiến thắng
-  const sendEmail = async () => {
-    const response = await sendEmailToWinner(auctionIdLive);
-  }
-
   useEffect(() => {
     const fetch = async() => {
       await getResult();
-      // sendEmail();
     }
     fetch();
   }, []);
-
-  // useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       window.location.href = '/'
-  //     }, 15000);
-  //     return () => clearTimeout(timer);
-  // }, []);
 
   return (
     <motion.div

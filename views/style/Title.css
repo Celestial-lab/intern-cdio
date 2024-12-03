@@ -138,3 +138,62 @@
   color: #5b5b5b;
   font-weight: 400;
 }
+
+
+
+.watch-to-earn {
+  margin: 20px auto;
+  text-align: center;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.watch-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.video-container {
+  margin: 0 auto;
+  max-width: 640px;
+}
+
+.watch-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.watch-video-btn,
+.claim-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.watch-video-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.claim-btn {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.claim-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.progress-info {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
+}

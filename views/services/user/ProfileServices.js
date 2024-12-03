@@ -98,3 +98,14 @@ export  const getBalace = async(addressAccount) => {
     return null;
   }
 }
+
+//hàm gọi api để nhận token sau khi xem video
+export const claimToken = async (receiver) => {
+  try {
+    const response = await axios.post(`/api/claim`, {receiver});
+    return response.data;
+  } catch (error) {
+    console.log('lỗi ở claimToken: ', error);
+    return null;
+  }
+}

@@ -11,14 +11,12 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import ClipLoader from 'react-spinners/ClipLoader';
 import "@/views/style/Profile.css";
-import { Footer } from 'antd/es/layout/layout';
 import { getInforById } from '../../services/user/ProfileServices.js';
 import moment from "moment";
 import { MetaMaskInpageProvider } from "@metamask/providers";
 import NavbarSetting from "@/views/components/NavbarSetting";
-import { connectWallet, connectWalletFromAddModal } from '@/views/utils/connectWallet';
+import { connectWallet, connectWalletFromAddModal, connectWalletOut } from '@/views/utils/connectWallet';
 import { useProfile } from '@/views/hook/useProfile';
 import { handleAddProfile } from '@/views/utils/user/compProfile/addProfile.js';
 import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile.js';
@@ -65,6 +63,9 @@ export default function Profile() {
 
   const { state } = useAuthContent();
 
+  const email = localStorage.getItem('email');
+  const role = localStorage.getItem('role');
+
   const showAddModal = () => {
     setModalMode('add');
     setIsModalOpen(true);
@@ -86,10 +87,10 @@ export default function Profile() {
   };
 
   const handleConnectWallet = async () => {
-    if (modalMode == 'add') {
-      await connectWalletFromAddModal(form, updateProfile, profile, state);
+    if (modalMode === 'add') {
+      await connectWalletFromAddModal(form, updateProfile, profile, role);
     } else {
-      await connectWallet(form, updateProfile, profile, state);
+      await connectWallet(form, updateProfile, profile, role);
     }
   };
 
@@ -325,7 +326,7 @@ export default function Profile() {
                       <Input placeholder={profile.country} />
                     </Form.Item>
                   </Form>
-                  <Button className='connectWalletBut' type="text" onClick={handleConnectWallet}>Connect Wallet</Button>
+                  <Button className='connectWalletBut' type="text" onClick={connectWalletOut}>Connect Wallet</Button>
                 </div>
               </Col>
             </Row>

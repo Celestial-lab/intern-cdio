@@ -1,37 +1,46 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState } from "react";
-import { Col, DatePicker, Row, Space, Button, Collapse, Table } from 'antd';
+import { Col, DatePicker, Row, Space, Button, Collapse, Table, Input } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from "../components/Navbar";
 import "@/views/style/AuctionResult.css";
 import { CaretRightOutlined } from '@ant-design/icons';
-import { showAuctionResult } from '@/views/services/AuctionServices';
 import FooterAll from "../components/Footer";
 import NavbarAfter from "../components/NavbarAfter";
+import { getAuctionResult, handleSearch } from '@/views/utils/getAuctionResult';
 
-const AuctionResults = () => {
-  const [auctionData, setAuctionData] = useState({});
+// Định nghĩa kiểu dữ liệu
+type AuctionItem = {
+  productName: string;
+  winnerFullName: string;
+  highestBid: number;
+  endTime: number;
+};
+
+const AuctionResults: React.FC = () => {
+  const [allAuctionData, setAllAuctionData] = useState<[string, AuctionItem[]][]>([]);
+  const [auctionData, setAuctionData] = useState<[string, AuctionItem[]][]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [fromDate, setFromDate] = useState<string | null>(null);
+  const [toDate, setToDate] = useState<string | null>(null);
 
-  // Hàm gọi API
-  const getAuctionResult = async () => {
-    const response = await showAuctionResult();
-    if (response.success) {
-      const groupedData = response.data.reduce((acc, item) => {
-        const date = new Date(item.endTime).toLocaleDateString(); // Lấy ngày dạng YYYY-MM-DD
-        if (!acc[date]) {
-          acc[date] = [];
-        }
-        acc[date].push(item);
-        return acc;
-      }, {});
-      setAuctionData(groupedData);
-    }
+  const onChangeStart = (date: moment.Moment | null) => {
+    setFromDate(date ? date.format("DD-MM-YYYY") : null);
   };
 
+  const onChangeEnd = (date: moment.Moment | null) => {
+    setToDate(date ? date.format("DD-MM-YYYY") : null);
+  };
+
+  //xử lí khi nhấn nút search
+  const putSearch = () => {
+    handleSearch(fromDate, toDate, allAuctionData, setAuctionData);
+  }
+
+  //lấy danh sách các cuộc đấu giá kết thúc
   useEffect(() => {
-    getAuctionResult();
+    getAuctionResult(setAllAuctionData, setAuctionData);
   }, []);
 
   useEffect(() => {
@@ -55,7 +64,7 @@ const AuctionResults = () => {
       key: 'productName',
     },
     {
-      title: "Author's Name",
+      title: "Winner's Name",
       dataIndex: 'winnerFullName',
       key: 'winnerFullName',
     },
@@ -72,28 +81,61 @@ const AuctionResults = () => {
       <section className='auction-result'>
         <div className="container py-5">
           <h1 className="titleStyle">Auction Results</h1>
-          <Collapse
-            bordered={false}
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-            style={{ background: '#f5f5f5' }}
-          >
-            {Object.keys(auctionData).map(date => (
-              <Collapse.Panel
-                key={date}
-                header={`Auction results on ${date}`}
-                style={{ marginBottom: 24, background: '#fff', borderRadius: 6 }}
+
+          <div className="rowStyle">
+            <Row gutter={[32, 32]}>
+              <Col className="colStyle" span={6}>
+                <Space direction="vertical">
+                  <DatePicker
+                    onChange={onChangeStart}
+                    placeholder='From'
+                    format="DD-MM-YYYY"
+                    className="datePickerStyle"
+                  />
+                </Space>
+              </Col>
+              <Col className="colStyle" span={6}>
+                <Space direction="vertical">
+                  <DatePicker
+                    onChange={onChangeEnd}
+                    placeholder='To'
+                    format="DD-MM-YYYY"
+                    className="datePickerStyle"
+                  />
+                </Space>
+              </Col>
+              <Col className="colStyle" span={6}>
+                <Input placeholder="Product's Name" className="datePickerStyle" />
+              </Col>
+              <Col className="colStyle" span={6}>
+                <Button type="text" className="buttonStyle" onClick={putSearch}>Search</Button>
+              </Col>
+            </Row>
+          </div>
+
+          {auctionData.length > 0 ? (
+            auctionData.map(([date, items], index) => (
+              <Collapse
+                key={index}
+                bordered={false}
+                expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+                style={{ marginBottom: 24, background: '#f5f5f5', borderRadius: 6 }}
               >
-                <Table
-                  columns={columns}
-                  dataSource={auctionData[date].map((item, index) => ({
-                    key: index,
-                    ...item,
-                  }))}
-                  pagination={false}
-                />
-              </Collapse.Panel>
-            ))}
-          </Collapse>
+                <Collapse.Panel header={`Auction results on ${date}`} key={index}>
+                  <Table
+                    columns={columns}
+                    dataSource={items.map((item, idx) => ({
+                      key: idx,
+                      ...item,
+                    }))}
+                    pagination={false}
+                  />
+                </Collapse.Panel>
+              </Collapse>
+            ))
+          ) : (
+            <p style={{ textAlign: "center", marginTop: 20, color: 'white' }}>No auction results found.</p>
+          )}
         </div>
       </section>
       <FooterAll />

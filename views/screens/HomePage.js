@@ -1,6 +1,7 @@
 'use client'
 
 import React from "react";
+import ReactPlayer from "react-player";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import "@/views/style/Title.css";
@@ -8,11 +9,38 @@ import Navbar from "../components/Navbar";
 import NavbarAfter from "../components/NavbarAfter";
 import FooterAll from '../components/Footer.js';
 import { useEffect, useState } from "react";
-
-
+import { claimToken } from '@/views/services/user/ProfileServices';
+import { message } from "antd";
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [watchedPercentage, setWatchedPercentage] = useState(0);
+  const [isClaimed, setIsClaimed] = useState(false);
+  const role = localStorage.getItem('role');
+  const handleProgress = (progress) => {
+    const percentage = Math.floor(progress.played * 100);
+    if (percentage !== watchedPercentage) {
+        setWatchedPercentage(percentage);
+    }
+  };
+
+  const handleClaim = async () => {
+    // Thực hiện logic mint hoặc transfer tại đây
+    if (role == 'user') {
+      const walletAddress = localStorage.getItem('userAddress');
+      const response = await claimToken(walletAddress);
+      console.log('response của user: ', response);
+    } else {
+      const walletAddress = localStorage.getItem('authorAddress');
+      const response = await claimToken(walletAddress);
+      console.log('response của author: ', response);
+    };
+
+    message.success("Claim thành công!");
+
+    // setIsClaimed(true);
+  };
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -22,14 +50,13 @@ const Home = () => {
         window.location.href = '/user/signin';
       }
     } else {
-      setIsLoggedIn(true); 
+      setIsLoggedIn(true);
     }
   }, []);
-
   return (
     <>
       {isLoggedIn ? <NavbarAfter /> : <Navbar />}
-    {/*================================================*/}
+      {/*================================================*/}
       <section class="sec-title py-5">
         <div class="title container py-5">
           <div class="div-title">
@@ -45,6 +72,36 @@ const Home = () => {
             </button>
           </div>
         </div>
+        {/*================================================*/}
+        <div className="watch-to-earn">
+          <h2 className="watch-title">Watch to Earn</h2>
+          <div className="video-container">
+            <ReactPlayer
+              url="https://www.youtube.com/watch?v=_BIsffqaW1M"
+              playing={false}
+              controls={true}
+              onProgress={handleProgress}
+              width="100%"
+              height="360px"
+            />
+          </div>
+          <div className="watch-buttons">
+            <button
+              className="claim-btn"
+              onClick={handleClaim}
+              disabled={watchedPercentage < 40 || isClaimed}
+            >
+              {isClaimed ? "Claimed" : "Claim"}
+            </button>
+          </div>
+          <p className="progress-info">
+            You have watched {watchedPercentage}% of the video.
+            {watchedPercentage < 40 && (
+              <span> Watch at least 40% to unlock the Claim button.</span>
+            )}
+          </p>
+        </div>
+
         {/*================================================*/}
         <div class="how container py-5">
           <div class="div-tit-how">
@@ -82,7 +139,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      {/*================================================*/}
+        {/*================================================*/}
         <div class="div-product container">
           <div class="div-tit-product">
             <h1 class="how-tit1">Flexible pricing plan for your startup</h1>
@@ -196,9 +253,9 @@ const Home = () => {
           </div>
         </div>
       </section>
-    {/*================================================*/}
-    
-    <FooterAll />
+      {/*================================================*/}
+
+      <FooterAll />
     </>
   )
 }
