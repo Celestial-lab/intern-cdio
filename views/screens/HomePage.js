@@ -1,6 +1,7 @@
 'use client'
 
 import React from "react";
+import YouTube from "react-youtube";
 import ReactPlayer from "react-player";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -14,19 +15,18 @@ import { message } from "antd";
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const [watchedPercentage, setWatchedPercentage] = useState(0);
   const [isClaimed, setIsClaimed] = useState(false);
   const role = localStorage.getItem('role');
-  const handleProgress = (progress) => {
-    const percentage = Math.floor(progress.played * 100);
-    if (percentage !== watchedPercentage) {
-        setWatchedPercentage(percentage);
-    }
+  const [player, setPlayer] = useState(null);
+  const [claimButtonClass, setClaimButtonClass] = useState("claim-btn");
+  const [hasZoomed, setHasZoomed] = useState(false);
+
+  const handlePlayerReady = (event) => {
+    setPlayer(event.target);
   };
 
   const handleClaim = async () => {
-    // Thực hiện logic mint hoặc transfer tại đây
     if (role == 'user') {
       const walletAddress = localStorage.getItem('userAddress');
       const response = await claimToken(walletAddress);
@@ -36,11 +36,10 @@ const Home = () => {
       const response = await claimToken(walletAddress);
       console.log('response của author: ', response);
     };
-
     message.success("Claim thành công!");
-
     // setIsClaimed(true);
   };
+  
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -53,6 +52,35 @@ const Home = () => {
       setIsLoggedIn(true);
     }
   }, []);
+
+  //cập nhật thời gian xem video để hiển thị nút claim
+  useEffect(() => {
+    let interval;
+    if (player) {
+      interval = setInterval(() => {
+        const duration = player.getDuration();
+        const currentTime = player.getCurrentTime();
+        const percentage = Math.floor((currentTime / duration) * 100);
+        setWatchedPercentage(percentage);
+      }, 1000);
+    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [player]);
+
+//useEffect dùng chạy hiệu ứng khi hiển thị nút Claim
+  useEffect(() => {
+    if (watchedPercentage >= 40 && !hasZoomed && !isClaimed) {
+      setClaimButtonClass("claim-btn zoom-in");
+
+      setTimeout(() => {
+        setClaimButtonClass("claim-btn zoom-out");
+      }, 500);
+      setHasZoomed(true);
+    }
+  }, [watchedPercentage, hasZoomed, isClaimed]);
+
   return (
     <>
       {isLoggedIn ? <NavbarAfter /> : <Navbar />}
@@ -73,33 +101,33 @@ const Home = () => {
           </div>
         </div>
         {/*================================================*/}
-        <div className="watch-to-earn">
+        <div className="watch-to-earn py-5">
           <h2 className="watch-title">Watch to Earn</h2>
-          <div className="video-container">
-            <ReactPlayer
-              url="https://www.youtube.com/watch?v=_BIsffqaW1M"
-              playing={false}
-              controls={true}
-              onProgress={handleProgress}
-              width="100%"
-              height="360px"
-            />
-          </div>
+          <h2 class="watch-tit2">If you don't have our Token. Just watch this video and then you can claim Token!</h2>
+          <YouTube
+            className='youtube-player'
+            videoId="_BIsffqaW1M"
+            opts={{
+              height: "360px",
+              width: "100%",
+              playerVars: {
+                autoplay: 0,
+                controls: 0,
+                disablekb: 1,
+                modestbranding: 1,
+              },
+            }}
+            onReady={handlePlayerReady}
+          />
           <div className="watch-buttons">
             <button
-              className="claim-btn"
+              className={claimButtonClass}
               onClick={handleClaim}
               disabled={watchedPercentage < 40 || isClaimed}
             >
               {isClaimed ? "Claimed" : "Claim"}
             </button>
           </div>
-          <p className="progress-info">
-            You have watched {watchedPercentage}% of the video.
-            {watchedPercentage < 40 && (
-              <span> Watch at least 40% to unlock the Claim button.</span>
-            )}
-          </p>
         </div>
 
         {/*================================================*/}
@@ -147,12 +175,10 @@ const Home = () => {
           </div>
           <div class="row-product row ">
             <div class="card">
-              <h5 class="card-title">Product{`'`}s name</h5>
+              <h5 class="card-title">Product's name</h5>
               <img src="/gif-13-Squishiverse.gif" class="card-img-top" />
               <div class="but-regis">
-                <button class="but-register">
-                  Register for auction
-                </button>
+                <button class="but-register">Register for auction</button>
               </div>
               <hr />
               <div class="card-body">
@@ -167,18 +193,16 @@ const Home = () => {
                     <InfoCircleOutlined /> Auction time:
                   </li>
                   <li className="li-infor">
-                    <InfoCircleOutlined /> The writer{`'`}s name:
+                    <InfoCircleOutlined /> The writer's name:
                   </li>
                 </ul>
               </div>
             </div>
             <div class="card">
-              <h5 class="card-title">Product{`'`}s name</h5>
+              <h5 class="card-title">Product's name</h5>
               <img src="/gif-13-Squishiverse.gif" class="card-img-top" />
               <div class="but-regis">
-                <button class="but-register">
-                  Register for auction
-                </button>
+                <button class="but-register">Register for auction</button>
               </div>
               <hr />
               <div class="card-body">
@@ -193,18 +217,16 @@ const Home = () => {
                     <InfoCircleOutlined /> Auction time:
                   </li>
                   <li className="li-infor">
-                    <InfoCircleOutlined /> The writer{`'`}s name:
+                    <InfoCircleOutlined /> The writer's name:
                   </li>
                 </ul>
               </div>
             </div>
             <div class="card">
-              <h5 class="card-title">Product{`'`}s name</h5>
+              <h5 class="card-title">Product's name</h5>
               <img src="/gif-13-Squishiverse.gif" class="card-img-top" />
               <div class="but-regis">
-                <button class="but-register">
-                  Register for auction
-                </button>
+                <button class="but-register">Register for auction</button>
               </div>
               <hr />
               <div class="card-body">
@@ -219,18 +241,16 @@ const Home = () => {
                     <InfoCircleOutlined /> Auction time:
                   </li>
                   <li className="li-infor">
-                    <InfoCircleOutlined /> The writer{`'`}s name:
+                    <InfoCircleOutlined /> The writer's name:
                   </li>
                 </ul>
               </div>
             </div>
             <div class="card">
-              <h5 class="card-title">Product{`'`}s name</h5>
+              <h5 class="card-title">Product's name</h5>
               <img src="/gif-13-Squishiverse.gif" class="card-img-top" />
               <div class="but-regis">
-                <button class="but-register">
-                  Register for auction
-                </button>
+                <button class="but-register">Register for auction</button>
               </div>
               <hr />
               <div class="card-body">
@@ -245,7 +265,7 @@ const Home = () => {
                     <InfoCircleOutlined /> Auction time:
                   </li>
                   <li className="li-infor">
-                    <InfoCircleOutlined /> The writer{`'`}s name:
+                    <InfoCircleOutlined /> The writer's name:
                   </li>
                 </ul>
               </div>
@@ -257,6 +277,6 @@ const Home = () => {
 
       <FooterAll />
     </>
-  )
+  );
 }
 export default Home;
