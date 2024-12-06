@@ -1,10 +1,10 @@
 'use client'
 
+import { create } from "domain";
 import { useState } from "react";
 
 export const useProfile = () => {
     const [profile, setProfile] = useState({
-        email: '',
         fullname: '',
         dateofbirth: '',
         gender: '',

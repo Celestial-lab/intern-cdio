@@ -1,6 +1,6 @@
 import axios from "../../axios";
 
-
+//hàm gọi api lấy dữ liệu bẳng infor user theo userId
 export const getInforById = async (userid) => {
   try {
     const response = await axios.get(`/api/info/${userid}`);
@@ -11,6 +11,7 @@ export const getInforById = async (userid) => {
   } 
 }
 
+//hàm gọi api thêm thông tin cho user
 export const addCreateInfor = async (formData) => {
   try {
     const response = await axios.post(`/api/createInfo`, formData);
@@ -22,6 +23,7 @@ export const addCreateInfor = async (formData) => {
   }
 }
 
+//hàm gọi api edit thông tin user theo inforId
 export const editInforById = async (inforId, data) => {
   try {
     const response = await axios.put(`/api/updateInfo/${inforId}`, data);
@@ -33,6 +35,7 @@ export const editInforById = async (inforId, data) => {
   }
 }
 
+//hàm gọi api đăng kí cuộc đấu giá
 export const addRegisterAuction = async (userId, auctionId) => {
   try {
     const response = await axios.post(`/api/registerUser/`, {userId, auctionId})
@@ -56,6 +59,7 @@ export const getRegisterAuction = async (userId) => {
   }
 }
 
+//hàm gọi api approve cho cuộc đấu giá
 export const Approve = async (spender, amount) => {
   try {
     const response = await axios.post(`/api/approve`, {spender, amount});
@@ -67,6 +71,7 @@ export const Approve = async (spender, amount) => {
   }
 }
 
+//hàm gọi api xoá sản phẩm đã đăng kí
 export const deleteRegisterAuction = async (auctionId) => {
   try {
     const response = await axios.delete(`/api/deletregister/${auctionId}`);
@@ -78,6 +83,7 @@ export const deleteRegisterAuction = async (auctionId) => {
   }
 }
 
+//hàm gọi api kiểm tra giá trị token đã approve vào cuộc đấu giá ấy
 export const checkAllowance = async (spender, owner) => {
   try {
     const response = await axios.post(`/api/allowance`, {spender, owner});
@@ -103,9 +109,9 @@ export  const getBalace = async(addressAccount) => {
 export const claimToken = async (receiver) => {
   try {
     const response = await axios.post(`/api/claim`, {receiver});
-    return response.data;
+    return response;
   } catch (error) {
     console.log('lỗi ở claimToken: ', error);
-    return null;
+    return error.response;
   }
 }

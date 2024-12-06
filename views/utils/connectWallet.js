@@ -6,7 +6,9 @@ import { editInforById } from '@/views/services/user/ProfileServices';
 import { connectContract } from '@/views/contract/connectContract';
 
 
-const connect = async () => {
+let isRequestingAccounts = false; // Biến cờ để theo dõi trạng thái yêu cầu
+
+export const connect = async () => {
   if (!window.ethereum) {
     message.error('MetaMask is not installed!');
     return null;
@@ -25,6 +27,7 @@ const connect = async () => {
       rpcUrls: ['https://1rpc.io/holesky'],
       blockExplorerUrls: ['https://holesky.beaconcha.in/'],
     };
+
     // Kiểm tra và thêm mạng Holesky nếu cần
     const { chainId } = await provider.getNetwork();
     if (chainId !== parseInt(holeskyNetwork.chainId, 16)) {
@@ -34,153 +37,65 @@ const connect = async () => {
       });
     }
 
+    // Yêu cầu quyền truy cập tài khoản
     await provider.send("eth_requestAccounts", []);
     const signer = await provider.getSigner();
     const walletAddress = await signer.getAddress();
+
+    // Lấy vai trò từ localStorage
+    const role = localStorage.getItem('role');
+    if (role === 'user') {
+      localStorage.setItem('userAddress', walletAddress);
+    } else if (role === 'author') {
+      localStorage.setItem('authorAddress', walletAddress);
+    }
+
+    // Lấy số dư ví
     const balance = await provider.getBalance(walletAddress);
     const formattedBalance = parseFloat(ethers.formatEther(balance)).toFixed(3);
+
     return { walletAddress, formattedBalance, signer };
   } catch (error) {
-    console.error('Failed to connect wallet:', error);
-    message.error('Failed to connect wallet!');
+    if (error.code === -32002) {
+      message.warning('MetaMask is already processing a request. Please complete the previous action.');
+    } else if (error.code === 4001) {
+      message.error('User rejected the request.');
+    } else {
+      console.error('Failed to connect wallet:', error);
+    }
     return null;
   }
 };
 
-const editProfile = async (form ,walletAddress, profile, updateProfile) => {
-  const inforId = localStorage.getItem('inforId');
-  const values = await form.validateFields();
 
-  if (!inforId) {
-    message.info('Vui lòng thêm thông tin cá nhân trước khi kết nối ví.');
-    form.setFieldsValue({ walletAddress });
-    return;
-  }
-
-  const updatedProfile = { ...profile };
-  //check xem walletAddress có thay đổi không?
-  const isWalletAddressChanged = values.walletAddress && values.walletAddress !== profile.walletAddress;
-
-  if (!isWalletAddressChanged) {
-    message.info('Bạn đã kết nối ví này!');
-    delete updatedProfile.walletAddress;
-    return true;
-  } else {
-    updatedProfile.walletAddress = values.walletAddress;
-    try {
-      const response = await editInforById(inforId, updatedProfile);
-      console.log('response: ', response);
-      if (response) {
-        updateProfile(updatedProfile);
-        message.success('Wallet connected and updated successfully!');
-        return true;
-      } else {
-        message.error('Failed to update wallet address!');
-        return false;
-      }
-    } catch (error) {
-      console.error('Failed to update wallet address:', error);
-      message.error('Error occurred while updating profile!');
-      return false;
-    }
-  }
-};
-
-export const connectWallet = async (form, updateProfile, profile, role) => {
+export const connectWallet = async () => {
+  // Kết nối ví
   const connection = await connect();
   if (!connection) {
+    message.error('Kết nối ví thất bại!');
     return;
   }
   const { walletAddress, formattedBalance, signer } = connection;
-
-
-
-  // Lưu thông tin vào localStorage
-  if (role === 'user') {
-    localStorage.setItem('userBalance', formattedBalance);
-    localStorage.setItem('userAddress', walletAddress);
-  } else if (role === 'author') {
-    localStorage.setItem('authorBalance', formattedBalance);
-    localStorage.setItem('authorAddress', walletAddress);
-  };
-
-  // Cập nhật profile
-  const isUpdated = await editProfile(form ,walletAddress, profile, updateProfile);
-
-  if (isUpdated) {
-    await connectContract(signer);
-  };
-};
-
-export const connectWalletOut = async () => {
-  const connection = await connect();
-  if (!connection) {
-    return;
-  }
-  const { walletAddress, formattedBalance, signer } = connection;
-
   const role = localStorage.getItem('role');
-
-  message.success('connect')
-
   // Lưu thông tin vào localStorage
   if (role == 'user') {
-    localStorage.setItem('userBalance', formattedBalance);
     localStorage.setItem('userAddress', walletAddress);
   } else if (role == 'author') {
-    localStorage.setItem('authorBalance', formattedBalance);
     localStorage.setItem('authorAddress', walletAddress);
   };
-
-  console.log('check: ', localStorage.getItem('userAddress'));
-
+  // Lấy địa chỉ ví từ kết nối
+  return walletAddress;
 };
 
 
-export const connectWalletFromAddModal = async (form, updateProfile, profile, role) => {
-  const connection = await connect();
-  
-  if (!connection) {
-    return;
-  }
-  message.success('Kết nối ví thành công'); //thích thì xoá
-  const { walletAddress } = connection;
-  form.setFieldsValue({ walletAddress });
-  try {
-    // Lấy giá trị từ form
-    const values = await form.validateFields();
-    const requiredFields = ['fullName', 'dateOfBirth', 'gender', 'country'];
-    const isComplete = requiredFields.every(field => values[field]);
-    if (!isComplete) {
-      message.warning('Hãy nhập đủ các trường!');
-    } else {
-      message.success('Nhập đầy đủ! ');
-    }
-  } catch (error) {
-    message.warning('Hãy nhập đủ các trường!');
-  }
-};
 
-export const autoConnectWallet = async (userId, profile, updateProfile) => {
+export const autoConnectWallet = async () => {
+
+  const userId = localStorage.getItem('userId');
+
   if (!userId) {
     console.warn('User is not logged in.');
     return;
   }
-  
-  try {
-    const response = await fetchWalletAddressByUserId(userId);
-    if (response && response.walletAddress) {
-      console.log('Found wallet address:', response.walletAddress);
-
-      // Kết nối ví nếu đã có địa chỉ
-      const connection = await connect();
-      if (connection) {
-        message.success('Auto-connected wallet successfully!');
-      }
-    } else {
-      console.log('Bạn chưa thêm thông tin cá nhân.');
-    }
-  } catch (error) {
-    console.error('Failed to fetch wallet address:', error);
-  }
+  const connection = await connect();
 };

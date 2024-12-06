@@ -1,10 +1,11 @@
 'use client'
 
-import React, { cache, useEffect, useState } from 'react';
-import { Layout, Menu, Dropdown, Button, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Layout, Dropdown, message } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@/views/style/components/NavbarAfter.css";
 import { getBalace, getInforById } from '@/views/services/user/ProfileServices';
+import { autoConnectWallet, connect } from '@/views/utils/connectWallet';
 
 const { Header } = Layout;
 
@@ -12,39 +13,36 @@ const NavbarAfter = () => {
 
     const [balance, setBalance] = useState('0');
 
-    const getInforOf = async () => {
-        const role = localStorage.getItem('role');
-        if (role == 'user') {
-            const userId = localStorage.getItem('userId');
-            const responseUser = await getInforById(userId);
-            if (responseUser.errorCode == 1) {
-                message.info('Hãy thêm thông tin!');
-                return;
-            } else {
-                const WAOfUser = responseUser.data.walletAddress;
-                const responseBalanceUser = await getBalace(WAOfUser);
-                const balanceUser = responseBalanceUser.balanceOf;
-                setBalance(balanceUser);
+    const checkLogin = async () => {
+        try {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            const getAddress = await connect();
+            if (!getAddress) {
+              return;
             }
-        } else {
-            const authorId = localStorage.getItem('authorId');
-            const responseAuthor = await getInforById(authorId);
-            if (responseAuthor.errorCode == 1) {
-                message.info('Hãy thêm thông tin!');
-                return;
-            } else {
-                const WAOfAuthor = responseAuthor.data.walletAddress;
-                const responseBalanceAuthor = await getBalace(WAOfAuthor);
-                const balanceAuthor = responseBalanceAuthor.balanceOf;
-                setBalance(balanceAuthor);
+            const address1 = getAddress.walletAddress;
+            if (!address1) {
+              return;
             }
-        };
+            const responseBalanceUser = await getBalace(address1);
+            if (!responseBalanceUser) {
+              console.error('Failed to fetch balance. Exiting...');
+              return;
+            }
+            const balanceUser = responseBalanceUser.balanceOf;
+            setBalance(balanceUser);
+          } else {
+            console.log('No accessToken found');
+          }
+        } catch (error) {
+          console.error('Error during checkLogin:', error);
+        }
     };
 
-
     useEffect(() => {
-        getInforOf();
-    }, [balance])
+        checkLogin();
+    }, []);
 
     const userMenu = (
         <div className="login-dropdown">

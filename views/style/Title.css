@@ -254,11 +254,6 @@
   }
 }
 
-.claim-btn.active:hover {
-  
-  transform: scale(1.15); /* Khi hover sẽ phóng to hơn */
-}
-
 .claim-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
