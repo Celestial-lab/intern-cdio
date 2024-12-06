@@ -1,8 +1,8 @@
 'use client'
 
 import React, { createContext, useReducer, useContext, useEffect } from 'react';
-import { authReducer } from '@/views/store/context/authReducer';
-import { authInitState } from '@/views/store/context/authInitState';
+import { authReducer, reducerInfor } from '@/views/store/context/authReducer';
+import { authInitState, initInfo } from '@/views/store/context/authInitState';
 import { actionSetEmailRole, actionClearEmailRole } from '@/views/store/context/authActions';
 
 export const AuthContext = createContext();
@@ -44,5 +44,7 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 }
+
+
 
 export const useAuthContent = () => useContext(AuthContext);

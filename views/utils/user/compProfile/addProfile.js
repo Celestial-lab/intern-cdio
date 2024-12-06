@@ -4,7 +4,7 @@ import React from "react"
 import { addCreateInfor } from '@/views/services/user/ProfileServices';
 import { message } from "antd";
 
-export const handleAddProfile = async(form, updateProfile, profile) => {
+export const handleAddProfile = async(form, updateProfile, profile, setUserInfo) => {
     try {
         const values = await form.validateFields();
         const userId = localStorage.getItem('userId');
@@ -16,8 +16,8 @@ export const handleAddProfile = async(form, updateProfile, profile) => {
           walletAddress: values.walletAddress,
           loginId: userId,
         };
+        setUserInfo(addInfor.fullname);
         const response = await addCreateInfor(addInfor);
-        console.log('response bên frontend: ', response);
         if (response) {
           localStorage.setItem('inforId', response.info.id);
           updateProfile({ ...profile, ...addInfor, gender: values.gender });

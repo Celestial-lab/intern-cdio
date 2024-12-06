@@ -2,6 +2,10 @@
     --space-grotesk-fonts: 'Space Grotesk';
 }
 
+a {
+    text-decoration: none !important;
+}
+
 .headerInfor {
     background-color: rgb(245 245 245);
 }
@@ -229,3 +233,13 @@
     -webkit-box-shadow: 0 0 0px 1000px #eaeaea inset !important; /* Ghi đè shadow */
     -webkit-text-fill-color: #000 !important; /* Màu chữ nếu cần */
   }
+
+.ant-layout-sider-children {
+    background-color: #0e182f;
+}
+.ant-layout-sider-trigger {
+    background: #151A31;
+}
+.ant-menu {
+    background-color: #0e182f;
+}

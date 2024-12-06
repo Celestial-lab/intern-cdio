@@ -19,6 +19,8 @@ import { connectWallet } from '@/views/utils/connectWallet';
 import { useProfile } from '@/views/hook/useProfile';
 import { handleAddProfile } from '@/views/utils/user/compProfile/addProfile.js';
 import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile.js';
+import { useUserInfoContext } from '@/views/store/context/UserInfoContext';
+
 declare global {
   interface Window {
     ethereum?: MetaMaskInpageProvider;
@@ -45,7 +47,7 @@ function getItem(
 const items: MenuItem[] = [
   getItem('Profile', 'profile', <AppstoreOutlined />, '/user/settings/Profile'),
   getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/user/settings/AuctionHistory'),
-  getItem('My Document', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
+  getItem('Registered Auctions', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
 ];
 
 export default function Profile() {
@@ -55,22 +57,16 @@ export default function Profile() {
   const [isActive, setIsActive] = useState(true);
   const [timer, setTimer] = useState(600);
   const [profile, updateProfile] = useProfile();
-  const [modalMode, setModalMode] = useState('add');
   const [buttonState, setButtonState] = useState(1);
   const [isEditing, setIsEditing] = useState(0);
   const [isAdding, setIsAdding] = useState(0);
 
+  const { setUserInfo } = useUserInfoContext();
   const email = localStorage.getItem('email');
-  const role = localStorage.getItem('role');
 
   const handleInputChange = () => {
     const values = form.getFieldsValue();
     return Object.values(values).every(value => value !== undefined && value !== '');
-  };
-
-  const handleSave1 = async () => {
-    await handleEditProfile(form, updateProfile, profile);
-    
   };
 
   const handleSave = async () => {
@@ -79,23 +75,19 @@ export default function Profile() {
         message.warning("Please fill all required fields.");
         return;
       };
-      await handleAddProfile(form, updateProfile, profile);
+      await handleAddProfile(form, updateProfile, profile, setUserInfo);
       setButtonState(2);
       setIsEditing(0);
       setIsAdding(0);
-
     } else if (buttonState === 2) {
-      await handleEditProfile(form, updateProfile, profile);
+      await handleEditProfile(form, updateProfile, profile, setUserInfo);
       setIsEditing(0);
       setIsAdding(0);
     }
   };
 
   const handleConnectWallet = async () => {
-    const walletAddress =  await connectWallet();
-
-    console.log('response: ', walletAddress);
-
+    const walletAddress = await connectWallet();
     form.setFieldsValue({ walletAddress });
   };
 
@@ -106,8 +98,6 @@ export default function Profile() {
         try {
           const response = await getInforById(userId);
           const data = response.data;
-          console.log('dât: ', data);
-
           switch (response.errorCode) {
             case 1:
               setButtonState(1); // Hiển thị nút Add
@@ -122,7 +112,7 @@ export default function Profile() {
                 updateProfile({
                   fullname: data.fullname,
                   dateofbirth: data.dateOfBirth,
-                  gender: data.gender ? 'Male' : 'Female',
+                  gender: data.gender == true ? 'Male' : 'Female',
                   country: data.country,
                   walletAddress: data.walletAddress,
                   createAt: data.createdAt,
@@ -188,25 +178,14 @@ export default function Profile() {
     };
   }, []);
 
-  useEffect(() => {
-
-    console.log('buttonState: ', buttonState);
-    console.log('isEditing: ', isEditing);
-    console.log('isAdding: ', isAdding);
-
-  }, [buttonState, isEditing, isAdding])
-
   return (
-
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div className="demo-logo-vertical" />
         <Menu theme="dark" defaultSelectedKeys={['profile']} mode="inline" items={items} />
       </Sider>
       <Layout>
-
         <NavbarSetting />
-
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
@@ -259,7 +238,6 @@ export default function Profile() {
                     </Button>
                   )}
                 </div>
-
                 <div className='support-but'>
                   {isEditing === 1 && isAdding === 1 ? (
                     <Button
@@ -283,43 +261,38 @@ export default function Profile() {
                 </div>
               </Col>
             </Row>
-
             <Row className='row2'>
               <Col className='colInput1' span={12}>
                 <div className='divInput1'>
-
                   <Form form={form} layout="vertical">
-
                     <Form.Item name="fullName" label="Full Name:" >
-                      <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.fullname} />
+                      <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.fullname || "No information yet"} />
                     </Form.Item>
-
-                    <Form.Item name="gender" label="Gender:" initialValue={profile.gender === 'Male' ? true : false}>
-                      {isEditing === 0 && isAdding === 0 ? (
-                        <span className="showInfor">{profile.gender}</span>
-                      ) : (
+                    {isEditing === 0 && isAdding === 0 ? (
+                      <Form.Item name="gender" label="Gender:">
+                        <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.gender || "No information yet"} />
+                      </Form.Item>
+                    ) : (
+                      <Form.Item name="gender" label="Gender:" initialValue={profile.gender === 'Male' ? true : false}>
                         <Radio.Group>
                           <Radio value={'Male'}>Male</Radio>
                           <Radio value={'Female'}>Female</Radio>
                         </Radio.Group>
-                      )}
-                    </Form.Item>
-
+                      </Form.Item>
+                    )}
                     <Form.Item name="walletAddress" label="Wallet Address:" >
-                      <Input disabled={isEditing === 0 && isAdding === 0 || isEditing === 1 && isAdding === 1} placeholder={profile.walletAddress} />
+                      <Input disabled={isEditing === 0 && isAdding === 0 || isEditing === 1 && isAdding === 1} placeholder={profile.walletAddress || "No information yet"} />
                     </Form.Item>
-
                   </Form>
                 </div>
               </Col>
               <Col className='colInput2' span={12}>
                 <div className='divInput2'>
                   <Form form={form} layout="vertical">
-
                     <Form.Item name="dateOfBirth"
                       label="Date of Birth:"
                       initialValue={profile.dateofbirth ? moment(profile.dateofbirth) : null}
-                      >
+                    >
                       {isEditing === 0 && isAdding === 0 ? (
                         <Input disabled={true} placeholder={
                           profile.dateofbirth
@@ -329,20 +302,15 @@ export default function Profile() {
                       ) : (
                         <DatePicker format="YYYY-MM-DD" />
                       )}
-
-
                     </Form.Item>
-
                     <Form.Item name="country" label="Country:" >
-                      <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.country} />
+                      <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.country || "No information yet"} />
                     </Form.Item>
-
                   </Form>
                   <Button className='connectWalletBut' disabled={isEditing === 0 && isAdding === 0} type="text" onClick={handleConnectWallet}>Connect Wallet</Button>
                 </div>
               </Col>
             </Row>
-
             <Row className='row3'>
               <Col className='col13' span={12}>
                 <Row className='row31'>
@@ -359,12 +327,10 @@ export default function Profile() {
                     <span className='textMonth'>Created At: {moment(profile.createAt).format("DD-MM-YYYY")}</span>
                   </Col>
                 </Row>
-
               </Col>
               <Col className='col2' span={12}>
               </Col>
             </Row>
-
           </div>
         </Content>
       </Layout>

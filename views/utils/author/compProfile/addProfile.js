@@ -4,14 +4,10 @@ import React from "react"
 import { addCreateInfor } from '@/views/services/user/ProfileServices';
 import { message } from "antd";
 
-export const handleAddProfile = async(form, updateProfile, profile) => {
+export const handleAddProfile = async(form, updateProfile, profile, setUserInfo) => {
     try {
         const values = await form.validateFields();
-  
         const authorId = localStorage.getItem('authorId');
-  
-        console.log('values trước khi chạy updated: ', values);
-
         const addInfor = {
           fullname: values.fullName,
           dateOfBirth: values.dateOfBirth.toISOString(),
@@ -20,11 +16,13 @@ export const handleAddProfile = async(form, updateProfile, profile) => {
           walletAddress: values.walletAddress,
           loginId: authorId,
         };
+        setUserInfo(addInfor.fullname);
+
+        console.log('addInfor: ', addInfor);
+
         const response = await addCreateInfor(addInfor);
-
-        console.log('response bên frontend: ', response);
-
         if (response) {
+          localStorage.setItem('inforId', response.info.id);
           updateProfile({ ...profile, ...addInfor, gender: values.gender });
           message.success('Profile updated successfully!');
         } else {
