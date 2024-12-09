@@ -17,14 +17,9 @@ export const handleJoinLiveAuction = async(auctionIdLive, registrationId, router
       const userAddress = localStorage.getItem('userAddress');
       const spenderAddress = process.env.NEXT_PUBLIC_Contract_Auction;
       const response = await checkAllowance(spenderAddress, userAddress);
-
-      console.log('allowance trả về', response.allowance);
-
       if (response.allowance === 0) {
         message.error('hãy Approve trước khi tham gia đấu giá');
       } else {
-        message.success('vô nè');
-
         window.location.href = `/user/LiveAuction/${auctionIdLive}/${registrationId}`;
       }
     }

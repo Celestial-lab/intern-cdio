@@ -4,7 +4,6 @@ import axios from "../axios";
 export const getAuction = async() => {
     try {
         const response = await axios.get('/api/auction/status');
-        console.log('data trả về của api lấy các cuộc đấu giá: ', response.data);
         return response.data;
     } catch (error) {
         console.error('fetch data fail', error);

@@ -92,7 +92,6 @@ const ProductPage = () => {
 
 //bỏ setLocal
   const handleRegisterClick = (auctionId) => {
-    console.log('id cuộc đấu giá:', auctionId);
     router.push(`/products/${auctionId}`);
   };
 
