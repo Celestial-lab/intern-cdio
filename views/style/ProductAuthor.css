@@ -223,3 +223,22 @@
     background-color: #1cd961 !important;
 }
 
+.ant-input:-webkit-autofill {
+    background-color: #eaeaea !important; /* Màu nền bạn muốn */
+    -webkit-box-shadow: 0 0 0px 1000px #eaeaea inset !important; /* Ghi đè shadow */
+    -webkit-text-fill-color: #000 !important; /* Màu chữ nếu cần */
+  }
+
+.ant-layout-sider-children {
+    background-color: #0e182f;
+}
+.ant-layout-sider-trigger {
+    background: #151A31;
+}
+.ant-menu {
+    background-color: #0e182f;
+}
+a {
+    text-decoration: none !important;
+}
+

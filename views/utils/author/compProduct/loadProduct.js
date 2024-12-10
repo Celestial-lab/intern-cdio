@@ -1,7 +1,5 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { message } from 'antd';
 import { getProductById } from '@/views/services/author/AuthorServices';
 import { getAuction } from '@/views/services/AuctionServices';
 
@@ -42,16 +40,13 @@ export const fetchProductData = async (setProducts) => {
                     } else {
                         status = "The auction is over";
                     }
-
                     return {
                         ...product,
                         status,
                     };
                 });
-
                 const sortedProducts = updatedProducts.sort((a, b) => b.id - a.id);
-
-                setProducts(sortedProducts); // Cập nhật state với danh sách sản phẩm đã sắp xếp
+                setProducts(sortedProducts);
             }
         }
     } catch (error) {

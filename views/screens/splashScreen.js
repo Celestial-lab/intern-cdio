@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import '@/views/style/components/SplashScreen.css';
+import { ClipLoader } from 'react-spinners';
 import { getAuctionResult, sendEmailToWinner, getHighestBidder, getHighestPrice } from '@/views/services/AuctionServices';
 
 const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
@@ -46,14 +47,14 @@ const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
         }}
         className="splash-screen-content"
       >
-        <h1 className="congrat">Chúc mừng!</h1>
+        <h1 className="congrat">Congratulations!</h1>
         <div className="name-winner">
-          <h1 className="tit-name">Người thắng:&nbsp; </h1>
-          <h1 className="name"> {winner ? formatWalletAddress(winner) : 'Đang cập nhật'}</h1>
+          <h1 className="tit-name">Winner:&nbsp; </h1>
+          <h1 className="name"> {winner ? formatWalletAddress(winner) : (<ClipLoader color="#22C55E" size={18} />)}</h1>
         </div>
         <div className="name-price">
-          <h1 className="tit-price">Giá trúng:&nbsp; </h1>
-          <h1 className="price"> {highestPrice ? `${highestPrice.toLocaleString()} CELE` : "Đang cập nhật"}</h1>
+          <h1 className="tit-price">Hammer Price:&nbsp; </h1>
+          <h1 className="price"> {highestPrice ? `${highestPrice.toLocaleString()} $` : (<ClipLoader color="#22C55E" size={18} />)}</h1>
         </div>
       </motion.div>
     </motion.div>

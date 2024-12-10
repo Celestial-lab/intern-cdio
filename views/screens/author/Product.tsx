@@ -25,10 +25,7 @@ import {
   UploadOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
-import { getProductById } from '../../services/author/AuthorServices';
 import NavbarSetting from '@/views/components/NavbarSetting';
-import { getAuction } from '@/views/services/AuctionServices';
 import moment from 'moment';
 import { handleAddNewProduct } from '@/views/utils/author/compProduct/addProduct';
 import { handleEditProduct } from '@/views/utils/author/compProduct/editProduct';
@@ -82,6 +79,7 @@ export default function Product() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<number | null>(null);
+  const [cancel, setCancel] = useState(1);
 
   // Mở modal Add Product
   const openAddProductModal = () => {
@@ -114,6 +112,7 @@ export default function Product() {
       message.warning("Please fill all required fields.");
       return;
     } else {
+      setCancel(2);
       setLoading(true);
       if (isEditMode) {
         await handleEditProduct(formData, editingProduct.id, editingProduct, setProducts);
@@ -122,6 +121,7 @@ export default function Product() {
       }
       await fetchProductData(setProducts );
       updateProductStatus(products, setProducts);
+      setCancel(1);
       setLoading(false);
       setOpenModal(false);
     }
@@ -162,7 +162,13 @@ export default function Product() {
     loadData();
   }, []);
 
-  const handleNavigateToLiveAuction = (auctionId: number) => {
+  //hàm xử lí khi nhấn vào tên sản phẩm để vào LiveAuction của author
+  //( ở đây sẽ chặn k cho author vào xem khi đấu giá đã kết thúc. Sẽ có trang thống kê riêng )
+  const handleNavigateToLiveAuction = (auctionId: number, status: string) => {
+    if (status === "The auction is over") {
+      message.warning(`The auction is over, you can't enter to view it`);
+      return;
+    }
     window.location.href = `/author/LiveAuction/${auctionId}`
   };
 
@@ -178,7 +184,7 @@ export default function Product() {
         <span
           className='name-product'
           style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
-          onClick={() => handleNavigateToLiveAuction(record.id)}
+          onClick={() => handleNavigateToLiveAuction(record.id, record.status)}
         >
           {name}
         </span>
@@ -244,6 +250,7 @@ export default function Product() {
             danger
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
+            disabled={record.status === "The auction is ongoing"}
             style={{ marginLeft: '8px' }}
           >
             Delete
@@ -295,7 +302,7 @@ export default function Product() {
               visible={openModal}
               onCancel={() => setOpenModal(false)}
               footer={[
-                <Button key="cancel" onClick={() => setOpenModal(false)}>Cancel</Button>,
+                <Button key="cancel" disabled={cancel == 2} onClick={() => setOpenModal(false)}>Cancel</Button>,
                 <Button key="submit" type="primary" loading={loading} onClick={() => form.submit()}>
                   Submit
                 </Button>,

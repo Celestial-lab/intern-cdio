@@ -67,6 +67,17 @@ export const getCurrentPrice = async(auctionId) => {
     }
 }
 
+//hàm gọi api lấy tất cả lượt đấu giá trong 1 cuộc đấu giá bằng auctionId
+export const getAllBids = async(auctionId) => {
+    try {
+        const response = await axios.get(`/api/auctions/${auctionId}/bids`);
+        return response.data;
+    } catch (error) {
+        console.error('lấy lượt đấu giá thất bại getAllBids: ', error.response);
+        return error.response;
+    }
+}
+
 //hàm gọi api lấy các lượt đấu giá của user theo bidderId (inforId)
 export const getAmountBidByBidder = async(bidderId) => {
     try {
