@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { Layout, Dropdown, message, Badge, Card } from 'antd';
+import { Layout, Dropdown, message, Badge, Card, Row, Col } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@/views/style/components/NavbarAfter.css";
 import { getBalace } from '@/views/services/user/ProfileServices';
@@ -14,7 +14,6 @@ import { getTotalAuctionRegis, getAuctionForIcon } from '@/views/utils/user/comp
 const { Header } = Layout;
 
 const NavbarAfter = () => {
-
     const [balance, setBalance] = useState('0');
     const { cartSignal } = useSignal();
     const [count, setCount] = useState(0);
@@ -22,6 +21,7 @@ const NavbarAfter = () => {
     const [zooming, setZooming] = useState(false);
     const [listAuction, setListAuction] = useState({});
 
+    //lấy số lượng cuộc đấu giá đã đăng kí
     const getTotal = async () => {
         const totalAuctionRegis = await getTotalAuctionRegis();
         setCount(totalAuctionRegis);
@@ -32,15 +32,13 @@ const NavbarAfter = () => {
         getTotal();
     }, [])
 
-    useEffect(() => {
-        console.log('listAuction: ', listAuction);
-    }, [listAuction])
-
+    //chạy hiệu ứng
     useEffect(() => {
         if (cartSignal) {
             setAnimating(true);
             setZooming(true);
             getTotal();
+            getAuctionForIcon(setListAuction);
         }
         const timer = setTimeout(() => {
             setAnimating(false);
@@ -50,38 +48,7 @@ const NavbarAfter = () => {
         return () => clearTimeout(timer);
     }, [cartSignal]);
 
-    const checkLogin = async () => {
-        try {
-            const token = localStorage.getItem("accessToken");
-            if (token) {
-                const getAddress = await connect();
-                if (!getAddress) {
-                    return;
-                }
-                const address1 = getAddress.walletAddress;
-                if (!address1) {
-                    return;
-                }
-                const responseBalanceUser = await getBalace(address1);
-                if (!responseBalanceUser) {
-                    console.error('Failed to fetch balance. Exiting...');
-                    return;
-                }
-                const balanceUser = responseBalanceUser.balanceOf;
-                setBalance(balanceUser);
-            } else {
-                console.log('No accessToken found');
-            }
-        } catch (error) {
-            console.error('Error during checkLogin:', error);
-        }
-    };
-
-    const role = localStorage.getItem('role');
-
-    useEffect(() => {
-        checkLogin();
-    }, []);
+    
 
     const userMenu = (
         <div className="login-dropdown">
@@ -111,25 +78,100 @@ const NavbarAfter = () => {
         </div>
     );
 
+    const goToDoc = () => {
+        window.location.href = '/user/settings/MyDocument';
+    };
+
     const loginMenu = (
-        <div className="auctions-dropdown">
-            <Card size="small" title="Small size card" extra={<a href="#">More</a>} style={{ width: 300 }}>
-                <p>Card content</p>
-                <p>Card content</p>
-                <p>Card content</p>
-            </Card>
+        <div className='over'>
+            <div className="auctions-dropdown">
+                {Array.isArray(listAuction) && listAuction.map((auction)  => (
+                    <Card
+                        className='card-fromIcon'
+                        key={auction.registrationId}
+                        size="small"
+                        title={auction.name}
+                        style={{ width: 300, marginBottom: 16 }}
+                    >
+                        <Row gutter={16}>
+                            <Col span={8}>
+                                <img
+                                    src={auction.imageUrl}
+                                    alt={auction.name}
+                                    style={{
+                                        width: '100%',
+                                        height: '80px',
+                                        objectFit: 'cover',
+                                        borderRadius: '4px',
+                                    }}
+                                />
+                            </Col>
+                            <Col span={16} style={{ gap: '10px' }}>
+                                <div className='price-icon' style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}>
+                                    <p>Price: </p>
+                                    <p style={{ color: '#22C55E', fontWeight: 'bold', marginBottom: 8 }}>
+                                        {auction.price} $
+                                    </p>
+                                </div>
+                                <div className='time-icon' style={{ display: 'flex', flexDirection: 'row', gap: '2px' }}>
+                                    <p>Start Time: </p>
+                                    <p style={{ color: '#888888', marginBottom: 0 }}>
+                                        {new Date(auction.startTime).toLocaleString('vi-VN', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false,
+                                        })}
+                                    </p>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Card>
+                ))}
+
+            
+            </div>
+            <button className='view-all' onClick={goToDoc}>View All</button>
         </div>
     );
-
-    const goToDoc = () => {
-        message.info('tới trang document')
-
-        // window.location.href = '/user/settings/MyDocument';
-    };
 
     const goToProducts = () => {
         window.location.href = '/author/settings/ProductAuthor';
     };
+
+    const checkLogin = async () => {
+        try {
+            const token = localStorage.getItem("accessToken");
+            if (token) {
+                const getAddress = await connect();
+                if (!getAddress) {
+                    return;
+                }
+                const address1 = getAddress.walletAddress;
+                if (!address1) {
+                    return;
+                }
+                const responseBalanceUser = await getBalace(address1);
+                if (!responseBalanceUser) {
+                    console.error('Failed to fetch balance. Exiting...');
+                    return;
+                }
+                const balanceUser = responseBalanceUser.balanceOf;
+                setBalance(balanceUser);
+            } else {
+                console.log('No accessToken found');
+            }
+        } catch (error) {
+            console.error('Error during checkLogin:', error);
+        }
+    };
+    const role = localStorage.getItem('role');
+
+    useEffect(() => {
+        checkLogin();
+    }, []);
 
     return (
         <nav className="navbar navbar-expand-lg navbar-light">

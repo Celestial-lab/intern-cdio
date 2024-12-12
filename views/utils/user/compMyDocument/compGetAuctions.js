@@ -156,7 +156,6 @@ export const getAuctionForIcon = async (setListAuction) => {
     try {
         if (userId) {
             const register = await getRegisterAuction(userId);
-            // console.log('register: ', register);
             if (register) {
                 const mappedAuctions = register.map((auction) => {
                     return {
@@ -165,10 +164,12 @@ export const getAuctionForIcon = async (setListAuction) => {
                         name: auction.productName,
                         price: auction.startingPrice,
                         imageUrl: auction.imageUrl,
+                        startTime: auction.startTime,
                     }
                 });
                 // console.log('mappedAuctions: ', mappedAuctions)
-                setListAuction(mappedAuctions);
+                const reversedProducts = mappedAuctions.reverse();
+                setListAuction(reversedProducts);
             } else {
                 setListAuction({});
                 return;

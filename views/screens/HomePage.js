@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { claimToken } from "@/views/services/user/ProfileServices";
 import { message } from "antd";
 import { getAuction } from "@/views/services/AuctionServices";
+import { getInforId } from '@/views/utils/checkAuth'
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -33,34 +34,30 @@ const Home = () => {
       setIsLoading(true);
       const walletAddress = localStorage.getItem("userAddress");
       const response = await claimToken(walletAddress);
-
       console.log("response: ", response);
       if (response.data.errorCode == 1) {
-        message.warning("Bạn đã Claim! Hãy Claim vào hôm sau");
-        //cần thêm isClaimed vào local để sau này nếu người dùng có reload lại page
-        // thì sẽ không thể nhấn nhầm vào nút claim được nữa
+        message.warning("You have Claimed! Please Claim tomorrow");
+        setIsLoading(false);
+        setIsClaimed(true);
+        return
       } else {
-        message.success("claim thành công");
+        message.success("Claim successful");
+        setIsLoading(false);
+        setIsClaimed(true);
       }
-      setIsLoading(false);
-    } else {
-      setIsLoading(true);
-      const walletAddress = localStorage.getItem("authorAddress");
-      const response = await claimToken(walletAddress);
-      if (response.data.errorCode == 1) {
-        message.warning("Bạn đã Claim! Hãy Claim vào hôm sau");
-      }
-      setIsLoading(false);
     }
-    setIsClaimed(true);
   };
+
+  useEffect(() => {
+    getInforId();
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       setIsLoggedIn(false);
       const userConfirmed = window.confirm(
-        "Bạn chưa đăng nhập, hãy đăng nhập!"
+        "You are not logged in, please log in!"
       );
       if (userConfirmed) {
         window.location.href = "/user/signin";
@@ -90,7 +87,6 @@ const Home = () => {
   useEffect(() => {
     if (watchedPercentage >= 40 && !hasZoomed && !isClaimed) {
       setClaimButtonClass("claim-btn zoom-in");
-
       setTimeout(() => {
         setClaimButtonClass("claim-btn zoom-out");
       }, 500);
@@ -102,8 +98,7 @@ const Home = () => {
   useEffect(() => {
     const fetchAuctions = async () => {
       try {
-        const data = await getAuction(); // Gọi API lấy danh sách các cuộc đấu giá
-        // Sắp xếp các cuộc đấu giá từ dưới lên và lấy 4 sản phẩm cuối
+        const data = await getAuction();
         const lastFourAuctions = data.reverse().slice(0, 4);
         setAuctions(lastFourAuctions);
       } catch (error) {
@@ -113,6 +108,10 @@ const Home = () => {
 
     fetchAuctions();
   }, []);
+
+  const goToDetails = async(key) => {
+    window.location.href = `/products/${key}`;
+  }
 
   return (
     <>
@@ -130,10 +129,10 @@ const Home = () => {
               class="but-connect"
               onClick={(e) => {
                 e.preventDefault();
-                window.location.href = "/user/login";
+                { !localStorage.getItem('accessToken') ? window.location.href = "/user/login" : window.location.href = "/products"}
               }}
             >
-              Connect Wallet
+              { !localStorage.getItem('accessToken') ? `Let's Get Started` : `Find Somethings`}
             </button>
           </div>
         </div>
@@ -153,7 +152,7 @@ const Home = () => {
               playerVars: {
                 autoplay: 0,
                 controls: 0,
-                disablekb: 1,
+                disablekb: 0,
                 modestbranding: 1,
               },
             }}
@@ -275,24 +274,27 @@ const Home = () => {
                   alt="product"
                 />
                 <div className="but-regis">
-                  <button className="but-register">Register for auction</button>
+                  <button className="but-register" onClick={() => goToDetails(auction.id)} >Register for auction</button>
                 </div>
                 <hr />
                 <div className="card-body">
                   <ul className="ul-infor">
                     <li className="li-infor">
-                      <InfoCircleOutlined /> Starting price:{" "}
-                      {auction.startingPrice}
+                      <InfoCircleOutlined /> Description:&nbsp; {auction.description}
                     </li>
                     <li className="li-infor">
-                      <InfoCircleOutlined /> Price step: {auction.priceStep}
+                      <InfoCircleOutlined /> Starting price:&nbsp; {auction.startingPrice}
                     </li>
                     <li className="li-infor">
-                      <InfoCircleOutlined /> Auction time: {auction.auctionTime}
-                    </li>
-                    <li className="li-infor">
-                      <InfoCircleOutlined /> The writer's name:{" "}
-                      {auction.authorName}
+
+                      <InfoCircleOutlined /> Auction time:&nbsp; {new Date(auction.startTime).toLocaleString('vi-VN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      })}
                     </li>
                   </ul>
                 </div>

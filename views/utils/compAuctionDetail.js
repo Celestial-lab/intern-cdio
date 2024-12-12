@@ -4,7 +4,7 @@ import { addRegisterAuction } from '@/views/services/user/ProfileServices';
 import { message } from 'antd';
 import { getRegisterAuction } from '@/views/services/user/ProfileServices';
 
-export const RegisterAuction = async ({ params }) => {
+export const RegisterAuction = async ({ params }, setIsRegister) => {
   const accessToken = localStorage.getItem('accessToken');
   if (!accessToken) {
     alert('You are not logged in. Please log in to register for the auction.!');
@@ -13,7 +13,7 @@ export const RegisterAuction = async ({ params }) => {
   }
   const getRole = localStorage.getItem('role');
   if (!params.auctionId) {
-    alert('Không tìm thấy thông tin đấu giá');
+    alert('No auction information found');
     return;
   };
   if (getRole == 'user') {
@@ -23,6 +23,7 @@ export const RegisterAuction = async ({ params }) => {
       console.log('response: ', response);
       if (response.errorCode == 0) {
         message.success('Auction registration successful!');
+        setIsRegister(1);
       } else {
         message.error('Auction registration failed. Please try again');
       }

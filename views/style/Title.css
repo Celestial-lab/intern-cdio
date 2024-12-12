@@ -132,11 +132,11 @@
   padding: 0;
 }
 .li-infor {
-  
   list-style: none;
   font-family: var(--space-grotesk-fonts);
   color: #5b5b5b;
   font-weight: 400;
+  margin: 5px 0px;
 }
 
 

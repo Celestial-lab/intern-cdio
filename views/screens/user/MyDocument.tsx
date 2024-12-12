@@ -80,9 +80,7 @@ const MyDocument = () => {
 
   const handleDelete = (id: number) => {
     setDeletingRegisId(id);
-
     setConfirmDeleteVisible(true);
-
   };
 
   const confirmDeleteProduct = async () => {

@@ -102,7 +102,7 @@ export default function Profile() {
             case 1:
               setButtonState(1); // Hiển thị nút Add
               setIsAdding(0);
-              message.warning('Bạn chưa thêm thông tin cá nhân, hãy thêm thông tin để có thể đấu giá nhé!');
+              message.warning('You have not added personal information, please add information to be able to bid!');
               return;
             case 0:
               if (data) {

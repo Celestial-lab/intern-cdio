@@ -62,7 +62,6 @@ const ProductDetail = () => {
 
   // convert startTime and auctionTime
   const convertTime = async () => {
-    //conver startTime
     const date = new Date(currentProduct.startTime);
     const formattedTime = date.toLocaleString("vi-VN", {
       hour: "2-digit",
@@ -72,8 +71,6 @@ const ProductDetail = () => {
       year: "numeric",
     });
     setStartTime(formattedTime);
-
-    //convert AuctionTime
     const auctionTimeInMinute = Math.floor((currentProduct.endTime - date / 1000) / 60);
     setAuctionTime(auctionTimeInMinute);
   };
@@ -100,23 +97,13 @@ const ProductDetail = () => {
   // hàm nhấn đăng ký
   const handleRegisterClick = async () => {
     try {
-      await RegisterAuction({ params });
+      await RegisterAuction({ params }, setIsRegister);
       const timer = setTimeout(() => {
         triggerCartAnimation();
       }, 110);
       return () => clearTimeout(timer);
     } catch (error) {
       console.error('Error registering auction:', error);
-    }
-  };
-
-  const handleMouseEnter = () => {
-    if (isDisabled) {
-      notification.info({
-        message: 'Thông báo',
-        description: 'Bạn đã đăng kí cuộc đấu giá này',
-        duration: 2, // Thời gian hiển thị thông báo (2 giây)
-      });
     }
   };
 
