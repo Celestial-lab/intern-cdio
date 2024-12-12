@@ -7,7 +7,7 @@ a {
 }
 
 .headerInfor {
-    background-color: rgb(245 245 245);
+    background-color: #f5f5f5;
 }
 
 .ant-layout {
@@ -221,12 +221,6 @@ a {
     background-color: #22C55E;
     color: white;
   }
-  
-.showInfor {
-    font-family: var(--space-grotesk-fonts);
-    font-size: 15px;
-    font-weight: 500;
-}
 
 .ant-input:-webkit-autofill {
     background-color: #eaeaea !important; /* Màu nền bạn muốn */

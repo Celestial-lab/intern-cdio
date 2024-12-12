@@ -23,7 +23,7 @@ export const getInforAuction = async (auctionIdLive, setAuctionData) => {
   }
 };
 
-//lấy đấu giá đang diễn ra để hiển thị
+//lấy đấu giá đang diễn ra để hiển thị cho phần 'những sản phẩm gợi ý'
 export const getAuctionForEx = async (setMoreAuctions) => {
     try {
         const response = await getAuction();
@@ -58,13 +58,13 @@ export const endedAuction = async (auctionIdLive) => {
 
     const timer = setTimeout(() => {
       window.location.href = '/author/settings/ProductAuthor'
-    }, 10000);
+    }, 7000);
     return () => clearTimeout(timer);
 
   } else if (response.errorCode == 5) {
     const timer = setTimeout(() => {
       window.location.href = '/author/settings/ProductAuthor'
-    }, 10000);
+    }, 7000);
     return () => clearTimeout(timer);
 
   }

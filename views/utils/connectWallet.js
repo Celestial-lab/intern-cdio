@@ -30,7 +30,7 @@ export const connect = async () => {
 
     // Kiểm tra và thêm mạng Holesky nếu cần
     const { chainId } = await provider.getNetwork();
-    if (chainId !== parseInt(holeskyNetwork.chainId, 16)) {
+    if (Number(chainId) !== parseInt(holeskyNetwork.chainId, 16)) {
       await window.ethereum.request({
         method: 'wallet_addEthereumChain',
         params: [holeskyNetwork],
@@ -85,17 +85,4 @@ export const connectWallet = async () => {
   };
   // Lấy địa chỉ ví từ kết nối
   return walletAddress;
-};
-
-
-
-export const autoConnectWallet = async () => {
-
-  const userId = localStorage.getItem('userId');
-
-  if (!userId) {
-    console.warn('User is not logged in.');
-    return;
-  }
-  const connection = await connect();
 };

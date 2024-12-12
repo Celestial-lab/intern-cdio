@@ -2,7 +2,8 @@
 import { Inter } from "next/font/google";
 import "@/app/globals.css";
 import { AuthProvider } from '@/views/store/context/AuthContext';
-import { UserInfoProvider } from '@/views/store/context/UserInfoContext'
+import { UserInfoProvider } from '@/views/store/context/UserInfoContext';
+import { SignalProvider } from '@/views/store/context/SignalContext';
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,9 +23,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         <AuthProvider>
           <UserInfoProvider>
-            <div>
-              {children}
-            </div>
+            <SignalProvider>
+              <div>
+                {children}
+              </div>
+            </SignalProvider>
           </UserInfoProvider>
         </AuthProvider>
       </body>

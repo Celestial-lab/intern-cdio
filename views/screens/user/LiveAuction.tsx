@@ -10,6 +10,9 @@ import { useParams } from 'next/navigation';
 import { handlePutBid, fetchData } from '@/views/utils/user/compLiveAuction/compPutBid';
 import { getInforAuction, getCurrentPriceFrom2, endedAuction } from '@/views/utils/user/compLiveAuction/compAboutPrice';
 import SplashScreen from '@/views/screens/splashScreen';
+import { getAuctionForEx } from '@/views/utils/author/compLiveAuction/compAboutPrice';
+import { ClipLoader } from 'react-spinners';
+import FooterAll from '@/views/components/Footer';
 
 export default function LiveAuction() {
   const [multiplier, setMultiplier] = useState(1);
@@ -23,11 +26,11 @@ export default function LiveAuction() {
   const [filteredBids, setFilteredBids] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [openSplashScreen, setOpenSplashScreen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
   const [isAuctionEnded, setIsAuctionEnded] = useState(false);
+  const [moreAuctions, setMoreAuctions] = useState([]);
+  const [isLoading, setIsLoading] = useState(0);
 
   const handleIncrease = () => setMultiplier(multiplier + 1);
   const handleDecrease = () => {
@@ -38,21 +41,22 @@ export default function LiveAuction() {
     setBidMount((stepPrice * multiplier) + currentPrice);
   }, [multiplier, stepPrice, currentPrice]);
 
+  const fetchCurrentPrice = async () => {
+    await getCurrentPriceFrom2(auctionIdLive, setCurrentPrice);
+    setBidSuccess(false);
+  };
 
   // lấy giá tiền hiện tại cho cuộc đấu giá
   useEffect(() => {
     if (isAuctionEnded) return;
-    const fetchCurrentPrice = async () => {
-      await getCurrentPriceFrom2(auctionIdLive, setCurrentPrice);
-      setBidSuccess(false);
-    };
     fetchCurrentPrice();
-    const intervalId = setInterval(fetchCurrentPrice, 15000);
+    const intervalId = setInterval(fetchCurrentPrice, 5000);
     return () => clearInterval(intervalId);
   }, [bidSuccess, currentPrice, isAuctionEnded]);
 
   //use Efect lấy thông tin cuộc đấu giá để hiển thị 
   useEffect(() => {
+    getAuctionForEx(setMoreAuctions);
     getInforAuction(auctionIdLive, setAuctionData);
   }, []);
 
@@ -60,7 +64,7 @@ export default function LiveAuction() {
   const handleSubmitBid = async () => {
     const inforId = localStorage.getItem('inforId');
     try {
-      await handlePutBid(auctionIdLive, bidMount, inforId);
+      await handlePutBid(auctionIdLive, bidMount, inforId, setIsLoading);
       setBidSuccess(true);
     } catch (error) {
       console.error("Lỗi khi đặt giá:", error);
@@ -78,17 +82,17 @@ export default function LiveAuction() {
     getBid();
   }, [auctionIdLive, bidSuccess]);
 
-
+  const handleNavigateToDetails = (auctionId: number) => {
+    window.location.href = `/products/${auctionId}`
+  };
 
   // Hàm thực hiện công việc khi đấu giá kết thúc
   const handleAuctionEnd = async () => {
     if (isAuctionEnded) return;
-
     console.log("Xử lý khi đấu giá kết thúc...");
     setTimeout(() => {
       setOpenSplashScreen(true);
-    }, 2000);
-
+    }, 1500);
     try {
       await endedAuction(auctionIdLive);
     } catch (error) {
@@ -98,24 +102,23 @@ export default function LiveAuction() {
     }
   };
 
-
   useEffect(() => {
     if (auctionData.length > 0) {
       const startTimeStr = auctionData[0].startTime;
       const startTime = new Date(startTimeStr).getTime();
       const timeless = auctionData[0].timeRemaining * 1000;
       const currentTime = new Date().getTime();
-  
+
       if (isNaN(startTime)) {
         console.error('startTime không hợp lệ:', startTimeStr);
         return;
       }
-  
+
       if (currentTime < startTime) {
-        message.error('Cuộc đấu giá chưa diễn ra');
+        message.error('The auction has not taken place yet');
       } else if (currentTime >= startTime && currentTime < timeless) {
-        message.success('Cuộc đấu giá đang diễn ra');
-  
+        message.success('The auction is ongoing');
+
         // Chỉ tạo setInterval một lần
         if (!timerRef.current) {
           timerRef.current = setInterval(() => {
@@ -133,7 +136,7 @@ export default function LiveAuction() {
               timerRef.current = null; // Reset ref
               setTimeLeft({ minutes: 0, seconds: 0 });
               setIsModalOpen(true);
-  
+
               setTimeout(async () => {
                 await handleAuctionEnd(); // Gọi hàm khi đấu giá kết thúc
                 setIsModalOpen(false);
@@ -142,10 +145,9 @@ export default function LiveAuction() {
           }, 1000);
         }
       } else {
-        message.error('Cuộc đấu giá đã kết thúc');
+        message.error('The auction has ended');
       }
     }
-  
     // Dọn dẹp setInterval khi component unmount hoặc dữ liệu thay đổi
     return () => {
       if (timerRef.current) {
@@ -154,12 +156,6 @@ export default function LiveAuction() {
       }
     };
   }, [auctionData]);
-
-
-  // useEffect(() => {
-  //   setOpenSplashScreen(true);
-  // }, [])
-
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -174,6 +170,10 @@ export default function LiveAuction() {
     }
   }, []);
 
+  // useEffect(() => {
+  //   setIsModalOpen(true);
+  // }, [])
+
   return (
     <>
       {isLoggedIn ? <NavbarAfter /> : <Navbar />}
@@ -183,21 +183,19 @@ export default function LiveAuction() {
       <section className='sec-liveAuction'>
         <div className='div-live container py-2'>
           <div className='row'>
-
-
             <Modal
-              title="Thông báo"
+              className='modal-noti'
+              title="Notification"
               visible={isModalOpen}
               footer={null}
               closable={false}
               centered
             >
               <div style={{ textAlign: 'center' }}>
-                <Spin size="large" />
-                <p>Cuộc đấu giá đã kết thúc, vui lòng chờ trong giây lát...</p>
+                <ClipLoader color="#22C55E" size={20} />
+                <p className='noti-title'>Auction has ended, please wait a moment...</p>
               </div>
             </Modal>
-
             <div className='col-7'>
               <div className='row row-count'>
                 <h2 className='timeLess'>Time Remaining:</h2>
@@ -209,13 +207,11 @@ export default function LiveAuction() {
                   <img className='image-product' src={auctionData[0]?.imageUrl} alt="Product Image" />
                 </div>
               </div>
-
               <div className='row row-extend'>
                 <div className='div-extend'>
                   <h2 className='title-extend'>Renewal times: 1</h2>
                 </div>
               </div>
-
               <div className='row row-infor1'>
                 <div className='col-6 leftInfor'>
                   <h3 className='product-name'>{auctionData[0]?.name}</h3>
@@ -224,36 +220,24 @@ export default function LiveAuction() {
                   <h3 className='author-name'>{auctionData[0]?.description}</h3>
                 </div>
               </div>
-
               <div className='row suggest py-3'>
-
-                <div className="card" style={{ width: '200px' }}>
-                  <img src="/gif-ne-2.gif" className="card-img-top" alt="..." />
-                  <div className="card-body">
-                    <h5 className="card-title">Card title</h5>
-                    <p className="card-text">Some </p>
+                {moreAuctions.map((auction, index) => (
+                  <div key={auction.id || index} className="card-auctions">
+                    <img src={auction.imageUrl} className="card-img-top" alt={auction.productName} />
+                    <div className="card-body-auctions">
+                      <span
+                        className="card-title-auctions"
+                        onClick={() => handleNavigateToDetails(auction.id)}
+                      >
+                        {auction.productName}
+                      </span>
+                      <p className="card-text-auctions">Description: {auction.description}</p>
+                      <p className="card-text-auctions">Start Price: {auction.startingPrice} $</p>
+                    </div>
                   </div>
-                </div>
-
-                <div className="card" style={{ width: '200px' }}>
-                  <img src="/gif-ne-2.gif" className="card-img-top" alt="..." />
-                  <div className="card-body">
-                    <h5 className="card-title">Card title</h5>
-                    <p className="card-text">Some </p>
-                  </div>
-                </div>
-
-                <div className="card" style={{ width: '200px' }}>
-                  <img src="/gif-ne-2.gif" className="card-img-top" alt="..." />
-                  <div className="card-body">
-                    <h5 className="card-title">Card title</h5>
-                    <p className="card-text">Some </p>
-                  </div>
-                </div>
-
+                ))}
               </div>
             </div>
-
             <div className='col-but col-5'>
               <div className='greenBox'>
                 <div className='currentMoney-title'>
@@ -275,23 +259,22 @@ export default function LiveAuction() {
                     <div className='totalField'>{stepPrice * multiplier}$</div>
                   </Row>
                   <div className='buttonPrice'>
-                    <Button className='butPrice' type='primary' onClick={() => { handleSubmitBid() }}>Send {(stepPrice * multiplier) + currentPrice} $</Button>
+                    <Button className='butPrice' loading={isLoading == 1} type='primary' onClick={() => { handleSubmitBid() }}>Send {(stepPrice * multiplier) + currentPrice} $</Button>
                   </div>
                 </div>
               </div>
-
 
               <div className='updateBox'>
                 {filteredBids && filteredBids.length > 0 ? (
                   filteredBids.map((bid, index) => (
                     <div className="update-card card" key={index}>
                       <div className="card-header">
-                        Đặt giá thành công!
+                        Bid successfully!
                       </div>
                       <div className="body-noti card-body">
-                        <div className='row' > {/* Dùng index hoặc auctionId để làm key */}
+                        <div className='row' >
                           <div className='col-7'>
-                            <h3 className='notification'>Bạn đã đặt giá: {bid.bidAmount}$</h3>
+                            <h3 className='notification'>You have placed a bid: {bid.bidAmount}$</h3>
                           </div>
                           <div className='div-time-noti col-5'>
                             <p className='time-noti' title="Source Title">
@@ -303,8 +286,8 @@ export default function LiveAuction() {
                     </div>
                   ))
                 ) : (
-                  <p className="no-bids-message" style={{ color: 'red', fontWeight: 'bold' }}>
-                    Không có lượt đặt giá nào được tìm thấy
+                  <p className="no-bids-message">
+                    No bids found...
                   </p>
                 )}
               </div>
@@ -314,6 +297,7 @@ export default function LiveAuction() {
           </div>
         </div>
       </section>
+      <FooterAll />
     </>
   );
 }

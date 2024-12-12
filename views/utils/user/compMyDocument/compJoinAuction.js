@@ -6,21 +6,23 @@ import { checkAllowance } from '@/views/services/user/ProfileServices';
 import { message } from 'antd';
 
 
-export const handleJoinLiveAuction = async(auctionIdLive, registrationId, router) => {
-    console.log(`Tham gia đấu giá cho cuộc đấu giá ID: ${auctionIdLive}`);
-    console.log(`registrationId: ${registrationId}`);
-    if (!localStorage.getItem('userAddress') && !localStorage.getItem('inforId')) {
-      message.error('Hãy cập nhật thông tin cá nhân đầy đủ để tham gia đấu giá')
-    } else if (!localStorage.getItem('userAddress') && localStorage.getItem('inforId')) {
-      message.error('Hãy kết nối ví lại để tham gia đấu giá')
-    } else if (localStorage.getItem('userAddress') && localStorage.getItem('inforId')) {
-      const userAddress = localStorage.getItem('userAddress');
-      const spenderAddress = process.env.NEXT_PUBLIC_Contract_Auction;
-      const response = await checkAllowance(spenderAddress, userAddress);
-      if (response.allowance === 0) {
-        message.error('hãy Approve trước khi tham gia đấu giá');
-      } else {
-        window.location.href = `/user/LiveAuction/${auctionIdLive}/${registrationId}`;
-      }
+export const handleJoinLiveAuction = async (auctionIdLive, registrationId) => {
+  window.location.href = `/user/LiveAuction/${auctionIdLive}/${registrationId}`;
+}
+
+
+export const checkIsJoin = async (setIsCanJoin) => {
+  if (!localStorage.getItem('inforId')) {
+    message.warning('Please update your information completely to participate in the auction')
+     return setIsCanJoin(1);
+  } else {
+    const userAddress = localStorage.getItem('userAddress');
+    const spenderAddress = process.env.NEXT_PUBLIC_Contract_Auction;
+    const response = await checkAllowance(spenderAddress, userAddress);
+    if (response.allowance === '0' || response.allowance === '0.0') {
+      message.warning('Please Approve before Join Auction');
+      return setIsCanJoin(1);
     }
+  } 
+
 }

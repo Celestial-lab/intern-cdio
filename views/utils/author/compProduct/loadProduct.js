@@ -2,6 +2,7 @@
 
 import { getProductById } from '@/views/services/author/AuthorServices';
 import { getAuction } from '@/views/services/AuctionServices';
+import { message } from 'antd';
 
 
 export const fetchProductData = async (setProducts) => {
@@ -47,10 +48,14 @@ export const fetchProductData = async (setProducts) => {
                 });
                 const sortedProducts = updatedProducts.sort((a, b) => b.id - a.id);
                 setProducts(sortedProducts);
+            } else {
+              setProducts([]);
+              return;
             }
-        }
+        } 
     } catch (error) {
         console.error("Lỗi khi tải sản phẩm:", error);
+        return;
     }
 };
 

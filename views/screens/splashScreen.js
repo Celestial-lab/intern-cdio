@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import '@/views/style/components/SplashScreen.css';
 import { ClipLoader } from 'react-spinners';
-import { getAuctionResult, sendEmailToWinner, getHighestBidder, getHighestPrice } from '@/views/services/AuctionServices';
+import { getHighestBidder, getHighestPrice } from '@/views/services/AuctionServices';
 
 const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
 
@@ -17,7 +17,7 @@ const SplashScreen = ({ auctionIdLive, onComplete, zoomSpeed = 2.5 }) => {
     setHighestPrice(getPrice.highestBid)
   };
   const formatWalletAddress = (address) => {
-    if (!address) return "Đang cập nhật";
+    if (!address) return "Loading...";
     return `${address.slice(0, 5)}...${address.slice(-3)}`;
   };
 

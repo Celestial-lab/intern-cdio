@@ -1,18 +1,54 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import { Layout, Dropdown } from 'antd';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Layout, Dropdown, message, Badge, Card } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@/views/style/components/NavbarAfter.css";
 import { getBalace } from '@/views/services/user/ProfileServices';
 import { connect } from '@/views/utils/connectWallet';
 import { ProductOutlined } from '@ant-design/icons';
+import { useSignal } from '@/views/store/context/SignalContext';
+import { getTotalAuctionRegis, getAuctionForIcon } from '@/views/utils/user/compMyDocument/compGetAuctions'
+
 
 const { Header } = Layout;
 
 const NavbarAfter = () => {
 
     const [balance, setBalance] = useState('0');
+    const { cartSignal } = useSignal();
+    const [count, setCount] = useState(0);
+    const [animating, setAnimating] = useState(false);
+    const [zooming, setZooming] = useState(false);
+    const [listAuction, setListAuction] = useState({});
+
+    const getTotal = async () => {
+        const totalAuctionRegis = await getTotalAuctionRegis();
+        setCount(totalAuctionRegis);
+    }
+
+    useEffect(() => {
+        getAuctionForIcon(setListAuction);
+        getTotal();
+    }, [])
+
+    useEffect(() => {
+        console.log('listAuction: ', listAuction);
+    }, [listAuction])
+
+    useEffect(() => {
+        if (cartSignal) {
+            setAnimating(true);
+            setZooming(true);
+            getTotal();
+        }
+        const timer = setTimeout(() => {
+            setAnimating(false);
+            setZooming(false);
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }, [cartSignal]);
 
     const checkLogin = async () => {
         try {
@@ -45,7 +81,6 @@ const NavbarAfter = () => {
 
     useEffect(() => {
         checkLogin();
-        console.log('role: ', role)
     }, []);
 
     const userMenu = (
@@ -59,7 +94,7 @@ const NavbarAfter = () => {
                         e.preventDefault();
                         window.location.href = '/author/settings/ProfileAuthor';
                     }
-                    
+
                 }}
             >
                 Edit Profile
@@ -76,8 +111,20 @@ const NavbarAfter = () => {
         </div>
     );
 
+    const loginMenu = (
+        <div className="auctions-dropdown">
+            <Card size="small" title="Small size card" extra={<a href="#">More</a>} style={{ width: 300 }}>
+                <p>Card content</p>
+                <p>Card content</p>
+                <p>Card content</p>
+            </Card>
+        </div>
+    );
+
     const goToDoc = () => {
-        window.location.href = '/user/settings/MyDocument';
+        message.info('tới trang document')
+
+        // window.location.href = '/user/settings/MyDocument';
     };
 
     const goToProducts = () => {
@@ -114,13 +161,33 @@ const NavbarAfter = () => {
                     <div className="infor-user">
                         {role == 'user' ? (
                             <div className='row row-infor'>
-                                <div className='col-4 cart'>
-                                    <a onClick={e => goToDoc()}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" className="bi bi-cart" viewBox="0 0 16 16">
-                                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
-                                        </svg>
-                                    </a>
-                                </div>
+                                <Dropdown overlay={loginMenu} trigger={['hover']}>
+                                    <div className={`col-4 cart ${animating ? 'animate-cart' : ''}`} onClick={goToDoc}>
+                                        <a>
+                                            <Badge
+                                                count={count}
+                                                showZero
+                                                style={{
+                                                    backgroundColor: '#22C55E',
+                                                    color: 'white',
+                                                    position: 'absolute',
+                                                    top: '-11px',
+                                                    right: '31px',
+                                                }}
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="20"
+                                                    height="20"
+                                                    className={`bi bi-cart ${zooming ? 'zoomed' : ''}`}
+                                                    viewBox="0 0 16 16"
+                                                >
+                                                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                                                </svg>
+                                            </Badge>
+                                        </a>
+                                    </div>
+                                </Dropdown>
                                 <div className='col-4 money'>
                                     <div className='icon-money'>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" className="bi bi-currency-dollar" viewBox="0 0 16 16">
@@ -169,11 +236,7 @@ const NavbarAfter = () => {
                                 </div>
                             </div>
                         )
-
                         }
-
-
-
                     </div>
                 </div>
             </div>

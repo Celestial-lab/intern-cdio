@@ -128,11 +128,11 @@
 .btn-regis {
   width: 25%;
   height: 40px;
-  background-color: #22C55E;
+  background-color: #22C55E !important;
   border: none;
   border-radius: 5px;
   font-family: var(--space-grotesk-fonts);
-  color: white;
+  color: white !important;
 
 }
 

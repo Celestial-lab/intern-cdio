@@ -163,7 +163,6 @@ export default function Product() {
   }, []);
 
   //hàm xử lí khi nhấn vào tên sản phẩm để vào LiveAuction của author
-  //( ở đây sẽ chặn k cho author vào xem khi đấu giá đã kết thúc. Sẽ có trang thống kê riêng )
   const handleNavigateToLiveAuction = (auctionId: number, status: string) => {
     if (status === "The auction is over") {
       message.warning(`The auction is over, you can't enter to view it`);
