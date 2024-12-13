@@ -59,19 +59,19 @@ export const endedAuction = async (auctionIdLive) => {
   };
   const response = await endAuctionById(auctionIdLive);
   message.info('The auction has ended. You will be redirected to the Registered Auctions page');
-  // console.log("response trả về khi kết thúc đấu giá:", response);
+  console.log("response trả về khi kết thúc đấu giá:", response);
   if (response.errorCode == 0) {
     await sendEmail(auctionIdLive);
     console.log('Đã gửi email nhé. kết thúc thành công!');
     const timer = setTimeout(() => {
       window.location.href = '/user/settings/MyDocument'
-    }, 13000);
+    }, 15000);
     return () => clearTimeout(timer);
   } else if (response.errorCode == 5) {
     console.log('không cần gửi mail và về trang chủ nhé');
     const timer = setTimeout(() => {
       window.location.href = '/user/settings/MyDocument'
-    }, 13000);
+    }, 15000);
     return () => clearTimeout(timer);
   }
 };

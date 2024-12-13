@@ -53,7 +53,7 @@ export default function LiveAuctionAuthor() {
     if (isAuctionEnded) return;
     setTimeout(() => {
       setOpenSplashScreen(true);
-    }, 1000);
+    }, 2000);
 
     try {
       await endedAuction(auctionIdLive);

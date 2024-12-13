@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Typography, Pagination, Button, Menu, Dropdown, Select } from 'antd';
+import { Pagination, Button, Menu, Dropdown, Select } from 'antd';
 import Navbar from "@/views/components/Navbar";
 import NavbarAfter from "@/views/components/NavbarAfter";
 import { DownOutlined } from '@ant-design/icons';
@@ -10,10 +10,7 @@ import FooterAll from '@/views/components/Footer.js';
 import { getAuction } from '@/views/services/AuctionServices';
 import { useRouter } from 'next/navigation';
 
-const { Title } = Typography;
 const { Option } = Select;
-
-
 
 const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,8 +21,6 @@ const ProductPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentItems = sortedProducts.slice(startIndex, endIndex);
-
-  
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
@@ -41,31 +36,42 @@ const ProductPage = () => {
     }
   }, []);
 
+  //lấy các cuộc đấu giá chưa diễn ra hoặc đang diễn ra
   useEffect(() => {
     const fetchAuctions = async () => {
-      try {
-        const auctionData = await getAuction();
-  
-        console.log('Dữ liệu trả về từ API:', auctionData);
-  
-        if (auctionData && Array.isArray(auctionData) && auctionData.length > 0) {
-          // Đảo ngược mảng
-          const reversedAuctionData = [...auctionData].reverse();
-  
-          // Set dữ liệu đã đảo ngược vào state
-          setSortedProducts(reversedAuctionData);
-        } else {
-          console.error("API không trả về dữ liệu hợp lệ.");
+        try {
+            const auctionData = await getAuction();
+            if (auctionData && Array.isArray(auctionData) && auctionData.length > 0) {
+                const currentTime = Math.floor(Date.now() / 1000);
+                const validAuctions = auctionData.filter(auction => {
+                    if (!auction.endTime || isNaN(Number(auction.endTime))) {
+                        return false;
+                    }
+                    const auctionEndTime = Number(auction.endTime);
+                    const isValid = auctionEndTime >= currentTime;
+                    console.log({
+                        endTime: auctionEndTime,
+                        currentTime: currentTime,
+                        isValid: isValid,
+                    });
+                    return isValid;
+                });
+                const reversedAuctionData = [...validAuctions].reverse();
+                setSortedProducts(reversedAuctionData);
+            } else {
+                console.error("API không trả về dữ liệu hợp lệ.");
+                setSortedProducts([]);
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        } finally {
+            setLoading(false);
         }
-      } catch (error) {
-        console.error('Lỗi khi gọi API:', error);
-      } finally {
-        setLoading(false);
-      }
     };
-  
     fetchAuctions();
-  }, []);
+}, []);
+
+
 
   const handleMenuClick = (e) => {
     const key = e.key;

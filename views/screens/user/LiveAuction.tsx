@@ -92,7 +92,7 @@ export default function LiveAuction() {
     console.log("Xử lý khi đấu giá kết thúc...");
     setTimeout(() => {
       setOpenSplashScreen(true);
-    }, 1500);
+    }, 3000);
     try {
       await endedAuction(auctionIdLive);
     } catch (error) {
