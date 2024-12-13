@@ -72,7 +72,7 @@ export const connectWallet = async () => {
   // Kết nối ví
   const connection = await connect();
   if (!connection) {
-    message.error('Kết nối ví thất bại!');
+    message.warning('Please enter your Metamask wallet password before Connecting!');
     return;
   }
   const { walletAddress, formattedBalance, signer } = connection;

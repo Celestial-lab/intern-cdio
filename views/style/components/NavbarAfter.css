@@ -235,7 +235,7 @@
   height: 330px;
   overflow-y: auto;
   padding-right: 10px; 
-  
+  justify-content: center;
 }
 
 .auctions-dropdown::-webkit-scrollbar {
@@ -271,4 +271,11 @@
 .view-all:hover {
   transition: 400ms;
   scale: 1.05;
+}
+
+.no-auctions {
+  font-family: var(--space-grotesk-fonts);
+  font-size: 20px;
+  font-weight: 400;
+  align-self: center;
 }

@@ -48,7 +48,7 @@ const NavbarAfter = () => {
         return () => clearTimeout(timer);
     }, [cartSignal]);
 
-    
+
 
     const userMenu = (
         <div className="login-dropdown">
@@ -85,56 +85,59 @@ const NavbarAfter = () => {
     const loginMenu = (
         <div className='over'>
             <div className="auctions-dropdown">
-                {Array.isArray(listAuction) && listAuction.map((auction)  => (
-                    <Card
-                        className='card-fromIcon'
-                        key={auction.registrationId}
-                        size="small"
-                        title={auction.name}
-                        style={{ width: 300, marginBottom: 16 }}
-                    >
-                        <Row gutter={16}>
-                            <Col span={8}>
-                                <img
-                                    src={auction.imageUrl}
-                                    alt={auction.name}
-                                    style={{
-                                        width: '100%',
-                                        height: '80px',
-                                        objectFit: 'cover',
-                                        borderRadius: '4px',
-                                    }}
-                                />
-                            </Col>
-                            <Col span={16} style={{ gap: '10px' }}>
-                                <div className='price-icon' style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}>
-                                    <p>Price: </p>
-                                    <p style={{ color: '#22C55E', fontWeight: 'bold', marginBottom: 8 }}>
-                                        {auction.price} $
-                                    </p>
-                                </div>
-                                <div className='time-icon' style={{ display: 'flex', flexDirection: 'row', gap: '2px' }}>
-                                    <p>Start Time: </p>
-                                    <p style={{ color: '#888888', marginBottom: 0 }}>
-                                        {new Date(auction.startTime).toLocaleString('vi-VN', {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            hour12: false,
-                                        })}
-                                    </p>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Card>
-                ))}
-
-            
+                {Array.isArray(listAuction) && listAuction.length > 0 ? (
+                    listAuction.map((auction) => (
+                        <Card
+                            className='card-fromIcon'
+                            key={auction.registrationId}
+                            size="small"
+                            title={auction.name}
+                            style={{ width: 300, marginBottom: 16 }}
+                        >
+                            <Row gutter={16}>
+                                <Col span={8}>
+                                    <img
+                                        src={auction.imageUrl}
+                                        alt={auction.name}
+                                        style={{
+                                            width: '100%',
+                                            height: '80px',
+                                            objectFit: 'cover',
+                                            borderRadius: '4px',
+                                        }}
+                                    />
+                                </Col>
+                                <Col span={16} style={{ gap: '10px' }}>
+                                    <div className='price-icon' style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}>
+                                        <p>Price: </p>
+                                        <p style={{ color: '#22C55E', fontWeight: 'bold', marginBottom: 8 }}>
+                                            {auction.price} $
+                                        </p>
+                                    </div>
+                                    <div className='time-icon' style={{ display: 'flex', flexDirection: 'row', gap: '2px' }}>
+                                        <p>Start Time: </p>
+                                        <p style={{ color: '#888888', marginBottom: 0 }}>
+                                            {new Date(auction.startTime).toLocaleString('vi-VN', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: false,
+                                            })}
+                                        </p>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Card>
+                    ))
+                ) : (
+                    <p className='no-auctions' style={{ textAlign: 'center', color: '#888888' }}>No auctions registered</p>
+                )}
             </div>
             <button className='view-all' onClick={goToDoc}>View All</button>
         </div>
+
     );
 
     const goToProducts = () => {

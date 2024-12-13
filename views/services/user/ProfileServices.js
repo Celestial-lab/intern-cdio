@@ -111,7 +111,7 @@ export const claimToken = async (receiver) => {
     const response = await axios.post(`/api/claim`, {receiver});
     return response;
   } catch (error) {
-    console.log('lỗi ở claimToken: ', error);
+    // console.log('lỗi ở claimToken: ', error);
     return error.response;
   }
 }

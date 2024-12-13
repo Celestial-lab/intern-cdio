@@ -9,16 +9,13 @@ import Navbar from "../components/Navbar";
 import NavbarAfter from "../components/NavbarAfter";
 import FooterAll from "../components/Footer.js";
 import { useEffect, useState } from "react";
-import { claimToken } from "@/views/services/user/ProfileServices";
-import { message } from "antd";
 import { getAuction } from "@/views/services/AuctionServices";
-import { getInforId } from '@/views/utils/checkAuth'
+import { getInforId, ClaimToken2 } from '@/views/utils/checkAuth'
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [watchedPercentage, setWatchedPercentage] = useState(0);
   const [isClaimed, setIsClaimed] = useState(false);
-  const role = localStorage.getItem("role");
   const [player, setPlayer] = useState(null);
   const [claimButtonClass, setClaimButtonClass] = useState("claim-btn");
   const [hasZoomed, setHasZoomed] = useState(false);
@@ -30,22 +27,7 @@ const Home = () => {
   };
 
   const handleClaim = async () => {
-    if (role == "user") {
-      setIsLoading(true);
-      const walletAddress = localStorage.getItem("userAddress");
-      const response = await claimToken(walletAddress);
-      console.log("response: ", response);
-      if (response.data.errorCode == 1) {
-        message.warning("You have Claimed! Please Claim tomorrow");
-        setIsLoading(false);
-        setIsClaimed(true);
-        return
-      } else {
-        message.success("Claim successful");
-        setIsLoading(false);
-        setIsClaimed(true);
-      }
-    }
+    ClaimToken2(setIsLoading, setIsClaimed);
   };
 
   useEffect(() => {
@@ -129,7 +111,7 @@ const Home = () => {
               class="but-connect"
               onClick={(e) => {
                 e.preventDefault();
-                { !localStorage.getItem('accessToken') ? window.location.href = "/user/login" : window.location.href = "/products"}
+                { !localStorage.getItem('accessToken') ? window.location.href = "/user/signin" : window.location.href = "/products"}
               }}
             >
               { !localStorage.getItem('accessToken') ? `Let's Get Started` : `Find Somethings`}
