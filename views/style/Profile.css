@@ -1,28 +1,53 @@
-.headerInfor {
-    background-color: rgb(245 245 245);
+:root {
+    --space-grotesk-fonts: 'Space Grotesk';
 }
 
+a {
+    text-decoration: none !important;
+}
+
+.headerInfor {
+    background-color: #f5f5f5;
+}
+
+.ant-layout {
+    overflow: hidden;
+    background-color: #080D20;
+    font-family: var(--space-grotesk-fonts) !important;
+}
 .divTitle {
-    background-color: rgb(116, 255, 186) !important;
+    background-color: #22C55E !important;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
     margin-top: 10px;
-    padding-left: 15px !important; 
+}
+
+.titFromDiv {
+    color: #e6e6e6;
+    font-size: 25px;
+    margin: 10px;
+    padding-left: 10px;
 }
 
 .row {
     height: 100%;
 }
 
-.col1 {
+.col13 {
     height: 100%;
+    padding: 0 !important;
 }
 
 .col2 {
     height: 100%;
 }
 
+.ant-form-item-label {
+    font-family: var(--space-grotesk-fonts);
+}
+
 .divInfor {
+    background-color: #f4f4f4 !important;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     display: flex;
@@ -100,6 +125,7 @@
     display: flex;
 }
 .divName {
+    font-family: var(--space-grotesk-fonts);
     width: 150px;
     align-items: center;
     justify-content: left;
@@ -118,6 +144,7 @@
     font-weight: lighter;
 }
 .connectWalletBut{
+    font-family: var(--space-grotesk-fonts);
     background-color: #22C55E;
     color: white;
     margin-top: 30px;
@@ -129,6 +156,7 @@
     color: white;
     margin-top: 6px;
     margin-left: 7px;
+    font-family: var(--space-grotesk-fonts);
 }
 
 .colEdit {
@@ -138,8 +166,10 @@
     align-items: center;
     border-radius: 5px;
     padding-left: 10px;
+    gap: 20px;
 }
 .buttonEdit {
+    font-family: var(--space-grotesk-fonts);
     background-color: #22C55E;
     color: white;
 }
@@ -173,20 +203,37 @@
     padding-left: 10px;
 }
 .textEmailAddress {
+    font-family: var(--space-grotesk-fonts);
     font-weight: 600;
 }
 .textMail {
     font-weight: 600;
 }
 .textMonth {
+    
     font-weight: lighter;
 }
 .colEmail {
+    font-family: var(--space-grotesk-fonts);
     margin-left: 10px;
 }
 .modal-ok-button {
     background-color: #22C55E;
     color: white;
   }
-  
-  
+
+.ant-input:-webkit-autofill {
+    background-color: #eaeaea !important; /* Màu nền bạn muốn */
+    -webkit-box-shadow: 0 0 0px 1000px #eaeaea inset !important; /* Ghi đè shadow */
+    -webkit-text-fill-color: #000 !important; /* Màu chữ nếu cần */
+  }
+
+.ant-layout-sider-children {
+    background-color: #0e182f;
+}
+.ant-layout-sider-trigger {
+    background: #151A31;
+}
+.ant-menu {
+    background-color: #0e182f;
+}

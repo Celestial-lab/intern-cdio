@@ -45,11 +45,15 @@ const ProductPage = () => {
     const fetchAuctions = async () => {
       try {
         const auctionData = await getAuction();
-
+  
         console.log('Dữ liệu trả về từ API:', auctionData);
-
+  
         if (auctionData && Array.isArray(auctionData) && auctionData.length > 0) {
-          setSortedProducts(auctionData);
+          // Đảo ngược mảng
+          const reversedAuctionData = [...auctionData].reverse();
+  
+          // Set dữ liệu đã đảo ngược vào state
+          setSortedProducts(reversedAuctionData);
         } else {
           console.error("API không trả về dữ liệu hợp lệ.");
         }
@@ -59,6 +63,7 @@ const ProductPage = () => {
         setLoading(false);
       }
     };
+  
     fetchAuctions();
   }, []);
 
@@ -92,17 +97,11 @@ const ProductPage = () => {
 
 //bỏ setLocal
   const handleRegisterClick = (auctionId) => {
-
-    console.log('id cuộc đấu giá:', auctionId);
-
     router.push(`/products/${auctionId}`);
-
-    // localStorage.setItem('auctionId', auctionId);
-
   };
 
   if (loading) {
-    return <p>Đang tải dữ liệu đấu giá...</p>;
+    return <p>Loading...</p>;
   }
 
   return (
@@ -158,6 +157,14 @@ const ProductPage = () => {
                       <h5 className="card-title">{item.productName}</h5>
                       <p className="card-text">{item.description}</p>
                       <p className="card-text">Price: {item.startingPrice}</p>
+                      <p className="card-text">Start Time: {new Date(item.startTime).toLocaleString('vi-VN', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false,
+                      })}</p>
                       <button className="btn btn-success" onClick={() => handleRegisterClick(item.id)}>Register</button>
                     </div>
                   </div>

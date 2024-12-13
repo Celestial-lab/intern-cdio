@@ -168,3 +168,114 @@
     color: #ffffff;
   }
 
+  /* Giữ nguyên kiểu dáng của thẻ cart */
+  .cart {
+    transition: transform 0.3s ease;
+    will-change: transform;
+  }
+
+
+.cart.animate-cart {
+  transform: scale(1.1);
+  background-color: #f0f0f0;
+}
+
+
+.cart .ant-badge-count {
+  font-weight: bold;
+  font-size: 14px;
+  background-color: #22C55E;
+}
+
+
+.cart.animate-cart .ant-badge-count {
+  transform: scale(1.2);
+}
+
+.bi-cart.zoomed {
+  transform: scale(1.1);
+  fill: #22C55E;
+  transition: transform 0.2s ease, fill 0.2s ease;
+  will-change: transform, fill;
+}
+
+.bi-cart {
+  will-change: transform, fill;
+  transform: scale(1);
+  fill: black;
+  margin-bottom: 4px;
+  margin-right: 1px;
+}
+
+.over {
+  height: fit-content;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  overflow: hidden;
+  position: relative;
+  background-color: #eaeaea;
+  border-radius: 10px;
+  
+}
+
+.auctions-dropdown {
+  margin-top: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(3 * 200px);
+  overflow-y: auto;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  height: 330px;
+  overflow-y: auto;
+  padding-right: 10px; 
+  justify-content: center;
+}
+
+.auctions-dropdown::-webkit-scrollbar {
+  width: 5px; 
+}
+
+.auctions-dropdown::-webkit-scrollbar-track {
+  background: #b7b7b7;
+}
+
+.auctions-dropdown::-webkit-scrollbar-thumb {
+  background: #22C55E;
+  border-radius: 10px;
+}
+
+.auctions-dropdown .ant-card {
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.view-all {
+  font-family: var(--space-grotesk-fonts);
+  width: 100px;
+  height: 30px;
+  background-color: #22C55E;
+  color: white;
+  border-radius: 30px;
+  border: #22C55E;
+  text-decoration: none;
+  text-align: center;
+  margin: 15px 0;
+}
+.view-all:hover {
+  transition: 400ms;
+  scale: 1.05;
+}
+
+.no-auctions {
+  font-family: var(--space-grotesk-fonts);
+  font-size: 20px;
+  font-weight: 400;
+  align-self: center;
+}

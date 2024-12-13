@@ -1,6 +1,7 @@
 .sec-liveAuction {
     background: linear-gradient(to bottom, #080D20, #151A31);
     height: fit-content;
+    border-bottom: solid 3px #4cad6f;
 }
 
 .timeLess {
@@ -107,8 +108,11 @@
 }
 
 .title {
+    font-family: var(--space-grotesk-fonts);
+    font-size: 19px;
     margin: 0;
 }
+
 
 .iconChart {
     margin-left: 5px;
@@ -297,418 +301,42 @@
     font-style: italic;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* .liveAuction {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+.no-bids-message {
+    margin-left: 4px;
+    font-family: var(--space-grotesk-fonts);
+    color: #4cad6f;
+    font-size: 16px;
+    font-weight: 400;
+    margin-top: 15px;
+    margin-left: 5px;
 }
-
-.money {
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+.card-auctions {
+    width: 200px !important;
+    background-color: #d5d5d5;
     border-radius: 10px;
-    height: 100vh;
+}
+.card-auctions:hover {
+    transition: 500ms;
+    scale: 1.05;
 }
 
-.redBox {
-    padding: 2px;
-    margin: 2px;
-    border-radius: 10px;
-    border: 3px solid #8df0b1;
-    display: flex;
-    flex-direction: column;
-    height: 70vh;
+.card-body-auctions{
+    font-family: var(--space-grotesk-fonts);
+    padding: 10px 0 !important;
+    
 }
-
-.greenBox {
-    padding: 2px;
-    color: rgb(0, 0, 0);
-    margin: 2px; 
-    margin-bottom: 2px;
-    border-radius: 10px;
-    border: 3px solid #8df0b1;
-    height: 30vh;
+.card-text-auctions {
+    font-size: 13px;
+    margin: 0;
+    font-weight: 400;
 }
-
-.liveMoney-title {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 22px;
-    font-weight: bold;
-}
-.title {
-    margin-top: 15.5px;
-    font-size: 23px;
+.card-title-auctions {
+    font-size: 20px;
     font-weight: 500;
-    
-}
-
-.iconChart {
-    margin-top: 10px;
-    margin-left: 10px;
-    width: 25px;
-}
-
-.auctionCard {
-    border-radius: 8px;
-}
-
-.topCard .price {
-    font-weight: bold;
-    color: #22C55E;
-}
-
-
-.content {
-    margin-top: 10px;
-    height: 600px;
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    border: 1px solid #b5b5b5;
-    border-radius: 8px;
-}
-
-.currentMoney-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 3px;
-    font-size: 22px;
-    font-weight: bold;
-}
-
-.currentPrice {
-    margin-left: auto;
-    margin-right: 20px;
-}
-
-
-.colMoney, .colUser, .colRound {
-    display: flex;
-    align-items: center;
-    font-size: 12px;
-}
-
-.colMoney {
-    justify-content: flex-start;
-    height: 50px; 
-}
-
-.moneyAtime {
-    margin-left: 20px;
-    font-size: 15px;
-}
-
-.round {
-    background-color: #cacaca;
-    color: white;
-    border-radius: 10px;
-    width: 120px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.colRound {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px; 
-}
-
-.user {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-.userName {
-    display: flex;
-    align-self: center;
-}
-.colUser {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    font-size: 12px;
-}
-
-
-
-
-
-
-
-
-.inforPrice {
-    height: fit-content;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.price {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-}
-
-.priceField, .multiplierField, .totalField {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    border-radius: 20px;
-    height: 37px;
-}
-
-
-.priceField {
-    width: 130px;
-    border: 1.5px solid #a4a4a4;
-    position: relative;
-}
-
-.priceField::before {
-    content: "Step price";
-    position: absolute;
-    top: -10.5px;
-    left: 8px;
-    font-size: 12px;
-    background-color: white;
-}
-
-.multiplierField {
-    gap: 20px;
-    padding: 2px;
-    border: 2px solid #a4a4a4;
-}
-
-.totalField {
-    display: flex;
-    border: 2px solid #a4a4a4;
-    border-radius: 20px;
-    font-size: 17px;
-    font-weight: bold;
-    width: 100px;
-    height: 37px;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.multiplySymbol {
-    font-size: 15px;
-    font-weight: bold;
-
-}
-
-.equalSymbol {
-    font-size: 25px;
-    font-weight: bold;
-    
-}
-
-.increaseButton, .decreaseButton {
-    width: 30px; 
-    height: 30px;
-    border-radius: 50%;
-    background-color: #22C55E;
-    color: white;
-    border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.increaseButton:hover, .decreaseButton:hover {
-    background-color: #1a9a45;
+.card-title-auctions:hover {
+    color: #29a356;
+    transition: 0.3s;
 }
-
-.buttonPrice {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.butPrice {
-    width: 250px;
-    height: 50px;
-    border-radius: 40px;
-    background-color: #22C55E;
-    font-size: 15px;
-    font-weight: 600;
-}
-.butPrice:hover {
-    background-color: rgb(255, 255, 255) !important;
-    color: #000 !important;
-    border: 1px solid black;
-    font-size: large;
-    font-weight: 600;
-}
-
-.time {
-    height: 100vh;
-    border-radius: 10px;
-    box-shadow: 0px 20px 20px rgba(0, 0, 0, 0.2);
-}
-.countDown {
-    height: 25%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.showTime {
-    border: 2px solid black;
-    border-radius: 5px;
-    width: 500px;
-    height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-.timeLess {
-    font-size: 28px;
-    font-weight: 700;
-    color: #ff2d2d;
-}
-.timeCount {
-    font-size: 70px;
-    font-weight: 500;
-    color: #ff2d2d;
-}
-
-
-.product {
-    height: 40%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-}
-
-.product .avatar {
-    width: auto;
-    height: 100%;
-}
-
-.inforProduct {
-    height: 15%;
-}
-
-.infor1 {
-    height: 30%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.inforRound {
-    background-color: #22C55E;
-    color: white;
-    border-radius: 15px;
-    width: 120px;
-    height: 27px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.infor2 {
-    height: 70%;
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;
-    padding: 2px;
-}
-
-.leftInfor, .rightInfor {
-    width: 49.5%;
-    height: 70%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background-color: #e9e9e9;
-}
-
-.moreProduct {
-    height: 20%;
-    display: flex;
-    justify-content: space-between; 
-}
-.suggest1 {
-    
-    width: 50%;
-    padding: 5px;
-}
-.cardSug1 {
-    width: 100%;
-    height: 100%;
-}
-.inforSugPro1 {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.ant-card-body {
-    height: 100%;
-}
-.avtSug {
-    width: 100px;
-    height: 100px;
-    margin-left: 10px;
-}
-
-.ant-card-meta-detail {
-    margin-left: 15%;
-}
-.bidCount {
-    width: 120px;
-    display: flex;
-    justify-content: center;
-    height: 25px;
-    border: 1px solid rgb(222, 222, 222);
-    border-radius: 20px;
-    background-color: #a4a4a4;
-    color: white;
-}
-.priceSugPro {
-    font-weight: bolder;
-}
-
-.suggest2 {
-    width: 50%;
-    padding: 5px;
-}
- */

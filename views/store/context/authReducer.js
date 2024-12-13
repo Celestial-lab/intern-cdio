@@ -20,4 +20,17 @@ export const authReducer = (state, action) => {
         default:
             return state; 
     }
-}
+};
+
+export const reducerInfor = (state, action) => {
+    switch (action.type) {
+        case 'ACTION_SET_USER_INFO':
+            return { ...state, userInfo: action.payload };
+        case 'ACTION_SET_BALANCE':
+            return { ...state, balance: action.payload };
+        case 'ACTION_CLEAR_USER_DATA':
+            return { userInfo: null, balance: 0 };
+        default:
+            return state;
+    }
+};

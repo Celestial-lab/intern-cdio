@@ -1,123 +1,82 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { Button, Col, DatePicker, Input, Row, Table, Image, Modal } from 'antd';
+import { Button, Col, DatePicker, Input, Row, Table, Image, Modal, message, MenuProps, Tooltip } from 'antd';
 import { Layout, Menu, theme } from 'antd';
-import { AppstoreOutlined, FileOutlined, HistoryOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, FileOutlined, HistoryOutlined, SearchOutlined } from '@ant-design/icons';
 import "@/views/style/MyDocument.css";
-import { Footer } from 'antd/es/layout/layout';
-import { getRegisterAuction } from '@/views/services/user/ProfileServices';
 import NavbarSetting from '@/views/components/NavbarSetting';
-import { useRouter } from 'next/navigation';
 import { handleDeleteRegis } from '@/views/utils/user/compMyDocument/compDeleteRegis';
 import { handleApprove } from '@/views/utils/user/compMyDocument/compApprove';
-import { handleJoinLiveAuction } from '@/views/utils/user/compMyDocument/compJoinAuction';
+import { handleJoinLiveAuction, checkIsJoin } from '@/views/utils/user/compMyDocument/compJoinAuction';
+import moment from 'moment';
+import { fetchProductData, updateProductStatus, fetchStatusProductData } from '@/views/utils/user/compMyDocument/compGetAuctions'
+import { checkAllowance } from '@/views/services/user/ProfileServices';
 
 const { Content, Sider } = Layout;
 
-function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, href?: string) {
+type MenuItem = Required<MenuProps>['items'][number];
+
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  href?: string,
+): MenuItem {
   return {
     key,
     icon,
     label: <a href={href}>{label}</a>,
-  };
+  } as MenuItem;
+}
+
+interface Product {
+  name: any;
+  startTime: number;
+  endTime: number;
+  id: any;
+  productname: string;
+  image: string;
+  description: string;
+  price: string;
+  auctionTime: any;
+  status: 'The auction has not started yet' | 'The auction is ongoing' | 'The auction is over';
 }
 
 const items = [
   getItem('Profile', 'profile', <AppstoreOutlined />, '/user/settings/Profile'),
-  getItem('Cart', 'cart', <ShoppingCartOutlined />, '/user/settings/Cart'),
   getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/user/settings/AuctionHistory'),
-  getItem('My Document', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
+  getItem('Registered Auctions', 'myDocument', <FileOutlined />, '/user/settings/MyDocument'),
 ];
 
 const MyDocument = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
-  const [registeredAuctions, setRegisteredAuctions] = useState([]);
+  const [registeredAuctions, setRegisteredAuctions] = useState<Product[]>([]);
   const [deletingRegisId, setDeletingRegisId] = useState<number | null>(null);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isCanJoin, setIsCanJoin] = useState(0);
+
+  const loadData = async () => {
+    await fetchProductData(setRegisteredAuctions);
+    updateProductStatus(registeredAuctions, setRegisteredAuctions);
+  }
+
+  useEffect(() => {
+    loadData();
+    checkIsJoin(setIsCanJoin);
+  }, [])
 
 
   useEffect(() => {
-    const fetchRegisteredAuctions = async () => {
-      const userId = localStorage.getItem('userId');
-      if (userId) {
-        const register = await getRegisterAuction(userId);
-        // in giá trị ra
-        register.forEach((registration: any, index: number) => {
-          console.log(`cuộc đấu giá ${index + 1}:`, registration);
-          const registrationId = registration.registrationId;
-          console.log('registration: ', registrationId);
-        });
-        if (register) {
-          // Sử dụng map để chuyển đổi dữ liệu và log mảng đã chuyển đổi
-          const mappedAuctions = register.map((auction: any) => ({
-            registrationId: auction.registrationId,
-            auctionIdLive: auction.id,
-            name: auction.productName,
-            auctionDay: new Date(auction.createdAt).toLocaleDateString(),
-            auctionMinutes: Math.floor((auction.endTime - Date.now() / 1000) / 60),
-            startingPrice: auction.startingPrice,
-            imageUrl: auction.imageUrl,
-          }));
-          // Cập nhật state với mảng đã map
-          setRegisteredAuctions(mappedAuctions);
-        } else {
-          console.error('Không tìm thấy cuộc đấu giá nào.');
-        }
-      } else {
-        console.error('Không tìm thấy userId trong localStorage.');
-      }
-    };
-    fetchRegisteredAuctions();
-  }, []);
+    console.log('registeredAuctions: ', registeredAuctions);
+  }, [])
 
-
-  const columns = [
-    {
-      title: 'Product Image',
-      dataIndex: 'imageUrl',
-      key: 'imageUrl',
-      render: (imageUrl: string | undefined) => <Image width={100} src={imageUrl} alt="Product" />,
-    },
-    {
-      title: 'Product Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Auction day',
-      dataIndex: 'auctionDay',
-      key: 'auctionDay',
-    },
-    {
-      title: 'Auction minutes',
-      dataIndex: 'auctionMinutes',
-      key: 'auctionMinutes',
-    },
-    {
-      title: 'Starting Price',
-      dataIndex: 'startingPrice',
-      key: 'startingPrice',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_: any, record: { auctionIdLive: any, registrationId: any }) => (
-        <div>
-          <Button type="primary" onClick={() => JoinAuction(record.auctionIdLive, record.registrationId)}>Tham gia đấu giá</Button>
-          <Button type="primary" onClick={() => handleDelete(record.registrationId)}>Huỷ đăng ký</Button>
-        </div>
-      ),
-    },
-    {
-      title: 'Approve',
-      key: 'action',
-      render: (_: any, record: { key: any; }) => (
-        <Button type="primary" onClick={() => handleApproveAuction(record.key)}>Approve</Button>
-      ),
-    },
-  ];
+  //hàm xử lí khi nhấn tên sản phẩm
+  const handleNavigateToDetail = async (auctionIdLive: number) => {
+    window.location.href = `/products/${auctionIdLive}`
+  };
 
   const handleDelete = (id: number) => {
     setDeletingRegisId(id);
@@ -127,20 +86,101 @@ const MyDocument = () => {
   const confirmDeleteProduct = async () => {
     if (deletingRegisId !== null) {
       await handleDeleteRegis(deletingRegisId, setRegisteredAuctions);
+      loadData();
       setDeletingRegisId(null);
       setConfirmDeleteVisible(false);
     }
   };
 
-  const router = useRouter();
-
   const handleApproveAuction = async () => {
     await handleApprove();
+    setIsCanJoin(0);
   }
 
-  const JoinAuction = async (auctionIdLive: any, registrationId: any) => {
-    await handleJoinLiveAuction(auctionIdLive, registrationId, router)
-  }
+  //tham gia đấu giá
+  const JoinAuction = async (auctionIdLive: any, registrationId: any, status: string) => {
+    const getStatus = await fetchStatusProductData();
+    const auction = getStatus.find(
+      (item: any) => item.auctionIdLive === auctionIdLive
+    );
+    if (auction) {
+      if (auction.status === 'The auction is over') {
+        message.warning(`The auction is over, you can't enter to view it`);
+        return;
+      }
+      if (auction.status === 'The auction has not started yet') {
+        message.warning(`The auction has not started yet, please wait`);
+        return;
+      }
+    } else {
+      message.error('The auction does not exist in your registration list');
+      return;
+    }
+    await handleJoinLiveAuction(auctionIdLive, registrationId)
+  };
+
+  const columns = [
+    {
+      title: 'Product Name',
+      dataIndex: 'name',
+      key: 'name',
+      filteredValue: [searchTerm],
+      onFilter: (value: any, record: Product) =>
+        record.name.toLowerCase().includes(value.toLowerCase()),
+      render: (name: string, record: Product) => (
+        <span
+          className='name-product'
+          style={{ color: 'blue', cursor: 'pointer', }}
+          onClick={() => handleNavigateToDetail(record.auctionIdLive)}
+        >
+          {name}
+        </span>
+      ),
+    },
+    {
+      title: 'GIF',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
+      render: (imageUrl: string | undefined) => <Image width={100} src={imageUrl} alt="Product" />,
+    },
+    {
+      title: 'Starting Price',
+      dataIndex: 'price',
+      key: 'price',
+      className: 'startPrice-table',
+    },
+    {
+      title: 'Auction Time',
+      dataIndex: 'auctionTime',
+      key: 'auctionTime',
+      className: 'auctionTime-table',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      className: 'status-table',
+    },
+    {
+      title: 'Start Time',
+      dataIndex: 'startTime',
+      className: 'startTime-table',
+      key: 'startTime',
+      render: (startTime: number) => (
+        startTime ? moment(startTime).format('YYYY-MM-DD HH:mm:ss') : 'Không có dữ liệu'
+      ),
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_: any, record: { key: any, auctionIdLive: any, registrationId: any }) => (
+        <div className='but-join-delete' key={record.registrationId}>
+          <Button className='but-join' disabled={isCanJoin == 1} onClick={() => JoinAuction(record.auctionIdLive, record.registrationId)}>Join</Button>
+          <Button className='but-delete' danger onClick={() => handleDelete(record.registrationId)}>Unsubscribe </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -149,28 +189,30 @@ const MyDocument = () => {
         <Menu theme="dark" defaultSelectedKeys={['myDocument']} mode="inline" items={items} />
       </Sider>
       <Layout>
+
         <NavbarSetting />
+
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
             maxHeight: 60,
             background: colorBgContainer,
           }}>
-            <h3>My Document</h3>
+            <h3 className='titFromDiv'>Registered Auctions</h3>
           </div>
-          <div className='dibInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
+          <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row className='row1'>
+              <div className='div-approve'>
+                <Button className='but-approve' type="primary" onClick={() => handleApproveAuction()}>Approve</Button>
+              </div>
               <div className='divSearch'>
-                <div className='divFrom'>
-                  <DatePicker placeholder='From' />
+                <div className='productName' >
+                  <Input
+                    prefix={<SearchOutlined />}
+                    placeholder="Search..."
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
-                <div className='divTo'>
-                  <DatePicker placeholder='To' />
-                </div>
-                <div className='productName'>
-                  <Input placeholder="Product Name" />
-                </div>
-                <Button className='butSearch' type='text'>Search</Button>
               </div>
             </Row>
             <Row className='row2'>
@@ -178,7 +220,14 @@ const MyDocument = () => {
                 <Row className='rowProduct'>
                   <div className='divTable'>
                     <Col className='colTable'>
-                      <Table columns={columns} dataSource={registeredAuctions} rowKey="key" />
+                      <Table
+                        dataSource={registeredAuctions.filter(auction =>
+                          auction.name && auction.name.toLowerCase().includes(searchTerm.toLowerCase())
+                        )}
+                        rowKey='registrationId'
+                        columns={columns}
+                        pagination={{ pageSize: 5 }}
+                      />
                     </Col>
                   </div>
                 </Row>
@@ -192,14 +241,10 @@ const MyDocument = () => {
               okText="Yes"
               cancelText="No"
             >
-              <p>Bạn có chắc chắn muốn huỷ đăng ký cuộc đấu giá này không?</p>
+              <p>Are you sure you want to unsubscribe this auction?</p>
             </Modal>
-
           </div>
         </Content>
-
-        <Footer>
-        </Footer>
       </Layout>
     </Layout>
   )

@@ -24,11 +24,6 @@ export const verifiedByCode = async (email, code) => {
 export const getUserByLoginId = async (loginId) => {
     try {
         const response = await axios.get(`/api/getLoginbyId/${loginId}`);
-        // response.then(response => response.data) 
-        // .then(data => console.log(data))
-        // .catch(error => {
-        //     console.error('error:', error.response || error.message);
-        // });
         return response.data
     } catch (error) {
         console.error('lỗi bên hàm getUserByLoginId: ', error);

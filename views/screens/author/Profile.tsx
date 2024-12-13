@@ -10,18 +10,15 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import "@/views/style/ProfileAuthor.css";
-import { Footer } from 'antd/es/layout/layout';
+import { getInforById } from '../../services/user/ProfileServices.js';
 import moment from "moment";
 import { MetaMaskInpageProvider } from "@metamask/providers";
-import NavbarSetting from '@/views/components/NavbarSetting';
-import { getInforById } from '@/views/services/user/ProfileServices';
-import { useProfile } from '@/views/hook/useProfile';
-import { handleAddProfile } from '@/views/utils/author/compProfile/addProfile';
-import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile';
+import NavbarSetting from "@/views/components/NavbarSetting";
 import { connectWallet } from '@/views/utils/connectWallet';
-import { useAuthContent } from '@/views/store/context/AuthContext';
-
-
+import { useProfile } from '@/views/hook/useProfile';
+import { handleAddProfile } from '@/views/utils/author/compProfile/addProfile.js';
+import { handleEditProfile } from '@/views/utils/author/compProfile/editProfile.js';
+import { useUserInfoContext } from '@/views/store/context/UserInfoContext';
 
 const { Content, Sider } = Layout;
 
@@ -57,43 +54,41 @@ export default function Profile() {
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
   const [form] = Form.useForm();
-
-  // đã tách hook useState profile ra file riêng
-  const [profile, updateProfile] = useProfile();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('edit');
   const [isActive, setIsActive] = useState(true);
   const [timer, setTimer] = useState(600);
-  const { state } = useAuthContent();
+  const [profile, updateProfile] = useProfile();
+  const [buttonState, setButtonState] = useState(1);
+  const [isEditing, setIsEditing] = useState(0);
+  const [isAdding, setIsAdding] = useState(0);
 
-  const handleCancelButton = () => {
-    setIsModalOpen(false)
-  }
+  const { setUserInfo } = useUserInfoContext();
+  const email = localStorage.getItem('email');
 
-  const showAddModal = () => {
-    setModalMode('add');
-    setIsModalOpen(true);
+  const handleInputChange = () => {
+    const values = form.getFieldsValue();
+    return Object.values(values).every(value => value !== undefined && value !== '');
   };
 
-  const showEditModal = () => {
-    setModalMode('edit');
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async () => {
-    if (modalMode === 'add') {
-      await handleAddProfile(form, updateProfile);
-      setIsModalOpen(false);
-    } else {
-      await handleEditProfile(form, updateProfile, profile);
-      setIsModalOpen(false);
+  const handleSave = async () => {
+    if (buttonState === 1) {
+      if (!handleInputChange()) {
+        message.warning("Please fill all required fields.");
+        return;
+      };
+      await handleAddProfile(form, updateProfile, profile, setUserInfo);
+      setButtonState(2);
+      setIsEditing(0);
+      setIsAdding(0);
+    } else if (buttonState === 2) {
+      await handleEditProfile(form, updateProfile, profile, setUserInfo);
+      setIsEditing(0);
+      setIsAdding(0);
     }
   };
 
   const handleConnectWallet = async () => {
-    await connectWallet(form, updateProfile, profile, state);
+    const walletAddress = await connectWallet();
+    form.setFieldsValue({ walletAddress });
   };
 
   useEffect(() => {
@@ -102,28 +97,36 @@ export default function Profile() {
       if (authorId) {
         try {
           const response = await getInforById(authorId);
-          const inforId = response.data.id;
-
-          localStorage.setItem('inforId', inforId);
-
-          console.log('response sau get: ', response);
-
           const data = response.data;
-
-          if (data) {
-            updateProfile({
-              email: data.email,
-              fullname: data.fullname,
-              dateofbirth: data.dateOfBirth,
-              gender: data.gender ? 'Male' : 'Female',
-              country: data.country,
-              walletAddress: data.walletAddress,
-            });
-          } else {
-            console.log('No profile data found for the given email');
-          }
+          switch (response.errorCode) {
+            case 1:
+              setButtonState(1); // Hiển thị nút Add
+              setIsAdding(0);
+              message.warning('Bạn chưa thêm thông tin cá nhân, hãy thêm thông tin để có thể đấu giá nhé!');
+              return;
+            case 0:
+              if (data) {
+                setButtonState(2); // Hiển thị nút Edit
+                setIsEditing(0);
+                localStorage.setItem('inforId', response.data.id);
+                updateProfile({
+                  fullname: data.fullname,
+                  dateofbirth: data.dateOfBirth,
+                  gender: data.gender == true ? 'Male' : 'Female',
+                  country: data.country,
+                  walletAddress: data.walletAddress,
+                  createAt: data.createdAt,
+                });
+              } else {
+                console.log('No profile data found for the given loginId');
+              }
+              return;
+            default:
+              console.error('Unexpected error code:', response.errorCode);
+              message.error('Đã xảy ra lỗi không xác định.');
+              return;
+          };
         } catch (error) {
-          setError('Failed to fetch profile data');
           console.error('Failed to fetch profile:', error);
         }
       }
@@ -132,7 +135,6 @@ export default function Profile() {
   }, []);
 
   // đếm ngược thời gian k tương tác với trang web để đăng nhập lại
-  
   useEffect(() => {
     let countdown: string | number | NodeJS.Timeout | undefined;
     if (isActive) {
@@ -147,7 +149,8 @@ export default function Profile() {
               ),
               okText: 'Ok',
               onOk: () => {
-                localStorage.clear();
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('userEmail');
                 window.location.href = '/user/signin';
               },
               closable: false,
@@ -162,12 +165,10 @@ export default function Profile() {
       clearInterval(countdown);
     };
   }, [isActive]);
-
   const handleUserActivity = () => {
     setTimer(600);
     setIsActive(true);
   };
-  
   useEffect(() => {
     window.addEventListener('mousemove', handleUserActivity);
     window.addEventListener('keydown', handleUserActivity);
@@ -184,16 +185,14 @@ export default function Profile() {
         <Menu theme="dark" defaultSelectedKeys={['profile']} mode="inline" items={items} />
       </Sider>
       <Layout>
-
         <NavbarSetting />
-
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
             maxHeight: 60,
             background: colorBgContainer,
-          }}><h3>Profile</h3></div>
-          <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
+          }}><h3 className='titFromDiv'>Profile</h3></div>
+          <div className='divInfor' style={{ padding: 15, minHeight: 485 }}>
             <Row className='row1'>
               <Col className='colAvt' span={12}>
                 <Row className='rowName'>
@@ -204,101 +203,85 @@ export default function Profile() {
                     <div className='divName'>
                       <p>
                         <span className='textName'>{profile.fullname}</span> <br />
-                        <span className='textEmail'>{profile.email}</span>
+                        <span className='textEmail'>{email}</span>
                       </p>
                     </div>
                   </Col>
                 </Row>
               </Col>
               <Col className='colEdit' span={12}>
-
-                  <Button className='buttonEdit' type="text" onClick={showAddModal}>Add Infor</Button>
-                  <Button className='buttonEdit' type="text" onClick={showEditModal}>Edit</Button>
-
-                <Modal
-                  title={modalMode === 'add' ? "Add Infor" : "Edit Profile"}
-                  open={isModalOpen}
-                  onOk={handleSubmit}
-                  onCancel={handleCancelButton}
-                  okText={modalMode === 'add' ? "Add" : "Edit"}
-                  okButtonProps={{ className: 'modal-ok-button', type: 'text' }}
-                  cancelButtonProps={{ type: 'text' }}
-                >
-                  <Form form={form} layout="vertical">
-                    <Form.Item
-                      name="fullName"
-                      label="Full Name:"
-                      initialValue={profile.fullname}
+                <div className='main-but'>
+                  {buttonState === 1 && (
+                    <Button
+                      className="buttonEdit"
+                      type="text"
+                      disabled={isEditing === 1 && isAdding === 1}
+                      onClick={() => {
+                        setIsAdding(1);
+                        setIsEditing(1);
+                      }}
                     >
-                      <Input placeholder={profile.fullname} />
-                    </Form.Item>
-
-                    <Form.Item
-                      name="gender"
-                      label="Gender"
-                      initialValue={profile.gender === 'Male' ? true : false}
-                      rules={[{ required: true, message: 'Please select gender!' }]}
+                      Add Infor
+                    </Button>
+                  )}
+                  {buttonState === 2 && (
+                    <Button
+                      className="buttonEdit"
+                      type="text"
+                      disabled={isEditing === 1 && isAdding === 1}
+                      onClick={() => {
+                        setIsEditing(1);
+                        setIsAdding(1)
+                      }}
                     >
-                      <Radio.Group>
-                        <Radio value={'Male'}>Male</Radio>
-                        <Radio value={'Female'}>Female</Radio>
-                      </Radio.Group>
-                    </Form.Item>
-
-                    <Row className="walletaddress" align="middle">
-                      <Col span={18}>
-                        <Form.Item
-                          name="walletAddress"
-                          label="Wallet Address:"
-                          initialValue={profile.walletAddress}
-                        >
-                          <Input placeholder={profile.walletAddress} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={6}>
-                        <Button className='butConnectInModal' type="text" onClick={handleConnectWallet}>
-                          Connect Wallet
-                        </Button>
-                      </Col>
-                    </Row>
-
-                    <Form.Item
-                      name="dateOfBirth"
-                      label="Date of Birth"
-                      initialValue={profile.dateofbirth ? moment(profile.dateofbirth) : null}
-                      rules={[{ required: true, message: 'Please select date of birth!' }]}
+                      Edit Infor
+                    </Button>
+                  )}
+                </div>
+                <div className='support-but'>
+                  {isEditing === 1 && isAdding === 1 ? (
+                    <Button
+                      className="buttonEdit"
+                      type="text"
+                      onClick={() => handleSave()}
                     >
-                      <DatePicker format="YYYY-MM-DD" />
-                    </Form.Item>
-                    <Form.Item
-                      name="country"
-                      label="Country:"
-                      initialValue={profile.country}
+                      Save
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={true}
+                      className="buttonEdit"
+                      type="text"
+                      onClick={() => setIsEditing(1)}
                     >
-                      <Input placeholder={profile.country} />
-                    </Form.Item>
-                  </Form>
-                </Modal>
-
-
-
-
-
-
+                      Save
+                    </Button>
+                  )
+                  }
+                </div>
               </Col>
             </Row>
             <Row className='row2'>
               <Col className='colInput1' span={12}>
                 <div className='divInput1'>
                   <Form form={form} layout="vertical">
-                    <Form.Item name="fullName" label="Full Name:">
-                      <Input placeholder={profile.fullname} />
+                    <Form.Item name="fullName" label="Full Name:" >
+                      <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.fullname || "No information yet"} />
                     </Form.Item>
-                    <Form.Item name="gender" label="Gender:">
-                      <Input placeholder={profile.gender} />
-                    </Form.Item>
+                    {isEditing === 0 && isAdding === 0 ? (
+                      <Form.Item name="gender" label="Gender:">
+                        <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.gender || "No information yet"} />
+                      </Form.Item>
+                    ) : (
+                      <Form.Item name="gender" label="Gender:" initialValue={profile.gender === 'Male' ? true : false}>
+                        <Radio.Group>
+                          <Radio value={'Male'}>Male</Radio>
+                          <Radio value={'Female'}>Female</Radio>
+                        </Radio.Group>
+                      </Form.Item>
+                    )}
                     <Form.Item name="walletAddress" label="Wallet Address:" >
-                      <Input placeholder={profile.walletAddress} />
+                      <Input disabled={isEditing === 0 && isAdding === 0 || isEditing === 1 && isAdding === 1} placeholder={profile.walletAddress || "No information yet"} />
                     </Form.Item>
                   </Form>
                 </div>
@@ -306,22 +289,33 @@ export default function Profile() {
               <Col className='colInput2' span={12}>
                 <div className='divInput2'>
                   <Form form={form} layout="vertical">
-                    <Form.Item name="dateOfBirth" label="Date of birth:">
-                      <Input placeholder={profile.dateofbirth} />
+                    <Form.Item name="dateOfBirth"
+                      label="Date of Birth:"
+                      initialValue={profile.dateofbirth ? moment(profile.dateofbirth) : null}
+                    >
+                      {isEditing === 0 && isAdding === 0 ? (
+                        <Input disabled={true} placeholder={
+                          profile.dateofbirth
+                            ? moment(profile.dateofbirth).format("DD-MM-YYYY")
+                            : "No information yet"
+                        } />
+                      ) : (
+                        <DatePicker format="YYYY-MM-DD" />
+                      )}
                     </Form.Item>
-                    <Form.Item name="country" label="Country:">
-                      <Input placeholder={profile.country} />
+                    <Form.Item name="country" label="Country:" >
+                      <Input disabled={isEditing === 0 && isAdding === 0} placeholder={profile.country || "No information yet"} />
                     </Form.Item>
                   </Form>
-                  <Button className='connectWalletBut' type="text" onClick={handleConnectWallet}>Connect Wallet</Button>
+                  <Button className='connectWalletBut' disabled={isEditing === 0 && isAdding === 0} type="text" onClick={handleConnectWallet}>Connect Wallet</Button>
                 </div>
               </Col>
             </Row>
             <Row className='row3'>
-              <Col className='col1' span={12}>
+              <Col className='col13' span={12}>
                 <Row className='row31'>
                   <div>
-                    <span className='textEmailAddress'>My email Address</span>
+                    <span className='textEmailAddress'>My email Address:</span>
                   </div>
                 </Row>
                 <Row className='row32'>
@@ -329,24 +323,16 @@ export default function Profile() {
                     <Avatar shape='circle' style={{ color: '#22C55E', background: '#e7e7e7' }} size={35} icon={<MailFilled />}></Avatar>
                   </Col>
                   <Col className='colEmail' span={20.5}>
-                    <span className='textMail'>{profile.email}</span> <br />
-                    <span className='textMonth'>{profile.createdAt}</span>
+                    <span className='textMail'>{email}</span> <br />
+                    <span className='textMonth'>Created At: {moment(profile.createAt).format("DD-MM-YYYY")}</span>
                   </Col>
                 </Row>
-                <Row className='row33'>
-                  <div>
-                    <Button className='buttonEdit' type="text">+Add Email Address</Button>
-                  </div>
-                </Row>
               </Col>
-
               <Col className='col2' span={12}>
               </Col>
             </Row>
           </div>
         </Content>
-        <Footer>
-        </Footer>
       </Layout>
     </Layout>
   );

@@ -1,15 +1,61 @@
+:root {
+    --space-grotesk-fonts: 'Space Grotesk';
+}
+
 .headerInfor {
     background-color: rgb(245 245 245);
 }
 
 .divTitle {
-    background-color: rgb(116, 255, 186) !important;
+    background-color: #22C55E !important;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
     margin-top: 10px;
-    padding-left: 15px !important; 
 }
 
+.titFromDiv {
+    color: #e6e6e6;
+    font-size: 25px;
+    margin: 10px;
+    padding-left: 10px;
+}
+
+.ant-table-cell {
+    font-family: var(--space-grotesk-fonts) !important;
+}
+
+.name-product {
+    font-family: var(--space-grotesk-fonts) !important;
+    color: #080D20 !important;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none !important;
+}
+
+.name-product:hover {
+    text-decoration: underline !important;
+}
+
+.but-edit {
+    font-family: var(--space-grotesk-fonts) !important;
+}
+.but-edit:hover {
+    color: #22C55E !important;
+    border-color: #22C55E !important;
+}
+.but-delete {
+    font-family: var(--space-grotesk-fonts) !important;
+}
+
+.ant-layout {
+    overflow: hidden;
+    background-color: #080D20;
+    font-family: var(--space-grotesk-fonts) !important;
+}
+.ant-layout-content{
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
 .row {
     height: 100%;
 }
@@ -124,6 +170,7 @@
 }
 
 .butUpload {
+    font-family: var(--space-grotesk-fonts);
     background-color: #22C55E;
     color: white;
 }
@@ -132,7 +179,66 @@
     border-color: #22C55E;
 }
 .search :focus {
-    border-color: #22C55E;
+    border-color: #22C55E !important;
 }
 
+.ant-pagination-item {
+    font-family: var(--space-grotesk-fonts) !important;
+    border-color: #22C55E !important;
+}
+
+.ant-modal-content {
+    font-family: var(--space-grotesk-fonts);
+}
+
+.ant-form-item-required {
+    font-family: var(--space-grotesk-fonts) ;
+}
+
+.ant-form-item-explain-error {
+    font-family: var(--space-grotesk-fonts) ;
+}
+
+.ant-input {
+    font-family: var(--space-grotesk-fonts) ;
+}
+
+.but-upload {
+    font-family: var(--space-grotesk-fonts) ;
+}
+
+.but-upload:hover {
+    font-family: var(--space-grotesk-fonts) ;
+    color: #22C55E !important;
+    border-color: #22C55E !important;
+}
+
+.ant-btn-primary {
+    background-color: #22C55E !important;
+}
+
+.ant-btn-primary:hover {
+    transition: 500ms;
+    scale: 1.1;
+    background-color: #1cd961 !important;
+}
+
+.ant-input:-webkit-autofill {
+    background-color: #eaeaea !important; /* Màu nền bạn muốn */
+    -webkit-box-shadow: 0 0 0px 1000px #eaeaea inset !important; /* Ghi đè shadow */
+    -webkit-text-fill-color: #000 !important; /* Màu chữ nếu cần */
+  }
+
+.ant-layout-sider-children {
+    background-color: #0e182f;
+}
+.ant-layout-sider-trigger {
+    background: #151A31;
+}
+.ant-menu {
+    background-color: #0e182f;
+}
+a {
+    text-decoration: none !important;
+}
 

@@ -1,65 +1,116 @@
 'use client'
 
 import { message } from 'antd';
-import { handleAddProduct } from '@/views/services/author/AuthorServices';
-import moment from 'moment';
-import React, { useState, useEffect } from 'react';
-import { createAuction } from '@/views/contract/compContract/createAuction';
+import { handleAddProduct, uploadImageToCloudinary } from '../../../services/author/AuthorServices';
+import AuctionABI from "../../../store/abiBid.json";
+import { ethers } from 'ethers';
 
-export const handleAddNewProduct = async (formData, setLoading, setProducts, handleCancel) => {
-  const authorId = localStorage.getItem('authorId');
-  if (!authorId) {
-    console.error('Không tìm thấy ID tác giả.');
-    return;
-  }
+const contractAddress = process.env.NEXT_PUBLIC_Contract_Auction;
 
-  const formToSubmit = new FormData();
-  formToSubmit.append('loginId', authorId);
-  formToSubmit.append('productname', formData.productname);
-  formToSubmit.append('description', formData.description);
-  formToSubmit.append('startingPrice', formData.price);
-  formToSubmit.append('durationInMinutes', formData.auctionTime);
-  
-  if (formData.startTime instanceof Date) {
-    formToSubmit.append('startTime', formData.startTime.toISOString());
-  } else {
-    const startTimeDate = new Date(formData.startTime);
-    if (isNaN(startTimeDate)) {
-      console.error('startTime không hợp lệ');
-    } else {
-      formToSubmit.append('startTime', startTimeDate.toISOString());
+//tạo formData từ giá trị đầu vào và URL ảnh
+const createFormData = (values, authorId, imageUrl) => {
+  const formData = new FormData();
+  formData.append('loginId', authorId);
+  formData.append('productname', values.productname);
+  formData.append('description', values.description);
+  const startingPrice = parseFloat(values.price); 
+  formData.append('startingPrice', startingPrice);
+  formData.append('durationInMinutes', values.auctionTime);
+  formData.append('startTime', values.startTime.toISOString());
+  formData.append('imageUrl', imageUrl);
+  return formData;
+};
+
+//upload ảnh
+const uploadProductImage = async (image) => {
+  if (image && image[0] && image[0].originFileObj) {
+    try {
+      const response = await uploadImageToCloudinary(image[0].originFileObj);
+      console.log('giá trị trả về khi gọi api upload ảnh:', response);
+      return response;
+    } catch (error) {
+      console.error('Lỗi khi upload ảnh:', error);
+      message.error('Đã xảy ra lỗi khi upload ảnh');
+      throw error;
     }
-  }
-
-  if (formData.image && formData.image[0] && formData.image[0].originFileObj) {
-    formToSubmit.append('image', formData.image[0].originFileObj);
   } else {
     console.error('Ảnh không tồn tại hoặc không hợp lệ');
+    throw new Error('Ảnh không tồn tại hoặc không hợp lệ');
   }
+};
 
+//gọi hàm createAuction trên smart contract
+const addAuctionToBlockchain = async (values, imageUrl) => {
+  if (window.ethereum) {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const auctionContract = new ethers.Contract(contractAddress, AuctionABI, signer);
+    const gasPrice = ethers.parseUnits("100", "gwei"); //gốc là 100 để tăng tốc độ thêm sản phẩm
+
+    // Tính toán thời gian kết thúc
+    const startTimeInSeconds = Math.floor(new Date(values.startTime).getTime() / 1000); 
+    const currentBlockTimestamp = Math.floor(Date.now() / 1000); 
+
+    const timeToStart = startTimeInSeconds - currentBlockTimestamp; 
+
+    if (timeToStart < 0) {
+      console.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
+      message.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
+      return;
+    }
+
+    const auctionDurationInSeconds = values.auctionTime * 60;
+    const totalDuration = timeToStart + auctionDurationInSeconds - 25;
+
+    const tx = await auctionContract.createAuction(
+      values.productname,
+      values.description,
+      imageUrl,
+      ethers.parseUnits(values.price.toString(), 'ether'), 
+      totalDuration,
+      { gasPrice: gasPrice },
+    );
+
+    console.log('Đang thêm vào blockchain...', tx);
+    const receipt = await tx.wait();
+    console.log('Tạo đấu giá thành công trên blockchain', receipt);
+  } else {
+    console.error('Ethereum wallet chưa được cài đặt.');
+    message.error('Vui lòng cài đặt ví MetaMask');
+    throw new Error('Ethereum wallet chưa được cài đặt.');
+  }
+};
+
+
+//gọi API để thêm đấu giá vào cơ sở dữ liệu
+const addAuctionToDatabase = async (formData) => {
+  const newProductData = await handleAddProduct(formData);
+  return newProductData;
+};
+
+// Hàm chính
+export const handleAddNewProduct = async (values, setLoading, setProducts) => {
   setLoading(true);
-
   try {
-    // Bước 1: Gọi API để thêm sản phẩm
-    const newProductData = await handleAddProduct(formToSubmit);
+    const authorId = localStorage.getItem('authorId');
+    if (!authorId) {
+      console.error('Không tìm thấy ID tác giả.');
+      setLoading(false);
+      return;
+    }
+    //Upload ảnh lên để lấy url
+    const imageUrl = await uploadProductImage(values.image);
+    //Tạo dữ liệu formData để gửi API
+    const formData = createFormData(values, authorId, imageUrl);
+
+    //Thêm đấu giá vào blockchain
+    await addAuctionToBlockchain(values, imageUrl);
+    //Thêm đấu giá vào cơ sở dữ liệu
+    const newProductData = await addAuctionToDatabase(formData);
+    console.log('newProductData: ', newProductData);
 
     if (newProductData) {
-      // Bước 2: Sau khi thêm thành công vào backend, gọi smart contract để tạo đấu giá trên blockchain
-      const { bidContract } = await connectContract();
-      if (bidContract) {
-        await createAuction(
-          bidContract,
-          formData.productname,
-          formData.description,
-          formData.image[0]?.originFileObj.name || '', // URL ảnh sản phẩm
-          ethers.utils.parseUnits(formData.price.toString(), 'ether'), // giá khởi điểm, chuyển đổi sang ether
-          formData.auctionTime * 60 // thời gian đấu giá chuyển đổi sang giây
-        );
-
-        message.success('Auction created successfully on blockchain!');
-      }
-
-      // Cập nhật danh sách sản phẩm sau khi thành công
       const newProduct = {
         key: newProductData.product.id,
         name: newProductData.product.productName,
@@ -70,16 +121,15 @@ export const handleAddNewProduct = async (formData, setLoading, setProducts, han
         auctionTime: newProductData.product.endTime,
         startTime: newProductData.product.startTime,
       };
-
       setProducts((prevProducts) => [...prevProducts, newProduct]);
       message.success('Upload thành công');
-      handleCancel();
     } else {
       console.error('Thêm sản phẩm thất bại');
+      message.error('Đã xảy ra lỗi khi thêm sản phẩm');
     }
   } catch (error) {
-    console.error('Lỗi khi thêm sản phẩm hoặc tạo đấu giá:', error);
-    message.error('Failed to create product or auction!');
+    console.error('Lỗi khi thêm/cập nhật sản phẩm:', error);
+    message.error('Đã xảy ra lỗi khi thêm sản phẩm');
   } finally {
     setLoading(false);
   }
