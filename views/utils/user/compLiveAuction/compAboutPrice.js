@@ -65,13 +65,13 @@ export const endedAuction = async (auctionIdLive) => {
     console.log('Đã gửi email nhé. kết thúc thành công!');
     const timer = setTimeout(() => {
       window.location.href = '/user/settings/MyDocument'
-    }, 7000);
+    }, 13000);
     return () => clearTimeout(timer);
   } else if (response.errorCode == 5) {
     console.log('không cần gửi mail và về trang chủ nhé');
     const timer = setTimeout(() => {
       window.location.href = '/user/settings/MyDocument'
-    }, 7000);
+    }, 13000);
     return () => clearTimeout(timer);
   }
 };

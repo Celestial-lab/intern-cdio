@@ -92,7 +92,7 @@ export const getAmountBidByBidder = async(bidderId) => {
 //hàm gọi api khi kết thúc thời gian đấu giá
 export const endAuctionById = async(auctionId) => {
     try {
-        const response = await axios.post(`/api/auctions/${auctionId}/endAuction`);
+        const response = await axios.post(`/api/auctions/${auctionId}/end`);
         console.log('response của hàm gọi api end: ', response.data);
         return response.data;
     } catch (error) {

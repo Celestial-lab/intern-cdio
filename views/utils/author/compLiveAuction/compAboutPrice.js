@@ -55,16 +55,18 @@ export const endedAuction = async (auctionIdLive) => {
   if (response.errorCode == 0) {
 
     await sendEmail(auctionIdLive);
+    console.log('Đã gửi email nhé. kết thúc thành công!');
 
     const timer = setTimeout(() => {
       window.location.href = '/author/settings/ProductAuthor'
-    }, 7000);
+    }, 10000);
     return () => clearTimeout(timer);
 
   } else if (response.errorCode == 5) {
+    console.log('không cần gửi mail và về trang chủ nhé');
     const timer = setTimeout(() => {
       window.location.href = '/author/settings/ProductAuthor'
-    }, 7000);
+    }, 10000);
     return () => clearTimeout(timer);
 
   }

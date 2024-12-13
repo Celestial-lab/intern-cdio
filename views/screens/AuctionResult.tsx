@@ -70,7 +70,7 @@ const AuctionResults: React.FC = () => {
     },
     {
       title: 'Winning auction price',
-      dataIndex: 'highestBid',
+      dataIndex: `highestBid`,
       key: 'highestBid',
     },
   ];
@@ -134,7 +134,7 @@ const AuctionResults: React.FC = () => {
               </Collapse>
             ))
           ) : (
-            <p style={{ textAlign: "center", marginTop: 20, color: 'white' }}>No auction results found.</p>
+            <p className="no-Auctions" style={{ textAlign: "center", marginTop: 20}}>No auction results found.</p>
           )}
         </div>
       </section>
