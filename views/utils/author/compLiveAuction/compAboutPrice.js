@@ -52,7 +52,7 @@ export const endedAuction = async (auctionIdLive) => {
   };
   const response = await endAuctionById(auctionIdLive);
   message.info('The auction has ended. You will be redirected to the Products page');
-  if (response.errorCode == 0) {
+  if (response.data.errorCode == 0) {
 
     await sendEmail(auctionIdLive);
     console.log('Đã gửi email nhé. kết thúc thành công!');
@@ -62,7 +62,7 @@ export const endedAuction = async (auctionIdLive) => {
     }, 10000);
     return () => clearTimeout(timer);
 
-  } else if (response.errorCode == 5) {
+  } else if (response.data.errorCode == 5) {
     console.log('không cần gửi mail và về trang chủ nhé');
     const timer = setTimeout(() => {
       window.location.href = '/author/settings/ProductAuthor'

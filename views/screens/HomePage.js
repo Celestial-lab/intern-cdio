@@ -134,7 +134,7 @@ const Home = () => {
               playerVars: {
                 autoplay: 0,
                 controls: 0,
-                disablekb: 0,
+                disablekb: 1,
                 modestbranding: 1,
               },
             }}

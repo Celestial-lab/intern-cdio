@@ -48,13 +48,15 @@ export default function LiveAuctionAuthor() {
     window.location.href = `/products/${auctionId}`
   };
   
+
+
+
   // Hàm thực hiện công việc khi đấu giá kết thúc
   const handleAuctionEnd = async () => {
     if (isAuctionEnded) return;
     setTimeout(() => {
       setOpenSplashScreen(true);
-    }, 1000);
-
+    }, 2000);
     try {
       await endedAuction(auctionIdLive);
     } catch (error) {

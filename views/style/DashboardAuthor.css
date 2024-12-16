@@ -1,13 +1,41 @@
+:root {
+    --space-grotesk-fonts: 'Space Grotesk';
+}
 .headerInfor {
-    background-color: rgb(245 245 245);
+    background-color: #f5f5f5;
+}
+
+.chart-title {
+    font-family: var(--space-grotesk-fonts) !important;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.custom-bar-title {
+    font-family: var(--space-grotesk-fonts) !important;
+    font-size: 25px !important;
+    font-weight: 500;
+    text-align: center;
+}
+
+.titFromDiv {
+    color: #e6e6e6;
+    font-size: 25px;
+    margin: 10px;
+    padding-left: 10px;
+}
+
+.ant-layout {
+    overflow: hidden;
+    background-color: #080D20;
+    font-family: var(--space-grotesk-fonts) !important;
 }
 
 .divTitle {
-    background-color: rgb(116, 255, 186) !important;
+    background-color: #22C55E !important;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
     margin-top: 10px;
-    padding-left: 15px !important; 
 }
 
 .row {
@@ -100,6 +128,7 @@
 }
 
 .totalText {
+    font-family: var(--space-grotesk-fonts);
     align-self: center;
     font-size: 16px;
     font-weight: bold;
@@ -107,6 +136,7 @@
 }
 
 .totalAmount {
+    font-family: var(--space-grotesk-fonts);
     font-size: 30px;
     font-weight: 900;
 }
@@ -114,4 +144,8 @@
 .lineChart {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+a {
+    text-decoration: none !important;
 }

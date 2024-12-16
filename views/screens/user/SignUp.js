@@ -29,7 +29,7 @@ const SignUp = () => {
                 <div class="title-container">
                     <div class="overlay">
                         <div class="overlay-panel">
-                            <h1>Welcome Back!</h1>
+                            <h1 className="welcome-back">Welcome Back!</h1>
                             <p>To keep connected with us please login with your personal info</p>
                             <button class="ghost"><a href='/user/signin'>Sign In</a></button>
                         </div>
@@ -37,7 +37,7 @@ const SignUp = () => {
                 </div>
                 <div class="overlay-container">
                     <Form form={form}>
-                        <h1>Create Account</h1>
+                        <h1 className="tit-Create">Create Account</h1>
                         <span className="description-signup">or use your email for registration</span>
                         <div class="form-signup">
 
@@ -92,13 +92,13 @@ const SignUp = () => {
                 }}
             >
                 <div className="modal-code">
-                    <h2 class='title-modal'>Mã xác thực đã được gửi về Email của bạn!</h2>
+                    <h2 class='title-modal'>Verification code has been sent to your Email!</h2>
                     <Form className="form-code" form={formModal}>
                         <Form.Item
                             name="code"
-                            rules={[{ required: true, message: 'Vui lòng nhập mã xác thực!' }]}
+                            rules={[{ required: true, message: 'Please enter the verification code!' }]}
                         >
-                            <Input placeholder="Nhập mã xác thực" />
+                            <Input placeholder="Enter verification code" />
                         </Form.Item>
                     </Form>
                     <Button className="submit-code" type="primary" onClick={handleSubmitCode}>Submit Code</Button>

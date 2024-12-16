@@ -9,10 +9,10 @@ export const handleSubmitSignup = async (form, setIsModalOpen) => {
         const response = await handleSignUpApi(email, password, role);
         localStorage.setItem('loginId', response.user.id);
         if (response.user.verified == false) {
-            message.success('đăng kí thành công! hãy nhập mã code để xác minh tài khoản');
+            message.success('Registration successful! Please enter the code to verify your account.');
             setIsModalOpen(true);
         } else {
-            message.success('đăng kí và xác minh thành công');
+            message.success('Registered and verified successfully');
         }
     } catch (error) {
         console.error('Sign up failed:', error);
@@ -27,24 +27,23 @@ export const handleVerificationSubmit = async (form, formModal, attemptsLeft, se
         const email = form.getFieldValue('email');
         const response = await verifiedByCode(email, code);
         const getVerify = await getUserByLoginId(loginId);
-        console.log('Kết quả hàm getVerify:', getVerify);
 
         if (getVerify.verified == false) {
             if (attemptsLeft > 1) {
                 setAttemptsLeft(attemptsLeft - 1);
-                message.warning(`Sai mã xác thực. Còn ${attemptsLeft - 1} lần thử.`);
+                message.warning(`Incorrect authentication code. ${attemptsLeft - 1} attempts remaining.`);
             } else {
-                message.error('Xác minh thất bại, đăng ký không thành công');
+                message.error('Verification failed, registration failed');
                 setIsModalOpen(false);
             }
         } else {
-            message.success('Xác minh thành công!');
+            message.success('Verification successful!');
             setIsModalOpen(false);
             setTimeout(() => {
                 window.location.href = '/user/signin';
             }, 1500);
         }
     } catch (error) {
-        console.error('Xác minh thất bại:', error);
+        console.error('Verification failed:', error);
     }
 }

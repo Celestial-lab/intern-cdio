@@ -102,7 +102,7 @@ export default function Profile() {
             case 1:
               setButtonState(1); // Hiển thị nút Add
               setIsAdding(0);
-              message.warning('Bạn chưa thêm thông tin cá nhân, hãy thêm thông tin để có thể đấu giá nhé!');
+              message.warning('You have not added personal information, please add information to be able to bid!');
               return;
             case 0:
               if (data) {
@@ -143,9 +143,9 @@ export default function Profile() {
           if (prev <= 1) {
             clearInterval(countdown);
             Modal.info({
-              title: 'Bạn đã bị đăng xuất',
+              title: 'You have been logged out',
               content: (
-                <p>Bạn đã không hoạt động trong 2 phút. Vui lòng đăng nhập lại</p>
+                <p>You have been inactive for 2 minutes. Please log in again</p>
               ),
               okText: 'Ok',
               onOk: () => {

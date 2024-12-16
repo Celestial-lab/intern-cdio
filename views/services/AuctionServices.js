@@ -93,11 +93,11 @@ export const getAmountBidByBidder = async(bidderId) => {
 export const endAuctionById = async(auctionId) => {
     try {
         const response = await axios.post(`/api/auctions/${auctionId}/end`);
-        console.log('response của hàm gọi api end: ', response.data);
-        return response.data;
+        console.log('response của hàm gọi api end: ', response);
+        return response;
     } catch (error) {
-        // console.error('có lỗi ở hàm endAuctionById: ', error);
-        return error.response.data;
+        console.error('có lỗi ở hàm endAuctionById: ', error);
+        return error.response;
     }
 };
 
@@ -128,10 +128,22 @@ export const sendEmailToWinner = async(auctionId) => {
 export const showAuctionResult = async() => {
     try {
         const response = await axios.get(`/api/completed-auction`);
-        console.log('response.data: ', response.data);
+        // console.log('response.data: ', response.data);
         return response.data;
     } catch (error) {
         console.error('có lỗi ở hàm showAuctionResult: ', error);
         throw error;
     }
 };
+
+//hàm gọi api hiển thị lịch sử đặt giá của user
+export const showAuctionHistory = async(userId) => {
+    try {
+        const response = await axios.get(`/api/productHistory/${userId}`);
+        // console.log('response.data: ', response);
+        return response.data;
+    } catch (error) {
+        console.error('có lỗi ở hàm showAuctionResult: ', error);
+        return error;
+    }
+}

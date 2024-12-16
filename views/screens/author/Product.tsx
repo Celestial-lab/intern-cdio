@@ -117,7 +117,7 @@ export default function Product() {
       if (isEditMode) {
         await handleEditProduct(formData, editingProduct.id, editingProduct, setProducts);
       } else {
-        await handleAddNewProduct(formData, setLoading, setProducts, () => { });
+        await handleAddNewProduct(formData, setLoading, setProducts, setOpenModal);
       }
       await fetchProductData(setProducts );
       updateProductStatus(products, setProducts);
@@ -125,7 +125,6 @@ export default function Product() {
       setLoading(false);
       setOpenModal(false);
     }
-
   };
 
   const handleDelete = (id: number) => {
