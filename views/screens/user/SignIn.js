@@ -20,8 +20,8 @@ const SignIn = () => {
             <div class="container" id="container">
                 <div class="form-container sign-in-container">
                     <Form form={form}> 
-                        <h1>Sign in</h1>
-                        <span>Start your journey with our product</span>
+                        <h1 className="tit-Signin">Sign in</h1>
+                        <p className="des-Signin">Start your journey with our product</p>
                         <div class="form-signup">
                             <Form.Item
                                 name="email"
@@ -45,8 +45,8 @@ const SignIn = () => {
                 <div class="overlay-container">
                     <div class="overlay">
                         <div class="overlay-panel overlay-right">
-                            <h1>Hello, Friend!</h1>
-                            <p>Enter your personal details and start journey with us</p>
+                            <h1 className="tit-hello">Hello, Friend!</h1>
+                            <p className="des-hello">Enter your personal details and start journey with us</p>
                             <button class="ghost" id="signUp"><a href="/user/signup">Sign Up</a></button>
                         </div>
                     </div>

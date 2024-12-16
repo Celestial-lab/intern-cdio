@@ -21,12 +21,11 @@ import {
   Title,
   Tooltip,
   Legend,
-  PointElement, 
-  LineElement   
+  PointElement,
+  LineElement
 } from 'chart.js';
-import {getProfileByEmail} from '../../services/author/AuthorServices'
 import NavbarSetting from '@/views/components/NavbarSetting';
-
+import { getPriceOfAuction } from '@/views/utils/author/compDashBoard'
 
 
 ChartJS.register(
@@ -36,8 +35,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  PointElement,  
-  LineElement  
+  PointElement,
+  LineElement
 );
 
 const { Header, Content, Sider } = Layout;
@@ -64,40 +63,26 @@ const items: MenuItem[] = [
 ];
 
 export default function Dashboard() {
-  const [error, setError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
-  const [profile, setProfile] = useState({
-    nickname: '',
-    email: '',
-  })
+  const [monthlyRevenue, setMonthlyRevenue] = useState(Array(12).fill(0));
+  const [totalRevenue, setTotalRevenue] = useState(0);
+
+  const fetchAuctionData = async () => {
+    const revenue = await getPriceOfAuction();
+    if (revenue && Array.isArray(revenue)) {
+      setMonthlyRevenue(revenue);
+      const total = revenue.reduce((sum, value) => sum + value, 0);
+      setTotalRevenue(total);
+    } else {
+      setMonthlyRevenue(Array(12).fill(0));
+      setTotalRevenue(0);
+    }
+  };
 
   useEffect(() => {
-    const fetchAuthorData = async () => {
-      const email = localStorage.getItem('authorEmail');
-      console.log('email trong local', email);
-      if (email) {
-        try {
-          const response = await getProfileByEmail(email);
-          const data = response.data;
-          if (data) {
-            setProfile({
-              nickname: data.nickname,
-              email: data.email,
-            });
-          }
-          else {
-            console.log('No profile data found for the given email');
-          }
-        }
-        catch (error) {
-          setError('Failed to fetch profile data');
-          console.error('Failed to fetch profile ', error);
-        }
-      }
-    };
-    fetchAuthorData();
-  }, []);
+    fetchAuctionData();
+  }, [])
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -115,7 +100,6 @@ export default function Dashboard() {
           }}>
             <h3 className='titFromDiv'>Dashboard</h3>
           </div>
-
           <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
             <Row style={{ height: '500px' }}>
               <Col className="colWithBorderEffect1" span={19}>
@@ -126,9 +110,9 @@ export default function Dashboard() {
                         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                         datasets: [
                           {
-                            label: "Total",
-                            backgroundColor: ["#1ae5de", "#228ec7", "#3dc93b"],
-                            data: [2478, 5267, 734, 5104, 3000, 2478, 4267, 734, 784, 2333, 2478, 5267],
+                            label: "Monthly Revenue",
+                            backgroundColor: ["#1ae5de", "#228ec7", "#3dc93b", "#f39c12", "#8e44ad", "#e74c3c"],
+                            data: monthlyRevenue,
                           },
                         ],
                       }}
@@ -144,7 +128,7 @@ export default function Dashboard() {
                         maintainAspectRatio: false,
                       }}
                       height={400}
-                      width={'100%'} 
+                      width={'100%'}
                     />
                   </div>
                 </Row>
@@ -152,7 +136,7 @@ export default function Dashboard() {
               <Col className="colWithBorderEffect" span={5}>
                 <div>
                   <div className="totalText">Total revenue of the month:</div>
-                  <div className="totalAmount">$34,920</div>
+                  <div className="totalAmount">${totalRevenue.toLocaleString()}</div>
                 </div>
               </Col>
             </Row>

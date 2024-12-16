@@ -102,3 +102,14 @@
 .ant-pagination-item-link {
   color: white !important;
 }
+
+.no-auctions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(50vh - 60px);
+  text-align: center;
+  font-size: 18px;
+  font-family: var(--space-grotesk-fonts);
+  color: #989898;
+}

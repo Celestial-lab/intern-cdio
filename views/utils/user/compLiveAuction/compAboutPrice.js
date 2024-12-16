@@ -66,7 +66,7 @@ export const endedAuction = async (auctionIdLive) => {
       window.location.href = '/user/settings/MyDocument'
     }, 15000);
     return () => clearTimeout(timer);
-  } else if (response.errorCode == 5) {
+  } else if (response.data.errorCode == 5) {
     console.log('không cần gửi mail và về trang chủ nhé');
     const timer = setTimeout(() => {
       window.location.href = '/user/settings/MyDocument'

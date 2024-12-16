@@ -97,7 +97,7 @@ export const endAuctionById = async(auctionId) => {
         return response;
     } catch (error) {
         console.error('có lỗi ở hàm endAuctionById: ', error);
-        return error;
+        return error.response;
     }
 };
 

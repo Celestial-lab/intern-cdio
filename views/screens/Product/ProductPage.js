@@ -17,6 +17,7 @@ const ProductPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(16);
   const [sortedProducts, setSortedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [noAuctions, setNoAuctions] = useState(false);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -27,51 +28,53 @@ const ProductPage = () => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
       setIsLoggedIn(false);
-      const userConfirmed = window.confirm("Bạn chưa đăng nhập, hãy đăng nhập!");
+      const userConfirmed = window.confirm("You are not logged in, please log in!");
       if (userConfirmed) {
         window.location.href = '/user/signin';
       }
     } else {
-      setIsLoggedIn(true); 
+      setIsLoggedIn(true);
     }
   }, []);
 
-  //lấy các cuộc đấu giá chưa diễn ra hoặc đang diễn ra
+  // Lấy các cuộc đấu giá chưa diễn ra hoặc đang diễn ra
   useEffect(() => {
     const fetchAuctions = async () => {
-        try {
-            const auctionData = await getAuction();
-            if (auctionData && Array.isArray(auctionData) && auctionData.length > 0) {
-                const currentTime = Math.floor(Date.now() / 1000);
-                const validAuctions = auctionData.filter(auction => {
-                    if (!auction.endTime || isNaN(Number(auction.endTime))) {
-                        return false;
-                    }
-                    const auctionEndTime = Number(auction.endTime);
-                    const isValid = auctionEndTime >= currentTime;
-                    console.log({
-                        endTime: auctionEndTime,
-                        currentTime: currentTime,
-                        isValid: isValid,
-                    });
-                    return isValid;
-                });
-                const reversedAuctionData = [...validAuctions].reverse();
-                setSortedProducts(reversedAuctionData);
-            } else {
-                console.error("API không trả về dữ liệu hợp lệ.");
-                setSortedProducts([]);
+      try {
+        const auctionData = await getAuction();
+        if (auctionData && Array.isArray(auctionData) && auctionData.length > 0) {
+          const currentTime = Math.floor(Date.now() / 1000);
+          const validAuctions = auctionData.filter(auction => {
+            if (!auction.endTime || isNaN(Number(auction.endTime))) {
+              return false;
             }
-        } catch (error) {
-            console.error('Lỗi khi gọi API:', error);
-        } finally {
-            setLoading(false);
+            const auctionEndTime = Number(auction.endTime);
+            const isValid = auctionEndTime >= currentTime;
+            return isValid;
+          });
+
+          if (validAuctions.length > 0) {
+            const reversedAuctionData = [...validAuctions].reverse();
+            setSortedProducts(reversedAuctionData);
+            setNoAuctions(false);
+          } else {
+            setSortedProducts([]);
+            setNoAuctions(true);
+          }
+        } else {
+          console.error("API không trả về dữ liệu hợp lệ.");
+          setSortedProducts([]);
+          setNoAuctions(true);
         }
+      } catch (error) {
+        console.error('Lỗi khi gọi API:', error);
+        setNoAuctions(true);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchAuctions();
-}, []);
-
-
+  }, []);
 
   const handleMenuClick = (e) => {
     const key = e.key;
@@ -98,10 +101,10 @@ const ProductPage = () => {
       <Menu.Item key="desc">Sort Z-A</Menu.Item>
     </Menu>
   );
-  
+
   const router = useRouter();
 
-//bỏ setLocal
+  //bỏ setLocal
   const handleRegisterClick = (auctionId) => {
     router.push(`/products/${auctionId}`);
   };
@@ -154,38 +157,45 @@ const ProductPage = () => {
               </div>
             </div>
 
-            <div className="row" style={{ maxWidth: '93%', margin: '0 auto' }}>
-              {currentItems.map((item) => (
-                <div className="col-3" key={item.id} style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                  <div className="card" style={{ width: '18rem', position: 'relative' }}>
-                    <img alt={item.productName} src={item.imageUrl} className="card-img-top" />
-                    <div className="card-body">
-                      <h5 className="card-title">{item.productName}</h5>
-                      <p className="card-text">{item.description}</p>
-                      <p className="card-text">Price: {item.startingPrice}</p>
-                      <p className="card-text">Start Time: {new Date(item.startTime).toLocaleString('vi-VN', {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            hour12: false,
-                      })}</p>
-                      <button className="btn btn-success" onClick={() => handleRegisterClick(item.id)}>Register</button>
+            {noAuctions ? (
+              <div className="no-auctions" style={{ textAlign: 'center', marginTop: '20px', fontSize: '18px' }}>
+                There are no auctions
+              </div>
+            ) : (
+              <>
+                <div className="row" style={{ maxWidth: '93%', margin: '0 auto' }}>
+                  {currentItems.map((item) => (
+                    <div className="col-3" key={item.id} style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                      <div className="card" style={{ width: '18rem', position: 'relative' }}>
+                        <img alt={item.productName} src={item.imageUrl} className="card-img-top" />
+                        <div className="card-body">
+                          <h5 className="card-title">{item.productName}</h5>
+                          <p className="card-text">{item.description}</p>
+                          <p className="card-text">Price: {item.startingPrice}</p>
+                          <p className="card-text">Start Time: {new Date(item.startTime).toLocaleString('vi-VN', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                          })}</p>
+                          <button className="btn btn-success" onClick={() => handleRegisterClick(item.id)}>Register</button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-              <Pagination
-                current={currentPage}
-                pageSize={itemsPerPage}
-                total={sortedProducts.length}
-                onChange={(page) => setCurrentPage(page)}
-              />
-            </div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                  <Pagination
+                    current={currentPage}
+                    pageSize={itemsPerPage}
+                    total={sortedProducts.length}
+                    onChange={(page) => setCurrentPage(page)}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
