@@ -61,7 +61,7 @@ const addAuctionToBlockchain = async (values, imageUrl) => {
     }
 
     const auctionDurationInSeconds = values.auctionTime * 60;
-    const totalDuration = timeToStart + auctionDurationInSeconds - 25;
+    const totalDuration = timeToStart + auctionDurationInSeconds - 30;
 
     const tx = await auctionContract.createAuction(
       values.productname,
@@ -90,8 +90,17 @@ const addAuctionToDatabase = async (formData) => {
 };
 
 // Hàm chính
-export const handleAddNewProduct = async (values, setLoading, setProducts) => {
+export const handleAddNewProduct = async (values, setLoading, setProducts, setOpenModal) => {
   setLoading(true);
+  const inforId = localStorage.getItem('inforId')
+
+  if (!inforId) {
+    message.warning('Please add information!');
+    setLoading(false);
+    setOpenModal(false);
+    return;
+  }
+
   try {
     const authorId = localStorage.getItem('authorId');
     if (!authorId) {
@@ -99,14 +108,10 @@ export const handleAddNewProduct = async (values, setLoading, setProducts) => {
       setLoading(false);
       return;
     }
-    //Upload ảnh lên để lấy url
     const imageUrl = await uploadProductImage(values.image);
-    //Tạo dữ liệu formData để gửi API
     const formData = createFormData(values, authorId, imageUrl);
 
-    //Thêm đấu giá vào blockchain
     await addAuctionToBlockchain(values, imageUrl);
-    //Thêm đấu giá vào cơ sở dữ liệu
     const newProductData = await addAuctionToDatabase(formData);
     console.log('newProductData: ', newProductData);
 

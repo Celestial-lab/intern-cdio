@@ -47,7 +47,7 @@ const AuctionResults: React.FC = () => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
       setIsLoggedIn(false);
-      const userConfirmed = window.confirm("Bạn chưa đăng nhập, hãy đăng nhập!");
+      const userConfirmed = window.confirm("You are not logged in, please log in!");
       if (userConfirmed) {
         window.location.href = '/user/signin';
       }

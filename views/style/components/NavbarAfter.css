@@ -114,10 +114,10 @@
     width: fit-content;
   }
   .total {
+    color: #080D20 !important;
     font-family: var(--space-grotesk-fonts);
     font-weight: 500;
     font-size: 21px;
-    color: #00d74f;
     margin: 0;
     padding-right: 7px;
   }

@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Avatar, Button, Col, DatePicker, Row, Table, type MenuProps } from 'antd';
+import React, { useEffect, useState } from 'react'
+import { Avatar, Button, Col, DatePicker, Input, Row, Table, type MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import {
   AppstoreOutlined,
@@ -9,14 +9,14 @@ import {
   DollarOutlined,
   FileOutlined,
   HistoryOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import "@/views/style/auctionHistory.css";
 import { Footer } from 'antd/es/layout/layout';
 import type { DatePickerProps } from 'antd';
 import type { Dayjs } from 'dayjs';
 import NavbarSetting from '@/views/components/NavbarSetting';
+import { getHistory } from '@/views/utils/getAuctionResult';
 
 const { Header, Content, Sider } = Layout;
 
@@ -35,6 +35,13 @@ function getItem(
   } as MenuItem;
 }
 
+interface History {
+  id: any;
+  productname: string;
+  description: string;
+  highestBid: any;
+}
+
 const items: MenuItem[] = [
   getItem('Profile', 'profile', <AppstoreOutlined />, '/user/settings/Profile'),
   getItem('Auction History', 'auctionHistory', <HistoryOutlined />, '/user/settings/AuctionHistory'),
@@ -45,34 +52,29 @@ const items: MenuItem[] = [
 const AuctionHistory = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { token: { colorBgContainer } } = theme.useToken();
-  const onChange: DatePickerProps<Dayjs[]>['onChange'] = (date, dateString) => {
-    console.log(date, dateString);
-  };
+  const [searchTerm, setSearchTerm] = useState('');
+  const [historyData, setHistoryData] = useState<History[]>([]);
 
-
-  
-
+  useEffect(() => {
+    getHistory(setHistoryData);
+  }, [])
 
   const columns = [
     {
-      title: 'Product Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Product Name",
+      dataIndex: "productname",
+      key: "productname",
+      filteredValue: [searchTerm],
     },
     {
-      title: 'Auction price',
-      dataIndex: 'price',
-      key: 'price',
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
     },
     {
-      title: 'Time of payment',
-      dataIndex: 'Time of payment',
-      key: 'Time of payment',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Hammer Price",
+      dataIndex: "highestBid",
+      key: "highestBid",
     },
   ];
 
@@ -98,21 +100,32 @@ const AuctionHistory = () => {
             <Row className='row1'>
               <div className='divSearch'>
                 <div className='divFrom'>
-                  <DatePicker onChange={onChange} placeholder='Auction period from'></DatePicker>
+                  <Input
+                    prefix={<SearchOutlined />}
+                    placeholder="Search..."
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
-                <div className='divTo'>
-                  <DatePicker onChange={onChange} placeholder='To'></DatePicker>
-                </div>
-                <Button className='butSearch' type='text'>Search</Button>
               </div>
             </Row>
-
             <Row className='row2'>
               <Col className='colRow2'>
                 <Row className='rowProduct'>
                   <div className='divTable'>
                     <Col className='colTable'>
-                      <Table columns={columns}></Table>
+                      <Table
+                        dataSource={historyData.filter(item =>
+                          item.productName && item.productName.toLowerCase().includes(searchTerm.toLowerCase())
+                        ).map((item, index) => ({
+                          key: index,
+                          id: item.id,
+                          productname: item.productName,
+                          highestBid: item.highestBid,
+                          description: item.description,
+                        }))}
+                        columns={columns}
+                        pagination={{ pageSize: 5 }}
+                      />
                     </Col>
                   </div>
                 </Row>

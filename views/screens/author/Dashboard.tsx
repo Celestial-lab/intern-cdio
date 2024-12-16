@@ -85,7 +85,7 @@ export default function Dashboard() {
               nickname: data.nickname,
               email: data.email,
             });
-          } 
+          }
           else {
             console.log('No profile data found for the given email');
           }
@@ -106,16 +106,14 @@ export default function Dashboard() {
         <Menu theme="dark" defaultSelectedKeys={['dashboard']} mode="inline" items={items} />
       </Sider>
       <Layout>
-        <Header className='headerInfor'>
-          <NavbarSetting />
-        </Header>
-
+        <NavbarSetting />
         <Content className='contInfor' style={{ margin: '0 16px' }}>
           <div className='divTitle' style={{
             padding: 5,
             maxHeight: 60,
             background: colorBgContainer,
-          }}><h3>Dashboard</h3>
+          }}>
+            <h3 className='titFromDiv'>Dashboard</h3>
           </div>
 
           <div className='divInfor' style={{ padding: 15, minHeight: 485, background: colorBgContainer }}>
@@ -158,63 +156,8 @@ export default function Dashboard() {
                 </div>
               </Col>
             </Row>
-
-            <Row className='lineChart' style={{ marginTop: '20px' }}>
-              <Line 
-                data={{
-                  labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-                  datasets: [
-                    {
-                      data: [, 107, 111, 783, 2478, 133, 221, 100],
-                      label: "Sản phẩm 1",
-                      borderColor: "#3e95cd",
-                      fill: false
-                    },
-                    {
-                      data: [282, 350, 411, 502, 107, 111, 783],
-                      label: "Sản phẩm 2",
-                      borderColor: "#8e5ea2",
-                      fill: false
-                    },
-                    {
-                      data: [168, 170, 167, 508, 784, 178, 190],
-                      label: "Sản phẩm 3",
-                      borderColor: "#3cba9f",
-                      fill: false
-                    },
-                    {
-                      data: [40, 20, 1402, 3700, 5267, 38, 74,],
-                      label: "Sản phẩm 4",
-                      borderColor: "#e8c3b9",
-                      fill: false
-                    },
-                    {
-                      data: [508, 784, 2, 203, 276, 408, 547],
-                      label: "Sản phẩm 5",
-                      borderColor: "#c45850",
-                      fill: false
-                    }
-                  ]
-                }}
-                options={{
-                  plugins: {
-                    title: {
-                      display: true,
-                      text: "Revenue by day of the week",
-                    },
-                    legend: {
-                      display: true,
-                      position: "bottom",
-                    },
-                  },
-                }}
-              />
-            </Row>
           </div>
         </Content>
-
-        <Footer>
-        </Footer>
       </Layout>
     </Layout>
   )

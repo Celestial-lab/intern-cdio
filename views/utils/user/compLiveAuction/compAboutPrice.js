@@ -59,8 +59,7 @@ export const endedAuction = async (auctionIdLive) => {
   };
   const response = await endAuctionById(auctionIdLive);
   message.info('The auction has ended. You will be redirected to the Registered Auctions page');
-  console.log("response trả về khi kết thúc đấu giá:", response);
-  if (response.errorCode == 0) {
+  if (response.data.errorCode == 0) {
     await sendEmail(auctionIdLive);
     console.log('Đã gửi email nhé. kết thúc thành công!');
     const timer = setTimeout(() => {

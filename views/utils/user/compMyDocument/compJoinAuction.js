@@ -7,7 +7,13 @@ import { message } from 'antd';
 
 
 export const handleJoinLiveAuction = async (auctionIdLive, registrationId) => {
-  window.location.href = `/user/LiveAuction/${auctionIdLive}/${registrationId}`;
+  const inforId = localStorage.getItem('inforId');
+  if (inforId) {
+    window.location.href = `/user/LiveAuction/${auctionIdLive}/${registrationId}`;
+  } else {
+    message.warning('Please add your information');
+    return;
+  }
 }
 
 

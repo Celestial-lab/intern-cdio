@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { showAuctionResult } from '@/views/services/AuctionServices';
+import { showAuctionResult, showAuctionHistory } from '@/views/services/AuctionServices';
 
 type AuctionItem = {
   productName: string;
@@ -16,8 +16,7 @@ type AuctionGroupedData = {
 
 export const getAuctionResult = async (setAllAuctionData: { (value: React.SetStateAction<[string, { productName: string; winnerFullName: string; highestBid: number; endTime: number; }[]][]>): void; (arg0: [string, AuctionItem[]][]): void; }, setAuctionData: { (value: React.SetStateAction<[string, { productName: string; winnerFullName: string; highestBid: number; endTime: number; }[]][]>): void; (arg0: [string, AuctionItem[]][]): void; }) => {
   const response = await showAuctionResult();
-  console.log(response.data);
-  if (response.success) {
+  if (response.success == true) {
     const groupedData: AuctionGroupedData = response.data.reduce((acc: AuctionGroupedData, item: AuctionItem) => {
       const auctionEndDate = new Date(item.endTime * 1000).toLocaleDateString("en-GB").replace(/\//g, "-");
       if (!acc[auctionEndDate]) {
@@ -29,6 +28,10 @@ export const getAuctionResult = async (setAllAuctionData: { (value: React.SetSta
     const sortedData = Object.entries(groupedData).reverse();
     setAllAuctionData(sortedData);
     setAuctionData(sortedData);
+  } else if (response.success == false) {
+    setAllAuctionData([]);
+    setAuctionData([]);
+    return;
   }
 };
 
@@ -79,3 +82,25 @@ export const handleSearch = (
   // Trường hợp 4: Người dùng không chọn 2 mốc thời gian from và to
   setAuctionData(allAuctionData);
 };
+
+const role = localStorage.getItem('role');
+
+export const getHistory = async(setHistoryData) => {
+  if (role == 'user') {
+    const userId = localStorage.getItem('userId');
+    try {
+      const response = await showAuctionHistory(userId);
+      if (response.errorCode == 0) {
+        setHistoryData(response.data);
+        return;
+      } else if (response.errorCode == 1) {
+        setHistoryData({});
+        return;
+      }
+    } catch (error) {
+      console.log('response: ', error);
+    }
+  } else {
+    return;
+  }
+}
