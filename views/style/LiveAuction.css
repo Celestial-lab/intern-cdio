@@ -28,6 +28,8 @@
     height: 290px;
     width: 290px;
     border-radius: 5px;
+    pointer-events: none;
+    user-select: none;
 }
 
 .div-extend {
@@ -339,4 +341,9 @@
 .card-title-auctions:hover {
     color: #29a356;
     transition: 0.3s;
+}
+
+.card-img-top {
+    pointer-events: none;
+    user-select: none;
 }

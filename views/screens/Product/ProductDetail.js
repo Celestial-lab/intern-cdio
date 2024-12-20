@@ -125,7 +125,7 @@ const ProductDetail = () => {
               {suggestedProducts.map((suggestedProduct, index) => (
                 <div key={index} className='product-item d-flex mb-3'>
                   <div className="col-md-4 image-container">
-                    <img className="img-suggest" src={suggestedProduct.imageUrl} alt={suggestedProduct.productName} />
+                    <img className="img-suggest" onContextMenu={(e) => e.preventDefault()} src={suggestedProduct.imageUrl} alt={suggestedProduct.productName} />
                   </div>
                   <div className="col-md-8 title-container">
                     <div className='title-content'>
@@ -148,7 +148,7 @@ const ProductDetail = () => {
               <div className="details-column">
                 <div className="row mb-5">
                   <div className="col-md-7 image-container">
-                    <img className="img-product" src={currentProduct.imageUrl} alt={currentProduct.productName} />
+                    <img className="img-product" onContextMenu={(e) => e.preventDefault()} src={currentProduct.imageUrl} alt={currentProduct.productName} />
                   </div>
                   <div className="col-md-5 details-container">
                     <h1 className='product-name mb-3'>{currentProduct.productName}</h1>

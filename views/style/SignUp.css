@@ -163,7 +163,7 @@ form {
 
 .but-signup {
     font-family: var(--space-grotesk-fonts);
-    background-color: #22C55E;
+    background: #22C55E !important;
     border-radius: 20px;
 	border: none;
 	color: #FFFFFF;
@@ -171,9 +171,13 @@ form {
 	font-weight: 600;
 	padding: 12px 45px;
 	letter-spacing: 1px;
+	width: 120px;
+	height: 40px;
+	
 }
 .but-signup:hover {
     scale: 1.1;
+	color: #FFFFFF !important;
     transition: 500ms;
     box-shadow: 0px 4px 10px 3px #bfe2ca;
 }
@@ -184,6 +188,7 @@ form {
 .ant-modal-content {
     border-radius: 10px !important;
     padding: 0 !important;
+	background: linear-gradient(to top, #060b2d, #d2d2d2);
 }
 
 .modal-code {

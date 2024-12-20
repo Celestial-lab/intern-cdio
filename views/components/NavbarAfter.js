@@ -104,7 +104,10 @@ const NavbarAfter = () => {
                                             height: '80px',
                                             objectFit: 'cover',
                                             borderRadius: '4px',
+                                            pointerEvents: 'none',
+                                            userSelect: 'none',
                                         }}
+                                        onContextMenu={(e) => e.preventDefault()}
                                     />
                                 </Col>
                                 <Col span={16} style={{ gap: '10px' }}>

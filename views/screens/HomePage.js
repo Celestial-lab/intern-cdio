@@ -254,6 +254,7 @@ const Home = () => {
                   src={auction.imageUrl}
                   className="card-img-top"
                   alt="product"
+                  onContextMenu={(e) => e.preventDefault()}
                 />
                 <div className="but-regis">
                   <button className="but-register" onClick={() => goToDetails(auction.id)} >Register for auction</button>

@@ -107,6 +107,8 @@
   width: auto;
   height: auto;
   border-radius: 3px;
+  pointer-events: none;
+  user-select: none; 
 }
 .but-regis {
   padding-top: 15px;

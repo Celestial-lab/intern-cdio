@@ -204,7 +204,7 @@ export default function LiveAuction() {
 
               <div className='row row-product'>
                 <div className='div-pro'>
-                  <img className='image-product' src={auctionData[0]?.imageUrl} alt="Product Image" />
+                  <img className='image-product' onContextMenu={(e) => e.preventDefault()} src={auctionData[0]?.imageUrl} alt="Product Image" />
                 </div>
               </div>
               <div className='row row-extend'>
@@ -223,7 +223,7 @@ export default function LiveAuction() {
               <div className='row suggest py-3'>
                 {moreAuctions.map((auction, index) => (
                   <div key={auction.id || index} className="card-auctions">
-                    <img src={auction.imageUrl} className="card-img-top" alt={auction.productName} />
+                    <img src={auction.imageUrl} onContextMenu={(e) => e.preventDefault()} className="card-img-top" alt={auction.productName} />
                     <div className="card-body-auctions">
                       <span
                         className="card-title-auctions"

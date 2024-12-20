@@ -113,3 +113,8 @@
   font-family: var(--space-grotesk-fonts);
   color: #989898;
 }
+
+.card-img-top {
+  pointer-events: none;
+  user-select: none; 
+}
