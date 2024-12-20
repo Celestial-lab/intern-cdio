@@ -167,7 +167,7 @@ const ProductPage = () => {
                   {currentItems.map((item) => (
                     <div className="col-3" key={item.id} style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                       <div className="card" style={{ width: '18rem', position: 'relative' }}>
-                        <img alt={item.productName} src={item.imageUrl} className="card-img-top" />
+                        <img alt={item.productName} src={item.imageUrl} className="card-img-top" onContextMenu={(e) => e.preventDefault()}/>
                         <div className="card-body">
                           <h5 className="card-title">{item.productName}</h5>
                           <p className="card-text">{item.description}</p>

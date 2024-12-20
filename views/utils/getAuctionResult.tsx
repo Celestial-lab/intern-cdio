@@ -92,7 +92,6 @@ export const getHistory = async(setHistoryData) => {
       const response = await showAuctionHistory(userId);
       if (response.errorCode == 0) {
         const auctionHistoryData = response.data.reverse();
-
         setHistoryData(auctionHistoryData);
         return;
       } else if (response.errorCode == 1) {

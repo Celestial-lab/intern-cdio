@@ -46,6 +46,8 @@
   width: 100%;
   border-radius: 8px;
   height: 150px;
+  pointer-events: none;
+  user-select: none;
 }
 
 .name-suggest {
@@ -70,6 +72,8 @@
 .img-product {
   border-radius: 5px;
   width: 100%;
+  pointer-events: none;
+  user-select: none;
 }
 
 

@@ -98,7 +98,7 @@ const MyDocument = () => {
   }
 
   //tham gia đấu giá
-  const JoinAuction = async (auctionIdLive: any, registrationId: any, status: string) => {
+  const JoinAuction = async (auctionIdLive: any, registrationId: any) => {
     const getStatus = await fetchStatusProductData();
     const auction = getStatus.find(
       (item: any) => item.auctionIdLive === auctionIdLive
@@ -141,7 +141,17 @@ const MyDocument = () => {
       title: 'GIF',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
-      render: (imageUrl: string | undefined) => <Image width={100} src={imageUrl} alt="Product" />,
+      render: (imageUrl: string | undefined) => <Image
+        width={100}
+        src={imageUrl}
+        alt="Product"
+        preview={false}
+        style={{
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+      />,
     },
     {
       title: 'Starting Price',

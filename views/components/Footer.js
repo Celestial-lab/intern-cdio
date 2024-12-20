@@ -9,11 +9,10 @@ const FooterAll = () => {
     <>
     <footer class="footer-all py-5">
       <div class="div-infor-top container">
-
         <div class="row">
           <div class="infor1 col-4">
             <img class="foot-logo" src='/Untitled1.png' />
-            <h2 class="foot-title">Our auction website is an online platform that allows buying<br />            and selling goods and services through auction</h2>
+            <h2 class="foot-title">Our auction website is an online platform that allows buying<br />and selling goods and services through auction</h2>
           </div>
 
           <div class="infor2 col-4">
@@ -40,9 +39,7 @@ const FooterAll = () => {
             </div>
           </div>
         </div>
-
         <hr />
-
         <div class="copyright container">
             <a class="copy-link" href='#'>Privacy Policy</a>
             <a class="copy-link" href='#'>Terms of Use</a>

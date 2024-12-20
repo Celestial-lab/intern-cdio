@@ -16,14 +16,14 @@ export const handleSubmitSignin = async(form, login) => {
             if (response.user.role === 'user') {
                 localStorage.setItem('userId', response.user.id);
                 localStorage.setItem('accessToken', response.token);
-                message.success('Welcome User!');
+                message.success('Welcome Participant!');
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1500);
             } else if (response.user.role === 'author') {
                 localStorage.setItem('authorId', response.user.id);
                 localStorage.setItem('accessToken', response.token);
-                message.success('Welcome Author!');
+                message.success('Welcome Artist!');
                 setTimeout(() => {
                     window.location.href = '/author/settings/ProfileAuthor';
                 }, 1500);

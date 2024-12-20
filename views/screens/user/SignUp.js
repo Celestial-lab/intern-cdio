@@ -25,21 +25,21 @@ const SignUp = () => {
 
     return (
         <>
-            <div class="container" id="container">
-                <div class="title-container">
-                    <div class="overlay">
-                        <div class="overlay-panel">
+            <div className="container" id="container">
+                <div className="title-container">
+                    <div className="overlay">
+                        <div className="overlay-panel">
                             <h1 className="welcome-back">Welcome Back!</h1>
                             <p>To keep connected with us please login with your personal info</p>
-                            <button class="ghost"><a href='/user/signin'>Sign In</a></button>
+                            <button className="ghost"><a href='/user/signin'>Sign In</a></button>
                         </div>
                     </div>
                 </div>
-                <div class="overlay-container">
+                <div className="overlay-container">
                     <Form form={form}>
                         <h1 className="tit-Create">Create Account</h1>
                         <span className="description-signup">or use your email for registration</span>
-                        <div class="form-signup">
+                        <div className="form-signup">
 
                             <Form.Item
                                 name="email"
@@ -65,17 +65,17 @@ const SignUp = () => {
                                     options={[
                                         {
                                             value: 'user',
-                                            label: 'User',
+                                            label: 'Participant',
                                         },
                                         {
                                             value: 'author',
-                                            label: 'Author',
+                                            label: 'Artist',
                                         },
                                     ]}
                                 />
                             </Form.Item>
                         </div>
-                        <Button class='but-signup' onClick={handleSubmit}>Sign Up</Button>
+                        <Button className='but-signup' onClick={handleSubmit}>Sign Up</Button>
                     </Form>
                 </div>
             </div>
@@ -86,13 +86,9 @@ const SignUp = () => {
                 closable={true}
                 onCancel={handleCancel}
                 centered
-                bodyStyle={{
-                    borderRadius: '9px',
-                    background: 'linear-gradient(to top, #060b2d, #d2d2d2)',
-                }}
             >
                 <div className="modal-code">
-                    <h2 class='title-modal'>Verification code has been sent to your Email!</h2>
+                    <h2 className='title-modal'>Verification code has been sent to your Email!</h2>
                     <Form className="form-code" form={formModal}>
                         <Form.Item
                             name="code"
