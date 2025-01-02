@@ -99,7 +99,8 @@ export const getHistory = async(setHistoryData) => {
         return;
       }
     } catch (error) {
-      console.log('response: ', error);
+      // console.log('response==================: ', error);
+      return;
     }
   } else {
     return;

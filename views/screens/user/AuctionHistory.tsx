@@ -12,9 +12,6 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import "@/views/style/auctionHistory.css";
-import { Footer } from 'antd/es/layout/layout';
-import type { DatePickerProps } from 'antd';
-import type { Dayjs } from 'dayjs';
 import NavbarSetting from '@/views/components/NavbarSetting';
 import { getHistory } from '@/views/utils/getAuctionResult';
 

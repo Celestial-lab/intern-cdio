@@ -25,7 +25,7 @@ export const handleApprove = async() => {
         const spenderAddress = process.env.NEXT_PUBLIC_Contract_Auction;
         const approveAmount = ethers.parseUnits("10", 18);
 
-        const gasPrice = ethers.parseUnits("3", "gwei"); //gốc là 300
+        const gasPrice = ethers.parseUnits("300", "gwei"); //gốc là 300
   
         const tokenABI = [
           "function approve(address spender, uint256 amount) public returns (bool)"

@@ -3,10 +3,6 @@
 import { ethers } from 'ethers';
 import { message } from 'antd';
 import { editInforById } from '@/views/services/user/ProfileServices';
-import { connectContract } from '@/views/contract/connectContract';
-
-
-let isRequestingAccounts = false; // Biến cờ để theo dõi trạng thái yêu cầu
 
 export const connect = async () => {
   if (!window.ethereum) {

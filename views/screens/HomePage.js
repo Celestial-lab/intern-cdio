@@ -11,6 +11,7 @@ import FooterAll from "../components/Footer.js";
 import { useEffect, useState } from "react";
 import { getAuction } from "@/views/services/AuctionServices";
 import { getInforId, ClaimToken2 } from '@/views/utils/checkAuth'
+import { connectContract } from '@/views/contract/connectContract';
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,6 +33,7 @@ const Home = () => {
 
   useEffect(() => {
     getInforId();
+    connectContract();
   }, [])
 
   useEffect(() => {

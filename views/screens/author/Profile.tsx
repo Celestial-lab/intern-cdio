@@ -123,7 +123,7 @@ export default function Profile() {
               return;
             default:
               console.error('Unexpected error code:', response.errorCode);
-              message.error('Đã xảy ra lỗi không xác định.');
+              message.error('An unknown error occurred');
               return;
           };
         } catch (error) {

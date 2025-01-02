@@ -123,7 +123,7 @@ export default function Profile() {
               return;
             default:
               console.error('Unexpected error code:', response.errorCode);
-              message.error('Đã xảy ra lỗi không xác định.');
+              message.error('An unknown error occurred');
               return;
           };
         } catch (error) {
@@ -143,9 +143,9 @@ export default function Profile() {
           if (prev <= 1) {
             clearInterval(countdown);
             Modal.info({
-              title: 'Bạn đã bị đăng xuất',
+              title: 'You have been logged out',
               content: (
-                <p>Bạn đã không hoạt động trong 2 phút. Vui lòng đăng nhập lại</p>
+                <p>You have been inactive for 2 minutes. Please log in again.</p>
               ),
               okText: 'Ok',
               onOk: () => {

@@ -7,7 +7,7 @@ import { message } from "antd";
 export const checkAuth = async () => {
   const token = localStorage.getItem('accessToken');
   if (!token) {
-    message.error("Vui lòng đăng nhập lại");
+    message.error("Please log in again");
     setTimeout(() => {
       window.location.href = '/user/signin';
     }, 1500);
@@ -35,7 +35,7 @@ export const getInforId = async () => {
           return;
         default:
           console.error('Unexpected error code:', response.errorCode);
-          message.error('Đã xảy ra lỗi không xác định.');
+          message.error('An unknown error occurred');
           return;
       };
     } catch (error) {
@@ -90,7 +90,7 @@ export const ClaimToken2 = async (setIsLoading, setIsClaimed) => {
             return;
           }
         default:
-          message.error('Đã xảy ra lỗi không xác định');
+          message.error('Error');
           return;
       };
     } catch (error) {

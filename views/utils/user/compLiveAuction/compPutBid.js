@@ -10,12 +10,12 @@ const contractAddress = process.env.NEXT_PUBLIC_Contract_Auction;
 export const fetchData = async (auctionIdLive, setFilteredBids) => {
   const data = await getAmountBidByUser();
   // console.log('data: ', data);
-  if (data && data.bids) { // Kiểm tra dữ liệu có tồn tại và bids là mảng
+  if (data && data.bids) {
     if (auctionIdLive) {
       // Lọc danh sách các bid theo auctionIdLive
       const filteredData = data.bids.filter(bid => bid.auctionId === Number(auctionIdLive));
       // console.log('filteredData: ', filteredData);
-      const sortedBids = filteredData.sort((a, b) => b.bidAmount - a.bidAmount);  // Hoặc dùng thời gian nếu có
+      const sortedBids = filteredData.sort((a, b) => b.bidAmount - a.bidAmount); 
       setFilteredBids(sortedBids);
     }
   }
@@ -62,7 +62,7 @@ const handlePutBidToBlockchain = async (auctionId, bidMount) => {
       const signer = await provider.getSigner();
   
       const auctionContract = new ethers.Contract(contractAddress, AuctionABI, signer);
-      const gasPrice = ethers.parseUnits("20", "gwei"); //gốc là 2000
+      const gasPrice = ethers.parseUnits("2000", "gwei"); //gốc là 2000
   
       const tx = await auctionContract.bid(auctionId, amountInUnits, {gasPrice: gasPrice});
       

@@ -7,13 +7,8 @@ export const handleEditProduct = async(formData, id, editingProduct, setProducts
     
     const authorId = localStorage.getItem('authorId');
 
-    // if (!editingProduct || editingProduct.status === 'Cuộc đấu giá đã kết thúc' || editingProduct.status === 'Cuộc đấu giá đang diễn ra') {
-    //   message.error('Sản phẩm không thể chỉnh sửa vì trạng thái không cho phép.');
-    //   return;
-    // }
-
     if (!authorId) {
-      message.error('Không tìm thấy ID tác giả.');
+      message.error('Author ID not found. Please add information.');
       return;
     }
 
@@ -57,11 +52,11 @@ export const handleEditProduct = async(formData, id, editingProduct, setProducts
 
         console.log('updatedProduct sau set: ', updatedProduct);
 
-        message.success('Cập nhật sản phẩm thành công');
+        message.success('Product update successful');
       } else {
-        message.error('Cập nhật sản phẩm thất bại');
+        message.error('Product update failed');
       }
     } catch (error) {
-      message.error('Lỗi khi cập nhật sản phẩm');
+      message.error('Product update failed');
     }
 }

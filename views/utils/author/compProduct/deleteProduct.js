@@ -7,9 +7,9 @@ import { message } from 'antd';
 export const handleDeleteProduct = async(id) => {
         try {
           await deleteProductById(id);
-          message.success('Xóa sản phẩm thành công');
+          message.success('Product deleted successfully');
         } catch (error) {
             console.log('lỗi xoá sản phẩm: ', error);
-          message.error('Lỗi khi xóa sản phẩm');
+          message.error('Error while deleting product');
         }
 }

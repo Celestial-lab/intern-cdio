@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import "@/views/style/LiveAuction.css";
-import { Row, Button, message, Modal, Spin } from 'antd';
+import { Row, Button, message, Modal } from 'antd';
 import { DollarOutlined } from '@ant-design/icons';
 import Navbar from '@/views/components/Navbar';
 import NavbarAfter from '@/views/components/NavbarAfter';
