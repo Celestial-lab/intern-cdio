@@ -10,9 +10,9 @@ export const handleDeleteRegis = async(registrationId, setRegisteredAuctions) =>
         console.log('Response trả về sau khi gọi API: ', response);
         if (response) {
             if (response.errorCode == 0) {
-                message.success('huỷ đăng kí thành công');
+                message.success('Unsubscribe successfully');
             } else {
-                message.error('xoá sản phẩm thất bại');
+                message.error('Product deletion failed');
             }
         }
       } catch (error) {

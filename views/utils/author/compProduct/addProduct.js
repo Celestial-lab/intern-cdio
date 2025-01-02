@@ -30,7 +30,7 @@ const uploadProductImage = async (image) => {
       return response;
     } catch (error) {
       console.error('Lỗi khi upload ảnh:', error);
-      message.error('Đã xảy ra lỗi khi upload ảnh');
+      message.error('An error occurred while uploading GIF');
       throw error;
     }
   } else {
@@ -56,7 +56,7 @@ const addAuctionToBlockchain = async (values, imageUrl) => {
 
     if (timeToStart < 0) {
       console.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
-      message.error('Thời gian bắt đầu phải lớn hơn thời gian hiện tại');
+      message.error('Start time must be greater than current time');
       return;
     }
 
@@ -77,7 +77,7 @@ const addAuctionToBlockchain = async (values, imageUrl) => {
     console.log('Tạo đấu giá thành công trên blockchain', receipt);
   } else {
     console.error('Ethereum wallet chưa được cài đặt.');
-    message.error('Vui lòng cài đặt ví MetaMask');
+    message.error('Please install MetaMask wallet');
     throw new Error('Ethereum wallet chưa được cài đặt.');
   }
 };
@@ -127,14 +127,14 @@ export const handleAddNewProduct = async (values, setLoading, setProducts, setOp
         startTime: newProductData.product.startTime,
       };
       setProducts((prevProducts) => [...prevProducts, newProduct]);
-      message.success('Upload thành công');
+      message.success('Upload Successful');
     } else {
       console.error('Thêm sản phẩm thất bại');
-      message.error('Đã xảy ra lỗi khi thêm sản phẩm');
+      message.error('An error occurred while adding the product');
     }
   } catch (error) {
     console.error('Lỗi khi thêm/cập nhật sản phẩm:', error);
-    message.error('Đã xảy ra lỗi khi thêm sản phẩm');
+    message.error('An error occurred while adding the product.');
   } finally {
     setLoading(false);
   }
