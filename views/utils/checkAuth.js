@@ -90,7 +90,7 @@ export const ClaimToken2 = async (setIsLoading, setIsClaimed) => {
             return;
           }
         default:
-          message.error('Đã xảy ra lỗi không xác định');
+          message.error('Error');
           return;
       };
     } catch (error) {

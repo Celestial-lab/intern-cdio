@@ -3,7 +3,7 @@ import abiToken from '@/views/store/abiToken.json';
 import abiBid from '@/views/store/abiBid.json';
 
 // Địa chỉ smart contract
-const contractAddress = '0x00E0DAd8665a5d70B3aAE546a9182186a3b94cCf';
+const contractAddress = process.env.NEXT_PUBLIC_Contract_Auction;
 
 // Hàm kết nối MetaMask và smart contract
 export const connectContract = async (signer) => {
@@ -17,4 +17,4 @@ export const connectContract = async (signer) => {
     } catch (error) {
       console.error("Failed to connect to smart contract:", error);
     }
-  };
+};
